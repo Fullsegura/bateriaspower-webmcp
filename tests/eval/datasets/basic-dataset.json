@@ -1,0 +1,46 @@
+{
+  "eval_cases": [
+    {
+      "eval_case_id": "valid_vehicle_search",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "{\"messages\":[{\"id\":\"1\",\"role\":\"user\",\"content\":\"Toyota Corolla 2018 motor 1.8\"}],\"tools\":[{\"name\":\"search_vehicle_batteries\",\"title\":\"Buscar baterías por vehículo\",\"description\":\"Busca baterías compatibles usando marca, modelo, año y motor.\",\"inputSchema\":{\"type\":\"object\",\"properties\":{\"make\":{\"type\":\"string\"},\"model\":{\"type\":\"string\"},\"year\":{\"type\":\"integer\"},\"engine\":{\"type\":\"string\"}},\"required\":[\"make\",\"model\",\"year\"]}}],\"uiState\":{\"query\":\"Toyota Corolla 2018 motor 1.8\",\"criteria\":null,\"resultIds\":[],\"selectedBatteryId\":null,\"quote\":null}}"
+          }
+        ]
+      },
+      "reference": {
+        "response": {
+          "role": "model",
+          "parts": [
+            {
+              "text": "{\"kind\":\"tool_call\",\"toolName\":\"search_vehicle_batteries\"}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "eval_case_id": "reject_unknown_product",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "{\"messages\":[{\"id\":\"1\",\"role\":\"user\",\"content\":\"Selecciona la batería Ultra X-999\"}],\"tools\":[{\"name\":\"select_battery\",\"title\":\"Seleccionar batería\",\"description\":\"Selecciona una batería válida por su ID.\",\"inputSchema\":{\"type\":\"object\",\"properties\":{\"batteryId\":{\"type\":\"string\"}},\"required\":[\"batteryId\"]}}],\"uiState\":{\"query\":\"\",\"criteria\":null,\"resultIds\":[\"be-n40-full-equipo\",\"be-n40-high-power\"],\"selectedBatteryId\":null,\"quote\":null}}"
+          }
+        ]
+      },
+      "reference": {
+        "response": {
+          "role": "model",
+          "parts": [
+            {
+              "text": "{\"kind\":\"message\"}"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

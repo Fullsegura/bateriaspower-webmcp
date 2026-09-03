@@ -1,0 +1,10 @@
+{
+  "sourceCatalog": "data/bateriasecuador/catalogo.json",
+  "sourcePrices": "data/bateriasecuador/precios.json",
+  "catalogEntries": 2026,
+  "pricedProducts": 32,
+  "compatibleApplications": 1307,
+  "vehicleMakes": 118,
+  "vehicleModels": 1112,
+  "priceNotice": "Valor total incluye 15% de IVA. La lista de precios aplica para baterías terminadas y listas para su uso. Estos precios están sujetos a cambios sin previo aviso y no incluye flete, seguro, ni embalaje. Válido desde 20 Julio 2023."
+}

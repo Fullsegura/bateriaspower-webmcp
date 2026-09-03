@@ -6,12 +6,20 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:python": "uv run pytest tests/unit tests/integration/test_agent.py -q",
+    "data:import": "node scripts/generate-compatibility.mjs"
   },
   "dependencies": {
+    "livekit-client": "^2.20.0",
+    "livekit-server-sdk": "^2.18.0",
+    "lucide-react": "^1.39.0",
     "next": "16.3.4",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "webmcp-types": "^0.1.5"
   },
   "devDependencies": {
     "@types/node": "^20",
@@ -19,6 +27,8 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.3.4",
-    "typescript": "^5"
+    "playwright": "^1.62.1",
+    "typescript": "^5",
+    "vitest": "^4.1.11"
   }
 }

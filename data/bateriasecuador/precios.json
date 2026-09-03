@@ -1,0 +1,700 @@
+{
+  "titulo": "VEHÍCULOS LIVIANOS",
+  "productos": [
+    {
+      "caja": "NS40",
+      "modelo": "MEGA POWER",
+      "polaridad": "D/I / F",
+      "precioSugeridoUSD": {
+        "sinIVA": 118.00,
+        "total": 133.40
+      },
+      "capacidadCD_Ah_25C": 50,
+      "potenciaArranqueAmperios": {
+        "ca_22C_A": 650,
+        "ca_0C_A": 520,
+        "cca_minus18C_A": 390
+      },
+      "capacidadReservaMin": 78,
+      "dimensionesTotalesMM": {
+        "largo": 195,
+        "ancho": 138,
+        "alto": 220
+      }
+    },
+    {
+      "caja": "NS40",
+      "modelo": "HIGH POWER",
+      "polaridad": "D/I / F",
+      "precioSugeridoUSD": {
+        "sinIVA": 107.60,
+        "total": 123.03
+      },
+      "capacidadCD_Ah_25C": 45,
+      "potenciaArranqueAmperios": {
+        "ca_22C_A": 620,
+        "ca_0C_A": 500,
+        "cca_minus18C_A": 370
+      },
+      "capacidadReservaMin": 75,
+      "dimensionesTotalesMM": {
+        "largo": 195,
+        "ancho": 138,
+        "alto": 220
+      }
+    },
+    {
+      "caja": "NS40",
+      "modelo": "FULL EQUIPO",
+      "polaridad": "D/I / F",
+      "precioSugeridoUSD": {
+        "sinIVA": 91.50,
+        "total": 105.23
+      },
+      "capacidadCD_Ah_25C": 42,
+      "potenciaArranqueAmperios": {
+        "ca_22C_A": 520,
+        "ca_0C_A": 450,
+        "cca_minus18C_A": 320
+      },
+      "capacidadReservaMin": 71,
+      "dimensionesTotalesMM": {
+        "largo": 195,
+        "ancho": 138,
+        "alto": 220
+      }
+    },
+    {
+      "caja": "N40",
+      "modelo": "MEGA POWER",
+      "polaridad": "D/I / F",
+      "precioSugeridoUSD": {
+        "sinIVA": 135.50,
+        "total": 155.83
+      },
+      "capacidadCD_Ah_25C": 60,
+      "potenciaArranqueAmperios": {
+        "ca_22C_A": 720,
+        "ca_0C_A": 600,
+        "cca_minus18C_A": 400
+      },
+      "capacidadReservaMin": 100,
+      "dimensionesTotalesMM": {
+        "largo": 234,
+        "ancho": 126,
+        "alto": 227
+      }
+    },
+    {
+      "caja": "N40",
+      "modelo": "HIGH POWER",
+      "polaridad": "D/I / F*",
+      "precioSugeridoUSD": {
+        "sinIVA": 113.50,
+        "total": 130.53
+      },
+      "capacidadCD_Ah_25C": 50,
+      "potenciaArranqueAmperios": {
+        "ca_22C_A": 650,
+        "ca_0C_A": 530,
+        "cca_minus18C_A": 370
+      },
+      "capacidadReservaMin": 87,
+      "dimensionesTotalesMM": {
+        "largo": 234,
+        "ancho": 126,
+        "alto": 227
+      }
+    },
+    {
+      "caja": "N40",
+      "modelo": "FULL EQUIPO",
+      "polaridad": "D/I / F*",
+      "precioSugeridoUSD": {
+        "sinIVA": 107.00,
+        "total": 123.05
+      },
+      "capacidadCD_Ah_25C": 45,
+      "potenciaArranqueAmperios": {
+        "ca_22C_A": 520,
+        "ca_0C_A": 450,
+        "cca_minus18C_A": 340
+      },
+      "capacidadReservaMin": 80,
+      "dimensionesTotalesMM": {
+        "largo": 234,
+        "ancho": 126,
+        "alto": 227
+      }
+    },
+    {
+      "caja": "42",
+      "modelo": "MEGA POWER",
+      "polaridad": "D",
+      "precioSugeridoUSD": {
+        "sinIVA": 154.00,
+        "total": 177.10
+      },
+      "capacidadCD_Ah_25C": 65,
+      "potenciaArranqueAmperios": {
+        "ca_22C_A": 800,
+        "ca_0C_A": 650,
+        "cca_minus18C_A": 500
+      },
+      "capacidadReservaMin": 110,
+      "dimensionesTotalesMM": {
+        "largo": 238,
+        "ancho": 174,
+        "alto": 175
+      }
+    },
+    {
+      "caja": "42",
+      "modelo": "HIGH POWER",
+      "polaridad": "D/I",
+      "precioSugeridoUSD": {
+        "sinIVA": 129.50,
+        "total": 148.93
+      },
+      "capacidadCD_Ah_25C": 62,
+      "potenciaArranqueAmperios": {
+        "ca_22C_A": 730,
+        "ca_0C_A": 620,
+        "cca_minus18C_A": 460
+      },
+      "capacidadReservaMin": 100,
+      "dimensionesTotalesMM": {
+        "largo": 238,
+        "ancho": 174,
+        "alto": 175
+      }
+    },
+    {
+      "caja": "42",
+      "modelo": "FULL EQUIPO",
+      "polaridad": "D",
+      "precioSugeridoUSD": {
+        "sinIVA": 95.50,
+        "total": 109.83
+      },
+      "capacidadCD_Ah_25C": 55,
+      "potenciaArranqueAmperios": {
+        "ca_22C_A": 640,
+        "ca_0C_A": 540,
+        "cca_minus18C_A": 370
+      },
+      "capacidadReservaMin": 72,
+      "dimensionesTotalesMM": {
+        "largo": 238,
+        "ancho": 174,
+        "alto": 175
+      }
+    },
+    {
+      "caja": "55",
+      "modelo": "MEGA POWER",
+      "polaridad": "D",
+      "precioSugeridoUSD": {
+        "sinIVA": 150.50,
+        "total": 173.08
+      },
+      "capacidadCD_Ah_25C": 68,
+      "potenciaArranqueAmperios": {
+        "ca_22C_A": 850,
+        "ca_0C_A": 700,
+        "cca_minus18C_A": 575
+      },
+      "capacidadReservaMin": 111,
+      "dimensionesTotalesMM": {
+        "largo": 241,
+        "ancho": 172,
+        "alto": 190
+      }
+    },
+    {
+      "caja": "55",
+      "modelo": "HIGH POWER",
+      "polaridad": "D/I",
+      "precioSugeridoUSD": {
+        "sinIVA": 137.00,
+        "total": 157.55
+      },
+      "capacidadCD_Ah_25C": 65,
+      "potenciaArranqueAmperios": {
+        "ca_22C_A": 810,
+        "ca_0C_A": 660,
+        "cca_minus18C_A": 540
+      },
+      "capacidadReservaMin": 100,
+      "dimensionesTotalesMM": {
+        "largo": 241,
+        "ancho": 172,
+        "alto": 190
+      }
+    },
+    {
+      "caja": "55",
+      "modelo": "FULL EQUIPO",
+      "polaridad": "D/I",
+      "precioSugeridoUSD": {
+        "sinIVA": 120.00,
+        "total": 138.00
+      },
+      "capacidadCD_Ah_25C": 62,
+      "potenciaArranqueAmperios": {
+        "ca_22C_A": 780,
+        "ca_0C_A": 620,
+        "cca_minus18C_A": 500
+      },
+      "capacidadReservaMin": 91,
+      "dimensionesTotalesMM": {
+        "largo": 241,
+        "ancho": 172,
+        "alto": 190
+      }
+    },
+    {
+      "caja": "48",
+      "modelo": "MEGA POWER",
+      "polaridad": "D",
+      "precioSugeridoUSD": {
+        "sinIVA": 180.00,
+        "total": 207.00
+      },
+      "capacidadCD_Ah_25C": 88,
+      "potenciaArranqueAmperios": {
+        "ca_22C_A": 1100,
+        "ca_0C_A": 900,
+        "cca_minus18C_A": 700
+      },
+      "capacidadReservaMin": 130,
+      "dimensionesTotalesMM": {
+        "largo": 275,
+        "ancho": 174,
+        "alto": 190
+      }
+    },
+    {
+      "caja": "48",
+      "modelo": "HIGH POWER",
+      "polaridad": "D",
+      "precioSugeridoUSD": {
+        "sinIVA": 173.50,
+        "total": 199.53
+      },
+      "capacidadCD_Ah_25C": 75,
+      "potenciaArranqueAmperios": {
+        "ca_22C_A": 830,
+        "ca_0C_A": 700,
+        "cca_minus18C_A": 600
+      },
+      "capacidadReservaMin": 100,
+      "dimensionesTotalesMM": {
+        "largo": 275,
+        "ancho": 174,
+        "alto": 190
+      }
+    },
+    {
+      "caja": "FB5",
+      "modelo": "MEGA POWER",
+      "polaridad": "I",
+      "precioSugeridoUSD": {
+        "sinIVA": 242.50,
+        "total": 278.88
+      },
+      "capacidadCD_Ah_25C": 100,
+      "potenciaArranqueAmperios": {
+        "ca_22C_A": 1250,
+        "ca_0C_A": 1000,
+        "cca_minus18C_A": 750
+      },
+      "capacidadReservaMin": 185,
+      "dimensionesTotalesMM": {
+        "largo": 306,
+        "ancho": 188,
+        "alto": 192
+      }
+    },
+    {
+      "caja": "FB5",
+      "modelo": "HIGH POWER",
+      "polaridad": "I",
+      "precioSugeridoUSD": {
+        "sinIVA": 197.50,
+        "total": 227.13
+      },
+      "capacidadCD_Ah_25C": 95,
+      "potenciaArranqueAmperios": {
+        "ca_22C_A": 1100,
+        "ca_0C_A": 880,
+        "cca_minus18C_A": 650
+      },
+      "capacidadReservaMin": 115,
+      "dimensionesTotalesMM": {
+        "largo": 306,
+        "ancho": 188,
+        "alto": 192
+      }
+    },
+    {
+      "caja": "24",
+      "modelo": "MEGA POWER",
+      "polaridad": "D/I",
+      "precioSugeridoUSD": {
+        "sinIVA": 192.00,
+        "total": 220.80
+      },
+      "capacidadCD_Ah_25C": 95,
+      "potenciaArranqueAmperios": {
+        "ca_22C_A": 1070,
+        "ca_0C_A": 840,
+        "cca_minus18C_A": 650
+      },
+      "capacidadReservaMin": 165,
+      "dimensionesTotalesMM": {
+        "largo": 258,
+        "ancho": 171,
+        "alto": 227
+      }
+    },
+    {
+      "caja": "24",
+      "modelo": "HIGH POWER",
+      "polaridad": "D/I",
+      "precioSugeridoUSD": {
+        "sinIVA": 157.00,
+        "total": 180.55
+      },
+      "capacidadCD_Ah_25C": 85,
+      "potenciaArranqueAmperios": {
+        "ca_22C_A": 910,
+        "ca_0C_A": 750,
+        "cca_minus18C_A": 550
+      },
+      "capacidadReservaMin": 130,
+      "dimensionesTotalesMM": {
+        "largo": 258,
+        "ancho": 171,
+        "alto": 227
+      }
+    },
+    {
+      "caja": "24",
+      "modelo": "FULL EQUIPO",
+      "polaridad": "D/I",
+      "precioSugeridoUSD": {
+        "sinIVA": 137.50,
+        "total": 158.13
+      },
+      "capacidadCD_Ah_25C": 65,
+      "potenciaArranqueAmperios": {
+        "ca_22C_A": 720,
+        "ca_0C_A": 610,
+        "cca_minus18C_A": 450
+      },
+      "capacidadReservaMin": 117,
+      "dimensionesTotalesMM": {
+        "largo": 258,
+        "ancho": 171,
+        "alto": 227
+      }
+    },
+    {
+      "caja": "34",
+      "modelo": "MEGA POWER",
+      "polaridad": "D/I",
+      "precioSugeridoUSD": {
+        "sinIVA": 193.00,
+        "total": 221.95
+      },
+      "capacidadCD_Ah_25C": 90,
+      "potenciaArranqueAmperios": {
+        "ca_22C_A": 1050,
+        "ca_0C_A": 900,
+        "cca_minus18C_A": 650
+      },
+      "capacidadReservaMin": 155,
+      "dimensionesTotalesMM": {
+        "largo": 258,
+        "ancho": 171,
+        "alto": 205
+      }
+    },
+    {
+      "caja": "34",
+      "modelo": "HIGH POWER",
+      "polaridad": "D/I",
+      "precioSugeridoUSD": {
+        "sinIVA": 169.50,
+        "total": 193.43
+      },
+      "capacidadCD_Ah_25C": 80,
+      "potenciaArranqueAmperios": {
+        "ca_22C_A": 910,
+        "ca_0C_A": 820,
+        "cca_minus18C_A": 570
+      },
+      "capacidadReservaMin": 144,
+      "dimensionesTotalesMM": {
+        "largo": 258,
+        "ancho": 171,
+        "alto": 205
+      }
+    },
+    {
+      "caja": "34",
+      "modelo": "FULL EQUIPO",
+      "polaridad": "D/I",
+      "precioSugeridoUSD": {
+        "sinIVA": 130.00,
+        "total": 149.50
+      },
+      "capacidadCD_Ah_25C": 65,
+      "potenciaArranqueAmperios": {
+        "ca_22C_A": 790,
+        "ca_0C_A": 650,
+        "cca_minus18C_A": 540
+      },
+      "capacidadReservaMin": 122,
+      "dimensionesTotalesMM": {
+        "largo": 258,
+        "ancho": 171,
+        "alto": 205
+      }
+    },
+    {
+      "caja": "27",
+      "modelo": "MEGA POWER",
+      "polaridad": "D/I",
+      "precioSugeridoUSD": {
+        "sinIVA": 239.00,
+        "total": 274.85
+      },
+      "capacidadCD_Ah_25C": 105,
+      "potenciaArranqueAmperios": {
+        "ca_22C_A": 1330,
+        "ca_0C_A": 1110,
+        "cca_minus18C_A": 700
+      },
+      "capacidadReservaMin": 194,
+      "dimensionesTotalesMM": {
+        "largo": 306,
+        "ancho": 172,
+        "alto": 227
+      }
+    },
+    {
+      "caja": "27",
+      "modelo": "HIGH POWER",
+      "polaridad": "D/I",
+      "precioSugeridoUSD": {
+        "sinIVA": 196.00,
+        "total": 225.40
+      },
+      "capacidadCD_Ah_25C": 95,
+      "potenciaArranqueAmperios": {
+        "ca_22C_A": 1150,
+        "ca_0C_A": 1000,
+        "cca_minus18C_A": 650
+      },
+      "capacidadReservaMin": 172,
+      "dimensionesTotalesMM": {
+        "largo": 306,
+        "ancho": 172,
+        "alto": 227
+      }
+    },
+    {
+      "caja": "27",
+      "modelo": "FULL EQUIPO",
+      "polaridad": "D/I",
+      "precioSugeridoUSD": {
+        "sinIVA": 164.50,
+        "total": 189.18
+      },
+      "capacidadCD_Ah_25C": 80,
+      "potenciaArranqueAmperios": {
+        "ca_22C_A": 980,
+        "ca_0C_A": 800,
+        "cca_minus18C_A": 600
+      },
+      "capacidadReservaMin": 166,
+      "dimensionesTotalesMM": {
+        "largo": 306,
+        "ancho": 172,
+        "alto": 227
+      }
+    },
+    {
+      "caja": "36",
+      "modelo": "HIGH POWER",
+      "polaridad": "D",
+      "precioSugeridoUSD": {
+        "sinIVA": 125.00,
+        "total": 143.75
+      },
+      "capacidadCD_Ah_25C": 50,
+      "potenciaArranqueAmperios": {
+        "ca_22C_A": 720,
+        "ca_0C_A": 600,
+        "cca_minus18C_A": 440
+      },
+      "capacidadReservaMin": 80,
+      "dimensionesTotalesMM": {
+        "largo": 206,
+        "ancho": 174,
+        "alto": 175
+      }
+    },
+    {
+      "caja": "65",
+      "modelo": "HIGH POWER",
+      "polaridad": "D/I",
+      "precioSugeridoUSD": {
+        "sinIVA": 154.00,
+        "total": 177.10
+      },
+      "capacidadCD_Ah_25C": 84,
+      "potenciaArranqueAmperios": {
+        "ca_22C_A": 1000,
+        "ca_0C_A": 820,
+        "cca_minus18C_A": 660
+      },
+      "capacidadReservaMin": 121,
+      "dimensionesTotalesMM": {
+        "largo": 278,
+        "ancho": 174,
+        "alto": 175
+      }
+    },
+    {
+      "caja": "66",
+      "modelo": "HIGH POWER",
+      "polaridad": "D/I",
+      "precioSugeridoUSD": {
+        "sinIVA": 154.00,
+        "total": 177.10
+      },
+      "capacidadCD_Ah_25C": 84,
+      "potenciaArranqueAmperios": {
+        "ca_22C_A": 1000,
+        "ca_0C_A": 820,
+        "cca_minus18C_A": 650
+      },
+      "capacidadReservaMin": 121,
+      "dimensionesTotalesMM": {
+        "largo": 278,
+        "ancho": 174,
+        "alto": 175
+      }
+    },
+    {
+      "caja": "86",
+      "modelo": "HIGH POWER",
+      "polaridad": "D",
+      "precioSugeridoUSD": {
+        "sinIVA": 156.00,
+        "total": 179.40
+      },
+      "capacidadCD_Ah_25C": 65,
+      "potenciaArranqueAmperios": {
+        "ca_22C_A": 780,
+        "ca_0C_A": 650,
+        "cca_minus18C_A": 520
+      },
+      "capacidadReservaMin": 125,
+      "dimensionesTotalesMM": {
+        "largo": 230,
+        "ancho": 175,
+        "alto": 220
+      }
+    },
+    {
+      "caja": "49",
+      "modelo": "HIGH POWER",
+      "polaridad": "D",
+      "precioSugeridoUSD": {
+        "sinIVA": 261.50,
+        "total": 300.73
+      },
+      "capacidadCD_Ah_25C": 105,
+      "potenciaArranqueAmperios": {
+        "ca_22C_A": 1200,
+        "ca_0C_A": 1050,
+        "cca_minus18C_A": 780
+      },
+      "capacidadReservaMin": 130,
+      "dimensionesTotalesMM": {
+        "largo": 351,
+        "ancho": 175,
+        "alto": 190
+      }
+    },
+    {
+      "caja": "U1",
+      "modelo": "HEAVY DUTY",
+      "polaridad": "I",
+      "precioSugeridoUSD": {
+        "sinIVA": 110.00,
+        "total": 126.50
+      },
+      "capacidadCD_Ah_25C": 28,
+      "potenciaArranqueAmperios": {
+        "ca_22C_A": 390,
+        "ca_0C_A": 350,
+        "cca_minus18C_A": 310
+      },
+      "capacidadReservaMin": 40,
+      "dimensionesTotalesMM": {
+        "largo": 195,
+        "ancho": 132,
+        "alto": 184
+      }
+    }
+  ],
+  "tec": [
+    {
+      "caja": "55",
+      "modelo": "HEAVY DUTY",
+      "polaridad": "D/I",
+      "precioSugeridoUSD": {
+        "sinIVA": 126.00,
+        "total": 144.90
+      },
+      "capacidadCD_Ah_25C": 65,
+      "potenciaArranqueAmperios": {
+        "ca_22C_A": 800,
+        "ca_0C_A": 650,
+        "cca_minus18C_A": 500
+      },
+      "capacidadReservaMin": 100,
+      "dimensionesTotalesMM": {
+        "largo": 241,
+        "ancho": 172,
+        "alto": 190
+      }
+    }
+  ],
+  "leyendaPolaridad": {
+    "I": "TIPO AMERICANO",
+    "BC": "BORNE CENTRAL",
+    "P": "BORNE PERNO",
+    "F": "BORNE FINO",
+    "F+": "BORNE FINO CON ADAPTADOR"
+  },
+  "pieDePagina": {
+    "notaPrecios": "Valor total incluye 15% de IVA. La lista de precios aplica para baterías terminadas y listas para su uso. Estos precios están sujetos a cambios sin previo aviso y no incluye flete, seguro, ni embalaje. Válido desde 20 Julio 2023.",
+    "direccion": "Planta y perimetral regional: E35 km 13 (Sector Inga Bajo)",
+    "contacto": {
+      "telefono": "+593 2 5000 300",
+      "whatsapp": "+593 98 878 0000",
+      "ubicacion": "Quito Ecuador"
+    },
+    "redesSociales": {
+      "instagram": "@baterias.ecuador",
+      "facebook": "bateriasecuador",
+      "website": "www.bateriasecuador.com"
+    }
+  }
+}

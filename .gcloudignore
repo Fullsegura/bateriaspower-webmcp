@@ -1,0 +1,15 @@
+.git
+.next
+.venv
+node_modules
+artifacts
+coverage
+certificates
+*.log
+.env*
+__pycache__
+*.py[cod]
+.pytest_cache
+.ruff_cache
+.agents-cli-scripts
+.DS_Store

@@ -32,6 +32,13 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
+
+# local Python environment, caches, and development certificates
+__pycache__/
+*.py[cod]
+/.venv/
+/certificates/
 
 # vercel
 .vercel
@@ -39,3 +46,17 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# public challenge assets only
+/artifacts/*
+!/artifacts/devpost-v1/
+/artifacts/devpost-v1/*
+!/artifacts/devpost-v1/gallery/
+!/artifacts/devpost-v1/gallery/*.png
+!/artifacts/devpost-v1/README.md
+!/artifacts/devpost-v1/devpost-copy.md
+!/artifacts/devpost-v1/demo-script.md
+!/artifacts/devpost-v1/browser-console.json
+
+# superseded internal integration design
+/docs/plan-cancelado-integracion-fullsegura.md

@@ -1,0 +1,41 @@
+metrics_to_run:
+  - webmcp_action_contract
+
+custom_metrics:
+  - name: webmcp_action_contract
+    custom_function: |
+      import json
+
+      def text_from(content):
+          return "".join(
+              part.get("text", "")
+              for part in (content or {}).get("parts", [])
+          )
+
+      def evaluate(instance):
+          actual_text = text_from(instance.get("response"))
+          reference_wrapper = instance.get("reference") or {}
+          expected_text = text_from(reference_wrapper.get("response"))
+          try:
+              actual = json.loads(actual_text)
+              expected = json.loads(expected_text)
+          except (TypeError, ValueError):
+              return {"score": 0}
+
+          allowed = {
+              "search_vehicle_batteries",
+              "show_battery_results",
+              "select_battery",
+              "prepare_quote",
+              "reset_search",
+          }
+          if actual.get("kind") not in {"message", "tool_call"}:
+              return {"score": 0}
+          if actual.get("kind") == "tool_call":
+              if actual.get("toolName") not in allowed:
+                  return {"score": 0}
+              if not isinstance(actual.get("arguments"), dict):
+                  return {"score": 0}
+
+          matches = all(actual.get(key) == value for key, value in expected.items())
+          return {"score": 1 if matches else 0}

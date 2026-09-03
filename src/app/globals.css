@@ -1,13 +1,6 @@
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --background: #f4f5f4;
+  --foreground: #171a1f;
 }
 
 html {
@@ -26,7 +19,7 @@ body {
   flex-direction: column;
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -42,8 +35,163 @@ a {
   text-decoration: none;
 }
 
-@media (prefers-color-scheme: dark) {
-  html {
-    color-scheme: dark;
-  }
+button,
+input {
+  font: inherit;
+}
+
+
+.handoffClient {
+  margin: 0 22px 10px;
+  padding: 13px;
+  display: grid;
+  gap: 10px;
+  border: 1px solid #d9dbd7;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.handoffClientIntro,
+.handoffClientIntro > span,
+.handoffClientActions,
+.handoffCallActions {
+  display: flex;
+  align-items: center;
+}
+
+.handoffClientIntro { gap: 9px; }
+.handoffClientIntro > span {
+  width: 30px;
+  height: 30px;
+  justify-content: center;
+  border-radius: 8px;
+  color: #f6a800;
+  background: #25292e;
+}
+.handoffClientIntro strong,
+.handoffClientActive strong { display: block; color: #25292d; font-size: 11px; }
+.handoffClientIntro small,
+.handoffClientActive small { display: block; margin-top: 3px; color: #74797b; font-size: 9px; line-height: 1.35; }
+.handoffClientActions { gap: 7px; }
+.handoffClientActions input {
+  min-width: 0;
+  height: 37px;
+  flex: 1;
+  padding: 0 10px;
+  border: 1px solid #d7d9d5;
+  border-radius: 7px;
+  outline: 0;
+  color: #313538;
+  background: #fafaf8;
+  font-size: 10px;
+}
+.handoffClient button {
+  min-height: 37px;
+  padding: 0 11px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border: 0;
+  border-radius: 7px;
+  color: #171a1f;
+  background: #f6a800;
+  font-size: 10px;
+  font-weight: 800;
+  cursor: pointer;
+}
+.handoffClient button:disabled { opacity: .55; cursor: wait; }
+.handoffClient > p { color: #9a3029; font-size: 9px; line-height: 1.4; }
+.handoffClientActive { grid-template-columns: minmax(0, 1fr) auto; align-items: center; border-color: #0d766e; background: #f3faf8; }
+.handoffCallActions { gap: 6px; }
+.handoffClient .handoffCallActions button { border: 1px solid #cfd2ce; background: #fff; }
+.handoffClient .handoffCallActions button.danger { color: #fff; border-color: #b73a32; background: #b73a32; }
+
+@media (max-width: 840px) {
+  .handoffClient { margin: 10px 15px 4px; }
+  .handoffClientActions { align-items: stretch; flex-direction: column; }
+  .handoffClientActive { grid-template-columns: 1fr; }
+  .handoffCallActions button { flex: 1; }
+}
+
+
+.handoffClientLiveChat {
+  grid-column: 1 / -1;
+  min-width: 0;
+  padding-top: 9px;
+  display: grid;
+  gap: 7px;
+  border-top: 1px solid #d9e5e2;
+}
+
+.handoffClientMessages {
+  max-height: 116px;
+  display: grid;
+  gap: 5px;
+  overflow-y: auto;
+}
+
+.handoffClientMessages > small {
+  color: #6f7778;
+  font-size: 9px;
+}
+
+.handoffClientMessages p {
+  width: fit-content;
+  max-width: 88%;
+  padding: 7px 9px;
+  border-radius: 4px 9px 9px;
+  color: #404648;
+  background: #fff;
+  font-size: 9px;
+  line-height: 1.35;
+}
+
+.handoffClientMessages p[data-direction="local"] {
+  justify-self: end;
+  border-radius: 9px 4px 9px 9px;
+  color: #fff;
+  background: #0d766e;
+}
+
+.handoffClientMessages p span {
+  margin-right: 5px;
+  font-size: 8px;
+  font-weight: 800;
+  opacity: .72;
+  text-transform: uppercase;
+}
+
+.handoffClientComposer {
+  display: flex;
+  gap: 6px;
+}
+
+.handoffClientComposer input {
+  min-width: 0;
+  height: 35px;
+  flex: 1;
+  padding: 0 10px;
+  border: 1px solid #cfd8d5;
+  border-radius: 7px;
+  outline: 0;
+  color: #313538;
+  background: #fff;
+  font-size: 10px;
+}
+
+.handoffClientComposer input:focus {
+  border-color: #0d766e;
+  box-shadow: 0 0 0 2px rgba(13, 118, 110, .1);
+}
+
+.handoffClientComposer input:disabled {
+  color: #898e8f;
+  background: #f0f2f0;
+}
+
+.handoffClient .handoffClientComposer button {
+  width: 35px;
+  min-height: 35px;
+  padding: 0;
 }
