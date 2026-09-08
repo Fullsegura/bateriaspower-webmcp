@@ -5,6 +5,7 @@ custom_metrics:
   - name: webmcp_action_contract
     custom_function: |
       import json
+      import unicodedata
 
       def text_from(content):
           return "".join(
@@ -23,11 +24,11 @@ custom_metrics:
               return {"score": 0}
 
           allowed = {
-              "search_vehicle_batteries",
-              "show_battery_results",
-              "select_battery",
+              "search_tires",
+              "summarize_tire_stock",
+              "select_tire",
               "prepare_quote",
-              "reset_search",
+              "reset_tire_search",
           }
           if actual.get("kind") not in {"message", "tool_call"}:
               return {"score": 0}
@@ -37,5 +38,47 @@ custom_metrics:
               if not isinstance(actual.get("arguments"), dict):
                   return {"score": 0}
 
-          matches = all(actual.get(key) == value for key, value in expected.items())
-          return {"score": 1 if matches else 0}
+          expected_action = {
+              key: value
+              for key, value in expected.items()
+              if key not in {
+                  "requiredMessageFragments",
+                  "forbiddenMessageFragments",
+                  "exactArguments",
+                  "argumentSubset",
+              }
+          }
+          if expected.get("exactArguments"):
+              if actual.get("arguments") != expected.get("arguments"):
+                  return {"score": 0}
+
+          if expected.get("argumentSubset"):
+              actual_arguments = actual.get("arguments") or {}
+              if any(
+                  actual_arguments.get(key) != value
+                  for key, value in expected.get("arguments", {}).items()
+              ):
+                  return {"score": 0}
+
+          matches = all(
+              actual.get(key) == value
+              for key, value in expected_action.items()
+          )
+          if not matches:
+              return {"score": 0}
+
+          def normalized(value):
+              return "".join(
+                  character
+                  for character in unicodedata.normalize("NFD", value.casefold())
+                  if unicodedata.category(character) != "Mn"
+              )
+
+          message = normalized(actual.get("message") or "")
+          required = expected.get("requiredMessageFragments", [])
+          forbidden = expected.get("forbiddenMessageFragments", [])
+          if any(normalized(fragment) not in message for fragment in required):
+              return {"score": 0}
+          if any(normalized(fragment) in message for fragment in forbidden):
+              return {"score": 0}
+          return {"score": 1}

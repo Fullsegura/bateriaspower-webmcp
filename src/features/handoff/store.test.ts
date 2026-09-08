@@ -16,10 +16,10 @@ const input = {
   transcript: [{ id: "1", role: "user" as const, content: "Necesito ayuda" }],
   context: {
     vehicle: "Toyota Corolla 2018",
-    battery: {
-      id: "full-equipo-n40",
-      name: "Full Equipo N40",
-      image: "/products/bateriasecuador/40.png?v=3d608e6d1845",
+    tire: {
+      id: "sku-1",
+      name: "R 225/65R17 PIRELLI",
+      image: "https://erpdurallanta.provedatos.com/catalog/llanta.jpg",
       price: 123.05,
       quantity: 1,
       total: 123.05,
@@ -43,8 +43,8 @@ describe("handoff store autónomo", () => {
 
     expect(created.handoff.status).toBe("waiting");
     expect(created.handoff.context.vehicle).toBe("Toyota Corolla 2018");
-    expect(created.handoff.context.battery?.image)
-      .toBe("/products/bateriasecuador/40.png?v=3d608e6d1845");
+    expect(created.handoff.context.tire?.image)
+      .toBe("https://erpdurallanta.provedatos.com/catalog/llanta.jpg");
     expect(created.clientSecret).not.toContain(created.handoff.id);
     expect(getHandoffCaseForClient(created.handoff.id, created.clientSecret))
       .toEqual(created.handoff);

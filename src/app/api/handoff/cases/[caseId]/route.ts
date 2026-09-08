@@ -43,7 +43,7 @@ export async function POST(request: Request, context: Context) {
       if (existing.handoff.status === "ended") {
         throw new Error("El caso ya no está disponible.");
       }
-      const advisorName = input.advisorName || "Asesor BateríasPower";
+      const advisorName = input.advisorName || "Asesor de llantas";
       const connection = await createAudioConnection({
         roomName: existing.roomName,
         identity: existing.advisorIdentity,

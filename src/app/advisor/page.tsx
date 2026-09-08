@@ -3,8 +3,8 @@ import type { Metadata } from "next";
 import { AdvisorWorkspace } from "@/features/handoff/advisor-workspace";
 
 export const metadata: Metadata = {
-  title: "Asesor | BateríasPower",
-  description: "Cola autónoma de handoff por voz de BateríasPower.",
+  title: "Asesor | Buscador IA de Llantas",
+  description: "Cola autónoma de handoff por voz para consultas de llantas.",
 };
 
 export default function AdvisorPage() {

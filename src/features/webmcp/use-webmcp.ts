@@ -1,43 +1,46 @@
 "use client";
 
+import { registerTools } from "@nekuda/webmcp-sdk";
 import { useEffect, useState } from "react";
 
-import { registerBatteryTools } from "@/features/webmcp/register-tools";
+import {
+  baseTireTools,
+  bindCatalogActions,
+  resultTireTools,
+} from "@/features/webmcp/tools/tires";
 import type { CatalogActions } from "@/types/catalog";
 
 export type WebMcpStatus = "checking" | "ready" | "unsupported" | "error";
 
-export function useWebMcp(actions: CatalogActions): WebMcpStatus {
+export function useWebMcp(actions: CatalogActions, hasResults: boolean): WebMcpStatus {
   const [status, setStatus] = useState<WebMcpStatus>("checking");
 
   useEffect(() => {
-    const modelContext = document.modelContext;
-    const controller = new AbortController();
     let active = true;
+    const unbind = bindCatalogActions(actions);
+    const registration = registerTools(
+      hasResults ? [...baseTireTools, ...resultTireTools] : baseTireTools,
+      { telemetry: false },
+    );
 
-    const registration = modelContext
-      ? registerBatteryTools(modelContext, actions, controller.signal)
-      : Promise.reject(new Error("unsupported"));
-
-    registration
-      .then(() => {
-        if (active) setStatus("ready");
-      })
-      .catch((error: unknown) => {
-        if (!active) return;
-        if (error instanceof Error && error.message === "unsupported") {
-          setStatus("unsupported");
-          return;
-        }
-        console.error("WebMCP tool registration failed.", error);
+    void registration.ready.then((results) => {
+      if (!active) return;
+      if (results.every(({ state }) => state === "unsupported")) {
+        setStatus("unsupported");
+      } else if (results.some(({ state }) => state === "failed")) {
+        console.error("WebMCP tool registration failed.", results);
         setStatus("error");
-      });
+      } else {
+        setStatus("ready");
+      }
+    });
 
     return () => {
       active = false;
-      controller.abort();
+      registration.unregister();
+      unbind();
     };
-  }, [actions]);
+  }, [actions, hasResults]);
 
   return status;
 }

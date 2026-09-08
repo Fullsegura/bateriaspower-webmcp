@@ -1,0 +1,214 @@
+{
+  "eval_cases": [
+    {
+      "eval_case_id": "vehicle_exact_variant",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "{\"messages\":[{\"id\":\"1\",\"role\":\"user\",\"content\":\"Toyota RAV4 LIMITED AC 2.5 5P 4X4 TA 2018\"}],\"tools\":[{\"name\":\"search_tires\",\"title\":\"Buscar llantas\",\"description\":\"Busca hasta cinco opciones actuales y las muestra.\",\"inputSchema\":{\"type\":\"object\",\"additionalProperties\":false,\"properties\":{\"mode\":{\"type\":\"string\",\"enum\":[\"vehicle\",\"measure\"]},\"make\":{\"type\":\"string\",\"description\":\"Marca del vehículo\"},\"year\":{\"type\":\"integer\",\"minimum\":1900,\"maximum\":2100},\"model\":{\"type\":\"string\",\"description\":\"Modelo y variante exacta\"},\"width\":{\"type\":\"string\"},\"height\":{\"type\":\"string\"},\"rim\":{\"type\":\"string\"},\"category\":{\"type\":\"string\",\"enum\":[\"01\",\"02\",\"03\",\"04\"]},\"brand\":{\"type\":\"string\"},\"city\":{\"type\":\"string\"},\"quantity\":{\"type\":\"integer\",\"minimum\":1,\"maximum\":20},\"budget\":{\"type\":\"number\",\"exclusiveMinimum\":0}},\"required\":[\"mode\"]}}],\"uiState\":{\"query\":\"\",\"criteria\":null,\"tires\":[],\"selectedTireId\":null,\"quote\":null,\"stockSummary\":null,\"queriedAt\":null}}"
+          }
+        ]
+      },
+      "reference": {
+        "response": {
+          "role": "model",
+          "parts": [
+            {
+              "text": "{\"kind\":\"tool_call\",\"toolName\":\"search_tires\",\"arguments\":{\"mode\":\"vehicle\",\"make\":\"Toyota\",\"model\":\"RAV4 LIMITED AC 2.5 5P 4X4 TA\",\"year\":2018},\"exactArguments\":true}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "eval_case_id": "vehicle_exact_with_constraints",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "{\"messages\":[{\"id\":\"1\",\"role\":\"user\",\"content\":\"Necesito 4 llantas para Toyota RAV4 LIMITED AC 2.5 5P 4X4 TA 2018 en Quito, presupuesto total 600 dólares\"}],\"tools\":[{\"name\":\"search_tires\",\"title\":\"Buscar llantas\",\"description\":\"Busca hasta cinco opciones actuales y las muestra.\",\"inputSchema\":{\"type\":\"object\",\"additionalProperties\":false,\"properties\":{\"mode\":{\"type\":\"string\",\"enum\":[\"vehicle\",\"measure\"]},\"make\":{\"type\":\"string\",\"description\":\"Marca del vehículo\"},\"year\":{\"type\":\"integer\",\"minimum\":1900,\"maximum\":2100},\"model\":{\"type\":\"string\",\"description\":\"Modelo y variante exacta\"},\"width\":{\"type\":\"string\"},\"height\":{\"type\":\"string\"},\"rim\":{\"type\":\"string\"},\"category\":{\"type\":\"string\",\"enum\":[\"01\",\"02\",\"03\",\"04\"]},\"brand\":{\"type\":\"string\"},\"city\":{\"type\":\"string\"},\"quantity\":{\"type\":\"integer\",\"minimum\":1,\"maximum\":20},\"budget\":{\"type\":\"number\",\"exclusiveMinimum\":0}},\"required\":[\"mode\"]}}],\"uiState\":{\"query\":\"\",\"criteria\":null,\"tires\":[],\"selectedTireId\":null,\"quote\":null,\"stockSummary\":null,\"queriedAt\":null}}"
+          }
+        ]
+      },
+      "reference": {
+        "response": {
+          "role": "model",
+          "parts": [
+            {
+              "text": "{\"kind\":\"tool_call\",\"toolName\":\"search_tires\",\"arguments\":{\"mode\":\"vehicle\",\"make\":\"Toyota\",\"model\":\"RAV4 LIMITED AC 2.5 5P 4X4 TA\",\"year\":2018,\"city\":\"Quito\",\"quantity\":4,\"budget\":600},\"exactArguments\":true}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "eval_case_id": "vehicle_missing_model",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "{\"messages\":[{\"id\":\"1\",\"role\":\"user\",\"content\":\"Necesito llantas para un Toyota 2018 en Quito\"}],\"tools\":[{\"name\":\"search_tires\",\"title\":\"Buscar llantas\",\"description\":\"Busca hasta cinco opciones actuales y las muestra.\",\"inputSchema\":{\"type\":\"object\",\"additionalProperties\":false,\"properties\":{\"mode\":{\"type\":\"string\",\"enum\":[\"vehicle\",\"measure\"]},\"make\":{\"type\":\"string\",\"description\":\"Marca del vehículo\"},\"year\":{\"type\":\"integer\",\"minimum\":1900,\"maximum\":2100},\"model\":{\"type\":\"string\",\"description\":\"Modelo y variante exacta\"},\"width\":{\"type\":\"string\"},\"height\":{\"type\":\"string\"},\"rim\":{\"type\":\"string\"},\"category\":{\"type\":\"string\",\"enum\":[\"01\",\"02\",\"03\",\"04\"]},\"brand\":{\"type\":\"string\"},\"city\":{\"type\":\"string\"},\"quantity\":{\"type\":\"integer\",\"minimum\":1,\"maximum\":20},\"budget\":{\"type\":\"number\",\"exclusiveMinimum\":0}},\"required\":[\"mode\"]}}],\"uiState\":{\"query\":\"\",\"criteria\":null,\"tires\":[],\"selectedTireId\":null,\"quote\":null,\"stockSummary\":null,\"queriedAt\":null}}"
+          }
+        ]
+      },
+      "reference": {
+        "response": {
+          "role": "model",
+          "parts": [
+            {
+              "text": "{\"kind\":\"message\",\"requiredMessageFragments\":[\"modelo\"],\"forbiddenMessageFragments\":[\"225/\",\"precio\",\"stock\"]}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "eval_case_id": "vehicle_missing_year",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "{\"messages\":[{\"id\":\"1\",\"role\":\"user\",\"content\":\"Necesito llantas para Toyota RAV4 LIMITED AC 2.5 5P 4X4 TA\"}],\"tools\":[{\"name\":\"search_tires\",\"title\":\"Buscar llantas\",\"description\":\"Busca hasta cinco opciones actuales y las muestra.\",\"inputSchema\":{\"type\":\"object\",\"additionalProperties\":false,\"properties\":{\"mode\":{\"type\":\"string\",\"enum\":[\"vehicle\",\"measure\"]},\"make\":{\"type\":\"string\",\"description\":\"Marca del vehículo\"},\"year\":{\"type\":\"integer\",\"minimum\":1900,\"maximum\":2100},\"model\":{\"type\":\"string\",\"description\":\"Modelo y variante exacta\"},\"width\":{\"type\":\"string\"},\"height\":{\"type\":\"string\"},\"rim\":{\"type\":\"string\"},\"category\":{\"type\":\"string\",\"enum\":[\"01\",\"02\",\"03\",\"04\"]},\"brand\":{\"type\":\"string\"},\"city\":{\"type\":\"string\"},\"quantity\":{\"type\":\"integer\",\"minimum\":1,\"maximum\":20},\"budget\":{\"type\":\"number\",\"exclusiveMinimum\":0}},\"required\":[\"mode\"]}}],\"uiState\":{\"query\":\"\",\"criteria\":null,\"tires\":[],\"selectedTireId\":null,\"quote\":null,\"stockSummary\":null,\"queriedAt\":null}}"
+          }
+        ]
+      },
+      "reference": {
+        "response": {
+          "role": "model",
+          "parts": [
+            {
+              "text": "{\"kind\":\"message\",\"requiredMessageFragments\":[\"año\"],\"forbiddenMessageFragments\":[\"225/\",\"precio\",\"stock\"]}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "eval_case_id": "vehicle_partial_model_queries_source",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "{\"messages\":[{\"id\":\"1\",\"role\":\"user\",\"content\":\"Toyota RAV4 2018 en Quito\"}],\"tools\":[{\"name\":\"search_tires\",\"title\":\"Buscar llantas\",\"description\":\"Busca hasta cinco opciones actuales y las muestra.\",\"inputSchema\":{\"type\":\"object\",\"additionalProperties\":false,\"properties\":{\"mode\":{\"type\":\"string\",\"enum\":[\"vehicle\",\"measure\"]},\"make\":{\"type\":\"string\",\"description\":\"Marca del vehículo\"},\"year\":{\"type\":\"integer\",\"minimum\":1900,\"maximum\":2100},\"model\":{\"type\":\"string\",\"description\":\"Modelo y variante exacta\"},\"width\":{\"type\":\"string\"},\"height\":{\"type\":\"string\"},\"rim\":{\"type\":\"string\"},\"category\":{\"type\":\"string\",\"enum\":[\"01\",\"02\",\"03\",\"04\"]},\"brand\":{\"type\":\"string\"},\"city\":{\"type\":\"string\"},\"quantity\":{\"type\":\"integer\",\"minimum\":1,\"maximum\":20},\"budget\":{\"type\":\"number\",\"exclusiveMinimum\":0}},\"required\":[\"mode\"]}}],\"uiState\":{\"query\":\"\",\"criteria\":null,\"tires\":[],\"selectedTireId\":null,\"quote\":null,\"stockSummary\":null,\"queriedAt\":null}}"
+          }
+        ]
+      },
+      "reference": {
+        "response": {
+          "role": "model",
+          "parts": [
+            {
+              "text": "{\"kind\":\"tool_call\",\"toolName\":\"search_tires\",\"arguments\":{\"mode\":\"vehicle\",\"make\":\"Toyota\",\"model\":\"RAV4\",\"year\":2018,\"city\":\"Quito\"},\"exactArguments\":true}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "eval_case_id": "vehicle_ambiguity_numbered",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "{\"messages\":[{\"id\":\"1\",\"role\":\"user\",\"content\":\"Toyota RAV4 2018 en Quito\"}],\"tools\":[{\"name\":\"search_tires\",\"title\":\"Buscar llantas\",\"description\":\"Busca hasta cinco opciones actuales y las muestra.\",\"inputSchema\":{\"type\":\"object\",\"additionalProperties\":false,\"properties\":{\"mode\":{\"type\":\"string\",\"enum\":[\"vehicle\",\"measure\"]},\"make\":{\"type\":\"string\",\"description\":\"Marca del vehículo\"},\"year\":{\"type\":\"integer\",\"minimum\":1900,\"maximum\":2100},\"model\":{\"type\":\"string\",\"description\":\"Modelo y variante exacta\"},\"width\":{\"type\":\"string\"},\"height\":{\"type\":\"string\"},\"rim\":{\"type\":\"string\"},\"category\":{\"type\":\"string\",\"enum\":[\"01\",\"02\",\"03\",\"04\"]},\"brand\":{\"type\":\"string\"},\"city\":{\"type\":\"string\"},\"quantity\":{\"type\":\"integer\",\"minimum\":1,\"maximum\":20},\"budget\":{\"type\":\"number\",\"exclusiveMinimum\":0}},\"required\":[\"mode\"]}}],\"uiState\":{\"query\":\"\",\"criteria\":null,\"tires\":[],\"selectedTireId\":null,\"quote\":null,\"stockSummary\":null,\"queriedAt\":null},\"toolResult\":{\"toolName\":\"search_tires\",\"result\":{\"ok\":false,\"error\":\"El modelo es ambiguo; selecciona una variante exacta. Opciones:\\n1. RAV4 CVT AC 2.0 5P 4x2 TA\\n2. RAV4 AC 2.0 5P 4X2 TM\\n3. RAV4 LIMITED AC 2.5 5P 4X4 TA\"}}}"
+          }
+        ]
+      },
+      "reference": {
+        "response": {
+          "role": "model",
+          "parts": [
+            {
+              "text": "{\"kind\":\"message\",\"requiredMessageFragments\":[\"1. RAV4 CVT AC 2.0 5P 4x2 TA\",\"2. RAV4 AC 2.0 5P 4X2 TM\",\"3. RAV4 LIMITED AC 2.5 5P 4X4 TA\"],\"forbiddenMessageFragments\":[\"225/65R17\",\"$\"]}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "eval_case_id": "vehicle_ordinal_selects_only_listed_variant",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "{\"messages\":[{\"id\":\"1\",\"role\":\"user\",\"content\":\"Toyota RAV4 2018 en Quito\"},{\"id\":\"2\",\"role\":\"assistant\",\"content\":\"Selecciona la variante exacta:\\n1. RAV4 CVT AC 2.0 5P 4x2 TA\\n2. RAV4 AC 2.0 5P 4X2 TM\\n3. RAV4 LIMITED AC 2.5 5P 4X4 TA\"},{\"id\":\"3\",\"role\":\"user\",\"content\":\"la segunda\"}],\"tools\":[{\"name\":\"search_tires\",\"title\":\"Buscar llantas\",\"description\":\"Busca hasta cinco opciones actuales y las muestra.\",\"inputSchema\":{\"type\":\"object\",\"additionalProperties\":false,\"properties\":{\"mode\":{\"type\":\"string\",\"enum\":[\"vehicle\",\"measure\"]},\"make\":{\"type\":\"string\",\"description\":\"Marca del vehículo\"},\"year\":{\"type\":\"integer\",\"minimum\":1900,\"maximum\":2100},\"model\":{\"type\":\"string\",\"description\":\"Modelo y variante exacta\"},\"width\":{\"type\":\"string\"},\"height\":{\"type\":\"string\"},\"rim\":{\"type\":\"string\"},\"category\":{\"type\":\"string\",\"enum\":[\"01\",\"02\",\"03\",\"04\"]},\"brand\":{\"type\":\"string\"},\"city\":{\"type\":\"string\"},\"quantity\":{\"type\":\"integer\",\"minimum\":1,\"maximum\":20},\"budget\":{\"type\":\"number\",\"exclusiveMinimum\":0}},\"required\":[\"mode\"]}}],\"uiState\":{\"query\":\"\",\"criteria\":null,\"tires\":[],\"selectedTireId\":null,\"quote\":null,\"stockSummary\":null,\"queriedAt\":null}}"
+          }
+        ]
+      },
+      "reference": {
+        "response": {
+          "role": "model",
+          "parts": [
+            {
+              "text": "{\"kind\":\"tool_call\",\"toolName\":\"search_tires\",\"arguments\":{\"mode\":\"vehicle\",\"make\":\"Toyota\",\"model\":\"RAV4 AC 2.0 5P 4X2 TM\",\"year\":2018,\"city\":\"Quito\"},\"exactArguments\":true}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "eval_case_id": "vehicle_user_measure_does_not_become_compatibility",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "{\"messages\":[{\"id\":\"1\",\"role\":\"user\",\"content\":\"¿Le sirve 235/60R18 a mi Toyota RAV4 2018 en Quito?\"}],\"tools\":[{\"name\":\"search_tires\",\"title\":\"Buscar llantas\",\"description\":\"Busca hasta cinco opciones actuales y las muestra.\",\"inputSchema\":{\"type\":\"object\",\"additionalProperties\":false,\"properties\":{\"mode\":{\"type\":\"string\",\"enum\":[\"vehicle\",\"measure\"]},\"make\":{\"type\":\"string\",\"description\":\"Marca del vehículo\"},\"year\":{\"type\":\"integer\",\"minimum\":1900,\"maximum\":2100},\"model\":{\"type\":\"string\",\"description\":\"Modelo y variante exacta\"},\"width\":{\"type\":\"string\"},\"height\":{\"type\":\"string\"},\"rim\":{\"type\":\"string\"},\"category\":{\"type\":\"string\",\"enum\":[\"01\",\"02\",\"03\",\"04\"]},\"brand\":{\"type\":\"string\"},\"city\":{\"type\":\"string\"},\"quantity\":{\"type\":\"integer\",\"minimum\":1,\"maximum\":20},\"budget\":{\"type\":\"number\",\"exclusiveMinimum\":0}},\"required\":[\"mode\"]}}],\"uiState\":{\"query\":\"\",\"criteria\":null,\"tires\":[],\"selectedTireId\":null,\"quote\":null,\"stockSummary\":null,\"queriedAt\":null}}"
+          }
+        ]
+      },
+      "reference": {
+        "response": {
+          "role": "model",
+          "parts": [
+            {
+              "text": "{\"kind\":\"tool_call\",\"toolName\":\"search_tires\",\"arguments\":{\"mode\":\"vehicle\",\"make\":\"Toyota\",\"model\":\"RAV4\",\"year\":2018,\"city\":\"Quito\"},\"exactArguments\":true}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "eval_case_id": "vehicle_empty_result_no_invention",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "{\"messages\":[{\"id\":\"1\",\"role\":\"user\",\"content\":\"Toyota RAV4 LIMITED AC 2.5 5P 4X4 TA 2018 en Quito\"}],\"tools\":[{\"name\":\"search_tires\",\"title\":\"Buscar llantas\",\"description\":\"Busca hasta cinco opciones actuales y las muestra.\",\"inputSchema\":{\"type\":\"object\",\"additionalProperties\":false,\"properties\":{\"mode\":{\"type\":\"string\",\"enum\":[\"vehicle\",\"measure\"]},\"make\":{\"type\":\"string\",\"description\":\"Marca del vehículo\"},\"year\":{\"type\":\"integer\",\"minimum\":1900,\"maximum\":2100},\"model\":{\"type\":\"string\",\"description\":\"Modelo y variante exacta\"},\"width\":{\"type\":\"string\"},\"height\":{\"type\":\"string\"},\"rim\":{\"type\":\"string\"},\"category\":{\"type\":\"string\",\"enum\":[\"01\",\"02\",\"03\",\"04\"]},\"brand\":{\"type\":\"string\"},\"city\":{\"type\":\"string\"},\"quantity\":{\"type\":\"integer\",\"minimum\":1,\"maximum\":20},\"budget\":{\"type\":\"number\",\"exclusiveMinimum\":0}},\"required\":[\"mode\"]}}],\"uiState\":{\"query\":\"\",\"criteria\":null,\"tires\":[],\"selectedTireId\":null,\"quote\":null,\"stockSummary\":null,\"queriedAt\":null},\"toolResult\":{\"toolName\":\"search_tires\",\"result\":{\"tires\":[],\"queriedAt\":\"2026-09-07T23:00:00.000Z\",\"source\":\"https://durallanta.com\",\"note\":\"Durallanta no reportó opciones que cumplan todos los criterios.\",\"resolvedVehicle\":{\"make\":\"TOYOTA\",\"year\":2018,\"model\":\"RAV4 LIMITED AC 2.5 5P 4X4 TA\",\"sizes\":[\"225/65R17\"]}}}}"
+          }
+        ]
+      },
+      "reference": {
+        "response": {
+          "role": "model",
+          "parts": [
+            {
+              "text": "{\"kind\":\"message\",\"requiredMessageFragments\":[\"no\",\"opciones\"],\"forbiddenMessageFragments\":[\"$114\",\"$132\",\"235/60R18\"]}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "eval_case_id": "vehicle_success_reports_only_source_measure",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "{\"messages\":[{\"id\":\"1\",\"role\":\"user\",\"content\":\"Toyota RAV4 LIMITED AC 2.5 5P 4X4 TA 2018 en Quito\"}],\"tools\":[{\"name\":\"search_tires\",\"title\":\"Buscar llantas\",\"description\":\"Busca hasta cinco opciones actuales y las muestra.\",\"inputSchema\":{\"type\":\"object\",\"additionalProperties\":false,\"properties\":{\"mode\":{\"type\":\"string\",\"enum\":[\"vehicle\",\"measure\"]},\"make\":{\"type\":\"string\",\"description\":\"Marca del vehículo\"},\"year\":{\"type\":\"integer\",\"minimum\":1900,\"maximum\":2100},\"model\":{\"type\":\"string\",\"description\":\"Modelo y variante exacta\"},\"width\":{\"type\":\"string\"},\"height\":{\"type\":\"string\"},\"rim\":{\"type\":\"string\"},\"category\":{\"type\":\"string\",\"enum\":[\"01\",\"02\",\"03\",\"04\"]},\"brand\":{\"type\":\"string\"},\"city\":{\"type\":\"string\"},\"quantity\":{\"type\":\"integer\",\"minimum\":1,\"maximum\":20},\"budget\":{\"type\":\"number\",\"exclusiveMinimum\":0}},\"required\":[\"mode\"]}}],\"uiState\":{\"query\":\"Toyota RAV4 LIMITED AC 2.5 5P 4X4 TA 2018 en Quito\",\"criteria\":{\"mode\":\"vehicle\",\"make\":\"Toyota\",\"model\":\"RAV4 LIMITED AC 2.5 5P 4X4 TA\",\"year\":2018,\"city\":\"Quito\"},\"tires\":[{\"id\":\"sku-source-1\",\"code\":\"06201503118101474\",\"name\":\"R 225/65R17 FIRESTONE ALL SEASON\",\"size\":\"225/65R17\",\"brand\":\"FIRESTONE\"}],\"selectedTireId\":null,\"quote\":null,\"stockSummary\":null,\"queriedAt\":\"2026-09-07T23:00:00.000Z\"},\"toolResult\":{\"toolName\":\"search_tires\",\"result\":{\"tires\":[{\"id\":\"sku-source-1\",\"code\":\"06201503118101474\",\"name\":\"R 225/65R17 FIRESTONE ALL SEASON\",\"size\":\"225/65R17\",\"brand\":\"FIRESTONE\"}],\"queriedAt\":\"2026-09-07T23:00:00.000Z\",\"source\":\"https://durallanta.com\",\"note\":\"Stock reportado al momento de la consulta; no constituye una reserva.\",\"resolvedVehicle\":{\"make\":\"TOYOTA\",\"year\":2018,\"model\":\"RAV4 LIMITED AC 2.5 5P 4X4 TA\",\"sizes\":[\"225/65R17\"]}}}}"
+          }
+        ]
+      },
+      "reference": {
+        "response": {
+          "role": "model",
+          "parts": [
+            {
+              "text": "{\"kind\":\"message\",\"requiredMessageFragments\":[\"1\",\"225/65R17\",\"RAV4 LIMITED AC 2.5 5P 4X4 TA\"],\"forbiddenMessageFragments\":[\"235/60R18\",\"245/65R17\"]}"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -1,8 +1,7 @@
-# BateríasPower Search-to-Sale
+# Buscador IA de Llantas
 
-MVP para WebMCP Challenge. Next.js muestra el catálogo y registra cinco
-herramientas WebMCP nativas; Google ADK orquesta la conversación con
-`gemini-3.7-flash`.
+Next.js consulta el catálogo público actual de Durallanta y registra cinco
+herramientas WebMCP; Google ADK orquesta la conversación con `gemini-3.7-flash`.
 
 ## Requisitos
 
@@ -13,25 +12,14 @@ herramientas WebMCP nativas; Google ADK orquesta la conversación con
 
 ## Catálogo
 
-El proyecto incluye una copia local autocontenida de:
+La aplicación consulta `https://durallanta.com` en cada búsqueda mediante las
+rutas same-origin `/api/catalog/search` y `/api/catalog/stock`. Usa
+`cache: no-store`, procesa las respuestas en memoria y devuelve como máximo
+cinco productos relevantes. No regenera ni usa un catálogo local.
 
-- `data/bateriasecuador/catalogo.json`
-- `data/bateriasecuador/precios.json`
-- `public/products/bateriasecuador`
-
-Para regenerar las copias locales:
-
-```bash
-npm run data:import
-```
-
-La importación usa exclusivamente esos archivos dentro de `webmcp` y genera
-los JSON usados por la aplicación. No depende de otro repositorio o carpeta.
-Los productos sin imagen usan un placeholder visible.
-
-Los precios son referenciales y conservan la nota de vigencia de la fuente:
-incluyen 15% de IVA, están sujetos a cambios y la lista indica validez desde
-el 20 de julio de 2023.
+Soporta autos, camionetas/SUV, camiones y motos. Para motos utiliza la única
+agrupación de stock `MOTO` reportada por la fuente. Los precios y existencias
+son informativos y corresponden al momento de cada consulta.
 
 ## Desarrollo local
 
@@ -60,7 +48,7 @@ npm run lint
 npm run build
 ```
 
-La cotización es informativa: no crea pedidos, cobros ni efectos externos. No
+La cotización es informativa: no crea reservas, pedidos, cobros ni efectos externos. No
 existe fallback MCP para navegadores sin WebMCP.
 
 ## Handoff autónomo por voz

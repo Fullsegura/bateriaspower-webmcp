@@ -1,49 +1,38 @@
-import {
-  createQuote,
-  getBatteriesByIds,
-  requireBattery,
-  searchVehicleBatteries,
-} from "@/lib/catalog-search";
+import { createQuote, requireTire } from "@/lib/catalog-search";
 import type {
-  Battery,
   CatalogState,
   Quote,
-  VehicleCriteria,
+  QuoteQuantityMode,
+  Tire,
+  TireSearchCriteria,
+  TireSearchResult,
+  TireStockSummary,
 } from "@/types/catalog";
 
 export type CatalogAction =
   | { type: "set-query"; query: string }
-  | { type: "searched"; criteria: VehicleCriteria; resultIds: string[] }
-  | { type: "show-results"; resultIds: string[] }
-  | { type: "select"; batteryId: string }
+  | { type: "searched"; criteria: TireSearchCriteria; result: TireSearchResult }
+  | { type: "stock-summary"; summary: TireStockSummary }
+  | { type: "select"; tireId: string }
   | { type: "quote"; quote: Quote }
   | { type: "clear-quote" }
   | { type: "reset" };
 
-const demoCriteria: VehicleCriteria = {
-  make: "Toyota",
-  model: "Corolla",
-  year: 2018,
-  engine: "1.8",
-};
-
-export function createInitialCatalogState(): CatalogState {
-  const results = searchVehicleBatteries(demoCriteria);
-  const selectedBatteryId = results[0]?.id ?? null;
-
+export function createInitialCatalogState(
+  query = "Toyota RAV4 2018 en Quito",
+): CatalogState {
   return {
-    query: "Toyota Corolla 2018 motor 1.8",
-    criteria: demoCriteria,
-    resultIds: results.map((battery) => battery.id),
-    selectedBatteryId,
+    query,
+    criteria: null,
+    tires: [],
+    selectedTireId: null,
     quote: null,
+    stockSummary: null,
+    queriedAt: null,
   };
 }
 
-export function catalogReducer(
-  state: CatalogState,
-  action: CatalogAction,
-): CatalogState {
+export function catalogReducer(state: CatalogState, action: CatalogAction): CatalogState {
   switch (action.type) {
     case "set-query":
       return { ...state, query: action.query };
@@ -51,57 +40,51 @@ export function catalogReducer(
       return {
         ...state,
         criteria: action.criteria,
-        resultIds: action.resultIds,
-        selectedBatteryId: null,
+        tires: action.result.tires,
+        selectedTireId: null,
         quote: null,
+        stockSummary: null,
+        queriedAt: action.result.queriedAt,
       };
-    case "show-results":
-      return {
-        ...state,
-        resultIds: action.resultIds,
-        selectedBatteryId: action.resultIds.includes(state.selectedBatteryId ?? "")
-          ? state.selectedBatteryId
-          : null,
-        quote: action.resultIds.includes(state.quote?.batteryId ?? "")
-          ? state.quote
-          : null,
-      };
+    case "stock-summary":
+      return { ...state, stockSummary: action.summary, queriedAt: action.summary.queriedAt };
     case "select":
-      return { ...state, selectedBatteryId: action.batteryId, quote: null };
+      return { ...state, selectedTireId: action.tireId, quote: null };
     case "quote":
-      return {
-        ...state,
-        selectedBatteryId: action.quote.batteryId,
-        quote: action.quote,
-      };
+      return { ...state, selectedTireId: action.quote.tireId, quote: action.quote };
     case "clear-quote":
       return { ...state, quote: null };
     case "reset":
-      return {
-        query: "",
-        criteria: null,
-        resultIds: [],
-        selectedBatteryId: null,
-        quote: null,
-      };
+      return { ...createInitialCatalogState(), query: "" };
   }
 }
 
-export function runSearch(criteria: VehicleCriteria): Battery[] {
-  return searchVehicleBatteries(criteria);
-}
-
-export function runShowResults(batteryIds: string[]): Battery[] {
-  return getBatteriesByIds(batteryIds);
-}
-
-export function runSelectBattery(batteryId: string): Battery {
-  return requireBattery(batteryId);
+export function runSelectTire(tires: Tire[], tireId: string): Tire {
+  return requireTire(tires, tireId);
 }
 
 export function runPrepareQuote(
-  batteryId: string,
+  tires: Tire[],
+  tireId: string,
   quantity: number,
+  quantityMode: QuoteQuantityMode = "total",
+  warehouse?: string,
+  currentQuote: Quote | null = null,
 ): Quote {
-  return createQuote(batteryId, quantity);
+  if (quantityMode === "additional") {
+    if (!currentQuote || currentQuote.tireId !== tireId) {
+      throw new Error("No existe una cotización de esta llanta a la cual sumar unidades.");
+    }
+    return createQuote(
+      tires,
+      tireId,
+      currentQuote.quantity + quantity,
+      warehouse ?? currentQuote.warehouse?.warehouseName,
+    );
+  }
+  const preservedWarehouse =
+    !warehouse && currentQuote?.tireId === tireId
+      ? currentQuote.warehouse?.warehouseName
+      : undefined;
+  return createQuote(tires, tireId, quantity, warehouse ?? preservedWarehouse);
 }

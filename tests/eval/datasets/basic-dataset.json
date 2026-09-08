@@ -6,7 +6,7 @@
         "role": "user",
         "parts": [
           {
-            "text": "{\"messages\":[{\"id\":\"1\",\"role\":\"user\",\"content\":\"Toyota Corolla 2018 motor 1.8\"}],\"tools\":[{\"name\":\"search_vehicle_batteries\",\"title\":\"Buscar baterías por vehículo\",\"description\":\"Busca baterías compatibles usando marca, modelo, año y motor.\",\"inputSchema\":{\"type\":\"object\",\"properties\":{\"make\":{\"type\":\"string\"},\"model\":{\"type\":\"string\"},\"year\":{\"type\":\"integer\"},\"engine\":{\"type\":\"string\"}},\"required\":[\"make\",\"model\",\"year\"]}}],\"uiState\":{\"query\":\"Toyota Corolla 2018 motor 1.8\",\"criteria\":null,\"resultIds\":[],\"selectedBatteryId\":null,\"quote\":null}}"
+            "text": "{\"messages\":[{\"id\":\"1\",\"role\":\"user\",\"content\":\"Toyota RAV4 CVT 2018 en Quito\"}],\"tools\":[{\"name\":\"search_tires\",\"title\":\"Buscar llantas\",\"description\":\"Busca hasta cinco opciones actuales y las muestra.\",\"inputSchema\":{\"type\":\"object\",\"properties\":{\"mode\":{\"type\":\"string\"},\"make\":{\"type\":\"string\"},\"model\":{\"type\":\"string\"},\"year\":{\"type\":\"integer\"},\"city\":{\"type\":\"string\"}},\"required\":[\"mode\"]}}],\"uiState\":{\"query\":\"Toyota RAV4 CVT 2018 en Quito\",\"criteria\":null,\"tires\":[],\"selectedTireId\":null,\"quote\":null,\"stockSummary\":null,\"queriedAt\":null}}"
           }
         ]
       },
@@ -15,7 +15,7 @@
           "role": "model",
           "parts": [
             {
-              "text": "{\"kind\":\"tool_call\",\"toolName\":\"search_vehicle_batteries\"}"
+              "text": "{\"kind\":\"tool_call\",\"toolName\":\"search_tires\"}"
             }
           ]
         }
@@ -27,7 +27,7 @@
         "role": "user",
         "parts": [
           {
-            "text": "{\"messages\":[{\"id\":\"1\",\"role\":\"user\",\"content\":\"Selecciona la batería Ultra X-999\"}],\"tools\":[{\"name\":\"select_battery\",\"title\":\"Seleccionar batería\",\"description\":\"Selecciona una batería válida por su ID.\",\"inputSchema\":{\"type\":\"object\",\"properties\":{\"batteryId\":{\"type\":\"string\"}},\"required\":[\"batteryId\"]}}],\"uiState\":{\"query\":\"\",\"criteria\":null,\"resultIds\":[\"be-n40-full-equipo\",\"be-n40-high-power\"],\"selectedBatteryId\":null,\"quote\":null}}"
+            "text": "{\"messages\":[{\"id\":\"1\",\"role\":\"user\",\"content\":\"Selecciona la llanta Ultra X-999\"}],\"tools\":[{\"name\":\"select_tire\",\"title\":\"Seleccionar llanta\",\"description\":\"Selecciona una opción sin reservarla.\",\"inputSchema\":{\"type\":\"object\",\"properties\":{\"tireId\":{\"type\":\"string\"}},\"required\":[\"tireId\"]}}],\"uiState\":{\"query\":\"\",\"criteria\":null,\"tires\":[{\"id\":\"sku-1\",\"name\":\"R 225/65R17 FIRESTONE\"}],\"selectedTireId\":null,\"quote\":null,\"stockSummary\":null,\"queriedAt\":\"2026-09-07T20:00:00.000Z\"}}"
           }
         ]
       },

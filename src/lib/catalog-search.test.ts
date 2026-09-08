@@ -1,69 +1,88 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  batteries,
-  catalogMetadata,
-  compatibility,
-  createQuote,
-  getBatteriesByIds,
-  searchVehicleBatteries,
-} from "@/lib/catalog-search";
+import { createQuote, getTireById } from "@/lib/catalog-search";
+import type { Tire } from "@/types/catalog";
 
-describe("catálogo Baterías Ecuador", () => {
-  it("importa los volúmenes verificados de la fuente", () => {
-    expect(catalogMetadata.catalogEntries).toBe(2026);
-    expect(batteries).toHaveLength(32);
-    expect(compatibility).toHaveLength(1307);
-    expect(catalogMetadata.vehicleMakes).toBe(118);
-    expect(catalogMetadata.vehicleModels).toBe(1112);
+const tire: Tire = {
+  id: "sku-1",
+  code: "sku-1",
+  name: "R 225/65R17 PRUEBA",
+  brand: "Prueba",
+  category: "02",
+  categoryLabel: "Camionetas y SUV",
+  width: "225",
+  height: "65",
+  rim: "17",
+  size: "225/65R17",
+  tread: "ATR",
+  application: "AT",
+  loadDescription: "850",
+  speedDescription: "H",
+  details: "Producto de prueba",
+  price: {
+    status: "available",
+    listWithoutVat: 120,
+    discountPercent: 10,
+    unitWithoutVat: 100,
+    ecoValue: 1,
+    vatPercent: 15,
+    unitKnownChargesTotal: 116.15,
+  },
+  warehouses: [{
+    cityCode: "UIO",
+    warehouseCode: "32",
+    warehouseName: "EL INCA",
+    quantity: 4,
+  }],
+  totalStock: 4,
+  stockDiscrepancy: null,
+  availability: {
+    scope: "UIO",
+    requestedQuantity: 2,
+    availableUnits: 4,
+    singleWarehouseCanFulfill: true,
+    requiresMultipleWarehouses: false,
+  },
+  image: null,
+  secondaryImages: [],
+  sourceUrl: "https://durallanta.com",
+};
+
+describe("catálogo de llantas", () => {
+  it("busca únicamente dentro de los resultados actuales", () => {
+    expect(getTireById([tire], "sku-1")).toEqual(tire);
+    expect(getTireById([tire], "inexistente")).toBeNull();
   });
 
-  it("mantiene precios y referencias válidas", () => {
-    const ids = new Set(batteries.map(({ id }) => id));
-    expect(batteries.every(({ price }) => price > 0)).toBe(true);
-    expect(
-      compatibility.every(({ batteryIds }) =>
-        batteryIds.every((batteryId) => ids.has(batteryId)),
-      ),
-    ).toBe(true);
-  });
-
-  it("encuentra las opciones de Toyota Corolla 2018 1.8", () => {
-    const results = searchVehicleBatteries({
-      make: "Toyota",
-      model: "Corolla",
-      year: 2018,
-      engine: "1.8",
-    });
-    expect(results.map(({ id }) => id)).toEqual([
-      "be-n40-full-equipo",
-      "be-n40-high-power",
-      "be-55-full-equipo",
-      "be-55-high-power",
-      "be-65-high-power",
-    ]);
-  });
-
-  it("acepta acabados dentro del modelo Ford F-150", () => {
-    const results = searchVehicleBatteries({
-      make: "Ford",
-      model: "F-150 XLT 4x2",
-      year: 2014,
-    });
-    expect(results.map(({ id }) => id)).toEqual(["be-48-high-power"]);
-  });
-
-  it("rechaza IDs y cantidades inválidas", () => {
-    expect(() => getBatteriesByIds(["inexistente"])).toThrow();
-    expect(() => createQuote("be-48-high-power", 0)).toThrow();
-  });
-
-  it("calcula una cotización con el precio exacto de la fuente", () => {
-    expect(createQuote("be-48-high-power", 2)).toEqual({
-      batteryId: "be-48-high-power",
+  it("calcula precio sin IVA y total de cargos conocidos por separado", () => {
+    expect(createQuote([tire], "sku-1", 2)).toEqual({
+      tireId: "sku-1",
       quantity: 2,
-      unitPrice: 199.53,
-      total: 399.06,
+      warehouse: null,
+      availableUnits: 4,
+      requiresMultipleWarehouses: false,
+      unitWithoutVat: 100,
+      unitKnownChargesTotal: 116.15,
+      subtotalWithoutVat: 200,
+      ecoValueTotal: 2,
+      vatPercent: 15,
+      vatTotal: 30.3,
+      totalKnownCharges: 232.3,
+      priceStatus: "available",
     });
+  });
+
+  it("conserva y valida el local solicitado", () => {
+    expect(createQuote([tire], "sku-1", 4, "El Inca").warehouse).toEqual(
+      tire.warehouses[0],
+    );
+    expect(() => createQuote([tire], "sku-1", 5, "El Inca")).toThrow(
+      "Stock insuficiente",
+    );
+  });
+
+  it("rechaza productos y cantidades inválidas", () => {
+    expect(() => createQuote([tire], "sku-1", 0)).toThrow();
+    expect(() => createQuote([tire], "inexistente", 1)).toThrow();
   });
 });

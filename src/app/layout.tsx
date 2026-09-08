@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "BateríasPower | Search-to-Sale",
-  description: "Encuentra una batería compatible con ayuda de un agente WebMCP.",
+  title: "Buscador IA de Llantas",
+  description: "Consulta llantas, precios y stock público actual de Durallanta.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

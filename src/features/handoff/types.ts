@@ -6,7 +6,7 @@ export type HandoffStatus =
   | "connected"
   | "ended";
 
-export interface HandoffBatteryContext {
+export interface HandoffTireContext {
   id: string;
   name: string;
   image: string | null;
@@ -17,7 +17,7 @@ export interface HandoffBatteryContext {
 
 export interface HandoffCommerceContext {
   vehicle: string | null;
-  battery: HandoffBatteryContext | null;
+  tire: HandoffTireContext | null;
 }
 
 export interface CreateHandoffInput {

@@ -1,0 +1,67 @@
+{
+  "eval_cases": [
+    {
+      "eval_case_id": "vehicle_rejected_year_is_terminal",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "{\"messages\":[{\"id\":\"1\",\"role\":\"user\",\"content\":\"Necesito llantas para una D-Max 2022\"}],\"tools\":[{\"name\":\"search_tires\",\"title\":\"Buscar llantas\",\"description\":\"Busca hasta cinco opciones actuales y las muestra.\",\"inputSchema\":{\"type\":\"object\",\"additionalProperties\":false,\"properties\":{\"mode\":{\"type\":\"string\",\"enum\":[\"vehicle\",\"measure\"]},\"make\":{\"type\":\"string\"},\"year\":{\"type\":\"integer\"},\"model\":{\"type\":\"string\"}},\"required\":[\"mode\"]}}],\"uiState\":{\"query\":\"Chevrolet D-Max\",\"criteria\":{\"mode\":\"vehicle\",\"make\":\"Chevrolet\",\"model\":\"D-Max\",\"year\":2022},\"tires\":[],\"selectedTireId\":null,\"quote\":null,\"stockSummary\":null,\"queriedAt\":\"2026-09-08T02:00:00.000Z\"},\"toolResult\":{\"toolName\":\"search_tires\",\"result\":{\"ok\":false,\"error\":\"Durallanta no registra Chevrolet para el año 2022. Opciones:\\n1. 2007\\n2. 2008\\n3. 2009\\n4. 2010\\n5. 2011\\n6. 2012\\n7. 2013\\n8. 2014\\n9. 2015\\n10. 2016\\n11. 2017\\n12. 2018\\n13. 2019\"}}}"
+          }
+        ]
+      },
+      "reference": {
+        "response": {
+          "role": "model",
+          "parts": [
+            {
+              "text": "{\"kind\":\"message\",\"requiredMessageFragments\":[\"2022\",\"2007\",\"2019\"],\"forbiddenMessageFragments\":[\"225/\",\"precio\",\"stock\"]}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "eval_case_id": "quote_city_with_multiple_warehouses_requires_choice",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "{\"messages\":[{\"id\":\"1\",\"role\":\"user\",\"content\":\"Quiero cotizar una en Cuenca\"}],\"tools\":[{\"name\":\"prepare_quote\",\"title\":\"Preparar cotización\",\"description\":\"Calcula subtotal informativo sin comprar ni reservar.\",\"inputSchema\":{\"type\":\"object\",\"additionalProperties\":false,\"properties\":{\"tireId\":{\"type\":\"string\"},\"quantity\":{\"type\":\"integer\",\"minimum\":1,\"maximum\":20},\"quantityMode\":{\"type\":\"string\",\"enum\":[\"total\",\"additional\"],\"description\":\"total fija la cantidad final; additional suma unidades a la cotización actual\"},\"warehouse\":{\"type\":\"string\",\"description\":\"Código o nombre exacto del local solicitado\"}},\"required\":[\"tireId\",\"quantity\",\"quantityMode\"]}}],\"uiState\":{\"query\":\"Chevrolet D-Max\",\"criteria\":{\"mode\":\"vehicle\",\"make\":\"Chevrolet\",\"model\":\"D-Max\",\"year\":2022},\"tires\":[{\"id\":\"sku-1\",\"code\":\"sku-1\",\"name\":\"R 225/70R15 GRENLLANDER L-MAX9\",\"brand\":\"GRENLLANDER\",\"size\":\"225/70R15\",\"warehouses\":[{\"cityCode\":\"CUE\",\"warehouseCode\":\"01\",\"warehouseName\":\"GIL RAMIREZ\",\"quantity\":12},{\"cityCode\":\"CUE\",\"warehouseCode\":\"02\",\"warehouseName\":\"LLN CUENCA\",\"quantity\":4}]}],\"selectedTireId\":\"sku-1\",\"quote\":null,\"stockSummary\":null,\"queriedAt\":\"2026-09-08T02:00:00.000Z\"}}"
+          }
+        ]
+      },
+      "reference": {
+        "response": {
+          "role": "model",
+          "parts": [
+            {
+              "text": "{\"kind\":\"message\",\"requiredMessageFragments\":[\"GIL RAMIREZ\",\"LLN CUENCA\"],\"forbiddenMessageFragments\":[\"Total con cargos\",\"reserva confirmada\"]}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "eval_case_id": "quote_additional_quantity_does_not_replace_total",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "{\"messages\":[{\"id\":\"1\",\"role\":\"assistant\",\"content\":\"Cotización informativa para 1 llanta en GIL RAMIREZ.\"},{\"id\":\"2\",\"role\":\"user\",\"content\":\"agrega 2\"}],\"tools\":[{\"name\":\"prepare_quote\",\"title\":\"Preparar cotización\",\"description\":\"Calcula subtotal informativo sin comprar ni reservar.\",\"inputSchema\":{\"type\":\"object\",\"additionalProperties\":false,\"properties\":{\"tireId\":{\"type\":\"string\"},\"quantity\":{\"type\":\"integer\",\"minimum\":1,\"maximum\":20},\"quantityMode\":{\"type\":\"string\",\"enum\":[\"total\",\"additional\"],\"description\":\"total fija la cantidad final; additional suma unidades a la cotización actual\"},\"warehouse\":{\"type\":\"string\",\"description\":\"Código o nombre exacto del local solicitado\"}},\"required\":[\"tireId\",\"quantity\",\"quantityMode\"]}}],\"uiState\":{\"query\":\"Chevrolet D-Max\",\"criteria\":{\"mode\":\"vehicle\",\"make\":\"Chevrolet\",\"model\":\"D-Max\",\"year\":2022},\"tires\":[{\"id\":\"sku-1\",\"code\":\"sku-1\",\"name\":\"R 225/70R15 GRENLLANDER L-MAX9\",\"brand\":\"GRENLLANDER\",\"size\":\"225/70R15\",\"warehouses\":[{\"cityCode\":\"CUE\",\"warehouseCode\":\"01\",\"warehouseName\":\"GIL RAMIREZ\",\"quantity\":12},{\"cityCode\":\"CUE\",\"warehouseCode\":\"02\",\"warehouseName\":\"LLN CUENCA\",\"quantity\":4}]}],\"selectedTireId\":\"sku-1\",\"quote\":{\"tireId\":\"sku-1\",\"quantity\":1,\"warehouse\":{\"cityCode\":\"CUE\",\"warehouseCode\":\"01\",\"warehouseName\":\"GIL RAMIREZ\",\"quantity\":12},\"availableUnits\":12,\"requiresMultipleWarehouses\":false},\"stockSummary\":null,\"queriedAt\":\"2026-09-08T02:00:00.000Z\"}}"
+          }
+        ]
+      },
+      "reference": {
+        "response": {
+          "role": "model",
+          "parts": [
+            {
+              "text": "{\"kind\":\"tool_call\",\"toolName\":\"prepare_quote\",\"arguments\":{\"tireId\":\"sku-1\",\"quantity\":2,\"quantityMode\":\"additional\"},\"argumentSubset\":true}"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

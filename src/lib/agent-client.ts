@@ -22,6 +22,13 @@ export function serializeToolArguments(input: Record<string, unknown>): string {
   return JSON.stringify(input);
 }
 
+export function serializeToolFailure(error: unknown): { ok: false; error: string } {
+  return {
+    ok: false,
+    error: error instanceof Error ? error.message : "La herramienta no pudo completar la solicitud.",
+  };
+}
+
 async function requestAgent(
   payload: AgentRequest,
   signal?: AbortSignal,
@@ -55,19 +62,19 @@ export async function runAgentTurn({
     throw new Error("Este navegador no ofrece WebMCP nativo.");
   }
 
-  const registeredTools = await modelContext.getTools();
-  const tools = registeredTools.map(
-    ({ name, title, description, inputSchema, annotations }) => ({
-      name,
-      title,
-      description,
-      inputSchema: normalizeInputSchema(inputSchema),
-      annotations,
-    }),
-  );
   let toolResult: AgentRequest["toolResult"];
 
   for (let step = 0; step < MAX_TOOL_STEPS; step += 1) {
+    const registeredTools = await modelContext.getTools();
+    const tools = registeredTools.map(
+      ({ name, title, description, inputSchema, annotations }) => ({
+        name,
+        title,
+        description,
+        inputSchema: normalizeInputSchema(inputSchema),
+        annotations,
+      }),
+    );
     const action = await requestAgent(
       { sessionId, messages, tools, uiState: getUiState(), toolResult },
       signal,
@@ -80,12 +87,18 @@ export async function runAgentTurn({
     if (!tool) {
       throw new Error(`El agente solicitó una herramienta no registrada: ${action.toolName}`);
     }
-    const result = await modelContext.executeTool(
-      tool,
-      serializeToolArguments(action.arguments),
-      { signal },
-    );
+    let result: unknown;
+    try {
+      result = await modelContext.executeTool(
+        tool,
+        serializeToolArguments(action.arguments),
+        { signal },
+      );
+    } catch (error) {
+      result = serializeToolFailure(error);
+    }
     toolResult = { toolName: action.toolName, result };
+    await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()));
   }
 
   throw new Error("El agente excedió el límite seguro de herramientas.");
