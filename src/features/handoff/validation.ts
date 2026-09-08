@@ -1,7 +1,7 @@
 import type { ChatMessage } from "@/types/agent";
 import type {
   CreateHandoffInput,
-  HandoffBatteryContext,
+  HandoffTireContext,
   HandoffCommerceContext,
 } from "@/features/handoff/types";
 
@@ -29,10 +29,19 @@ function parseProductImage(value: unknown): string | null {
   if (typeof value !== "string") return null;
   try {
     const url = new URL(value.trim(), "https://webmcp.local");
-    if (url.origin !== "https://webmcp.local" || !url.pathname.startsWith("/products/")) {
-      return null;
+    if (url.origin === "https://webmcp.local" && url.pathname.startsWith("/products/")) {
+      return (url.pathname + url.search).slice(0, 500);
     }
-    return (url.pathname + url.search).slice(0, 500);
+    if (url.origin === "https://erpdurallanta.provedatos.com") {
+      return url.toString().slice(0, 500);
+    }
+    if (
+      url.origin === "https://durallanta.com" &&
+      url.pathname.startsWith("/durallantaoutlet/productos/")
+    ) {
+      return url.toString().slice(0, 500);
+    }
+    return null;
   } catch {
     return null;
   }
@@ -55,7 +64,7 @@ function parseTranscript(value: unknown): ChatMessage[] {
   });
 }
 
-function parseBattery(value: unknown): HandoffBatteryContext | null {
+function parseTire(value: unknown): HandoffTireContext | null {
   if (!value || typeof value !== "object" || Array.isArray(value)) return null;
   const record = value as Record<string, unknown>;
   const id = boundedString(record.id, "", 120);
@@ -78,14 +87,14 @@ function parseBattery(value: unknown): HandoffBatteryContext | null {
 
 function parseContext(value: unknown): HandoffCommerceContext {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
-    return { vehicle: null, battery: null };
+    return { vehicle: null, tire: null };
   }
   const record = value as Record<string, unknown>;
   return {
     vehicle: typeof record.vehicle === "string"
       ? boundedString(record.vehicle, "", 180) || null
       : null,
-    battery: parseBattery(record.battery),
+    tire: parseTire(record.tire),
   };
 }
 

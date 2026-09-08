@@ -4,7 +4,7 @@ import { Mic, MicOff, Phone, PhoneOff, Send, UserRound } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 
 import type {
-  HandoffBatteryContext,
+  HandoffTireContext,
   LiveKitConnection,
   PublicHandoffCase,
 } from "@/features/handoff/types";
@@ -19,7 +19,7 @@ import type { ChatMessage } from "@/types/agent";
 interface Props {
   messages: ChatMessage[];
   vehicle: string | null;
-  battery: HandoffBatteryContext | null;
+  tire: HandoffTireContext | null;
   onActiveChange: (active: boolean) => void;
 }
 
@@ -40,7 +40,7 @@ async function readJson(response: Response) {
 export function ClientHandoffPanel({
   messages,
   vehicle,
-  battery,
+  tire,
   onActiveChange,
 }: Props) {
   const [customerName, setCustomerName] = useState("");
@@ -150,7 +150,7 @@ export function ClientHandoffPanel({
         body: JSON.stringify({
           customerName,
           transcript: messages,
-          context: { vehicle, battery },
+          context: { vehicle, tire },
         }),
       });
       created = await readJson(response) as Session;

@@ -99,7 +99,7 @@ app: FastAPI = get_fast_api_app(
     otel_to_cloud=False,
     lifespan=lifespan,
 )
-app.title = "BateríasPower ADK"
+app.title = "Buscador IA de Llantas ADK"
 app.description = "Orquestador ADK para herramientas WebMCP del navegador."
 
 
@@ -151,6 +151,7 @@ async def orchestrate(request: OrchestrateRequest) -> AgentAction:
         )
     if action.arguments is None:
         raise HTTPException(status_code=502, detail="Argumentos ADK ausentes.")
+
     return action
 
 

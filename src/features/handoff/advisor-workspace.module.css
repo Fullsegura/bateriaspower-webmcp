@@ -25,7 +25,7 @@
 }
 
 .brand { gap: 11px; }
-.brand strong { font-size: 21px; font-weight: 780; letter-spacing: -.5px; }
+.brand strong { font-size: 21px; font-weight: 780; letter-spacing: 0; }
 .brand strong span { color: #f6a800; }
 .logo {
   width: 35px;
@@ -86,7 +86,7 @@
   letter-spacing: 1.2px;
   text-transform: uppercase;
 }
-.queueHeader h1 { margin-top: 4px; font-size: 23px; letter-spacing: -.7px; }
+.queueHeader h1 { margin-top: 4px; font-size: 23px; letter-spacing: 0; }
 .queueHeader button {
   width: 36px;
   height: 36px;
@@ -169,7 +169,7 @@
   letter-spacing: 1.1px;
   text-transform: uppercase;
 }
-.detailHeader h2 { margin-top: 6px; font-size: clamp(24px, 2.4vw, 30px); letter-spacing: -1px; }
+.detailHeader h2 { margin-top: 6px; font-size: clamp(24px, 2.4vw, 30px); letter-spacing: 0; }
 .detailHeader p { margin-top: 6px; color: #6a6f71; font-size: 13px; }
 .callActions { display: flex; gap: 9px; }
 .callActions button,
@@ -263,7 +263,7 @@
 
 .loginPage { min-height: 100vh; display: grid; place-items: center; padding: 24px; background: #f4f5f4; }
 .loginCard { width: min(100%, 380px); padding: 34px; border: 1px solid #dcddda; border-radius: 16px; background: #fff; box-shadow: 0 20px 50px rgba(24, 28, 28, .09); }
-.loginCard h1 { margin-top: 18px; font-size: 27px; letter-spacing: -.8px; }
+.loginCard h1 { margin-top: 18px; font-size: 27px; letter-spacing: 0; }
 .loginCard p { margin-top: 8px; color: #6c7173; font-size: 12px; line-height: 1.5; }
 .loginCard label { margin-top: 24px; display: grid; gap: 7px; color: #4a5052; font-size: 11px; font-weight: 700; }
 .loginCard input { height: 44px; padding: 0 12px; border: 1px solid #d4d6d3; border-radius: 8px; outline: 0; }
@@ -448,7 +448,7 @@
 .incomingCallDialog h2 {
   margin-top: 8px;
   font-size: 28px;
-  letter-spacing: -.9px;
+  letter-spacing: 0;
 }
 
 .incomingCallDialog > p {

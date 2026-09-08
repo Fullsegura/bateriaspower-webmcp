@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import {
-  BatteryCharging,
+  CircleGauge,
   Clock3,
   Headphones,
   LogOut,
@@ -46,7 +46,7 @@ export function AdvisorWorkspace() {
   const [cases, setCases] = useState<PublicHandoffCase[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [query, setQuery] = useState("");
-  const [advisorName, setAdvisorName] = useState("Asesor BateríasPower");
+  const [advisorName, setAdvisorName] = useState("Asesor de llantas");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [connectedCaseId, setConnectedCaseId] = useState<string | null>(null);
@@ -140,7 +140,7 @@ export function AdvisorWorkspace() {
       const haystack = [
         item.customerName,
         item.context.vehicle || "",
-        item.context.battery?.name || "",
+        item.context.tire?.name || "",
       ].join(" ").toLocaleLowerCase("es");
       return haystack.includes(normalized);
     });
@@ -214,7 +214,7 @@ export function AdvisorWorkspace() {
         <form className={styles.loginCard} onSubmit={login}>
           <span className={styles.logo}><Zap size={24} fill="currentColor" /></span>
           <h1>Acceso de asesor</h1>
-          <p>Ingresa la clave del sitio autónomo BateríasPower.</p>
+          <p>Ingresa la clave de Buscador IA de Llantas.</p>
           <label>
             Clave de acceso
             <input
@@ -235,7 +235,7 @@ export function AdvisorWorkspace() {
       <header className={styles.header}>
         <a className={styles.brand} href="/search">
           <span className={styles.logo}><Zap size={18} fill="currentColor" /></span>
-          <strong>Baterías<span>Power</span></strong>
+          <strong>Buscador IA <span>de Llantas</span></strong>
         </a>
         <div className={styles.advisorMeta}>
           <Headphones size={18} />
@@ -408,22 +408,22 @@ export function AdvisorWorkspace() {
 
               <div className={styles.contextGrid}>
                 <article>
-                  <span><BatteryCharging size={16} /> Selección compartida</span>
-                  <strong>{selected.context.battery?.name || "Sin batería seleccionada"}</strong>
-                  {selected.context.battery ? (
+                  <span><CircleGauge size={16} /> Selección compartida</span>
+                  <strong>{selected.context.tire?.name || "Sin llanta seleccionada"}</strong>
+                  {selected.context.tire ? (
                     <>
-                      {selected.context.battery.image ? (
+                      {selected.context.tire.image ? (
                         <Image
                           className={styles.sharedProductImage}
-                          src={selected.context.battery.image}
-                          alt={selected.context.battery.name}
+                          src={selected.context.tire.image}
+                          alt={selected.context.tire.name}
                           width={260}
                           height={190}
                         />
                       ) : null}
                       <p>
-                        {selected.context.battery.quantity} unidad ·
-                        {" $" + selected.context.battery.total.toFixed(2)}
+                        {selected.context.tire.quantity} unidad ·
+                        {" $" + selected.context.tire.total.toFixed(2)}
                       </p>
                     </>
                   ) : <p>El cliente todavía no agregó un producto.</p>}
