@@ -10,7 +10,7 @@ def test_root_delegates_without_business_tools() -> None:
 
 
 def test_all_agents_use_approved_model() -> None:
-    assert MODEL_ID == "gemini-3.7-flash"
+    assert MODEL_ID == "gemini-3.8-flash"
     assert root_agent.model.model == MODEL_ID
     assert catalog_agent.model.model == MODEL_ID
 

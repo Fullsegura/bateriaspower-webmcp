@@ -1,7 +1,7 @@
 # Buscador IA de Llantas
 
 Next.js consulta el catálogo público actual de Durallanta y registra cinco
-herramientas WebMCP; Google ADK orquesta la conversación con `gemini-3.7-flash`.
+herramientas WebMCP; Google ADK orquesta la conversación con `gemini-3.8-flash`.
 
 ## Requisitos
 

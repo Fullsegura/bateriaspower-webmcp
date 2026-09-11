@@ -1,0 +1,14 @@
+.orb { position:relative; width:112px; height:112px; flex-shrink:0; isolation:isolate; }
+.aura { width:100%; height:100%; aspect-ratio:1; pointer-events:none; }
+.staticAura { position:absolute; inset:15%; border:5px solid #8cd4e8; border-radius:50%; background:#eafaff; }
+.clientConnected { border-color:#dcecf1; background:#fff; }
+.clientStatus { display:flex; align-items:center; gap:12px; min-width:0; }
+.clientConnected :global(.handoffCallActions) { gap:8px; }
+.clientConnected :global(.handoffCallActions) button { width:42px; height:42px; flex:none; padding:0; display:grid; place-items:center; border-radius:50%; }
+@media(max-width:640px) {
+  .clientConnected { grid-template-columns:minmax(0,1fr) auto; gap:8px; padding:10px; }
+  .clientStatus { gap:8px; }
+  .clientStatus .orb { width:48px; height:48px; }
+  .clientConnected :global(.handoffCallActions) { justify-content:flex-end; gap:6px; }
+  .clientConnected :global(.handoffCallActions) button { width:40px; height:40px; }
+}

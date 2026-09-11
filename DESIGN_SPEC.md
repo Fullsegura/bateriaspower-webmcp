@@ -29,7 +29,7 @@ navegador y conectadas a rutas same-origin de Next.js.
 - `search_to_sale_orchestrator`: root ADK con `tools=[]`; delega cada turno.
 - `catalog_agent`: especialista único de catálogo, compatibilidad reportada,
   stock, selección y cotización.
-- Modelo preservado: `gemini-3.7-flash`.
+- Modelo preservado: `gemini-3.8-flash`.
 - Next.js expone `/api/agent` hacia ADK, `/api/catalog/search` para búsquedas y
   `/api/catalog/stock` para agregados.
 - Las rutas de catálogo consultan `https://durallanta.com` con `cache: no-store`,

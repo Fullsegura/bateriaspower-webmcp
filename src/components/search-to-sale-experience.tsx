@@ -141,6 +141,9 @@ export function SearchToSaleExperience({
   const [busy, setBusy] = useState(false);
   const [handoffActive, setHandoffActive] = useState(false);
   const [sheet, setSheet] = useState<"closed" | "peek" | "half" | "full">("closed");
+  const [sheetHeight, setSheetHeight] = useState<number | null>(null);
+  const sheetDrag = useRef<{ y: number; height: number } | null>(null);
+  const sheetMoved = useRef(false);
   const sessionId = useRef<string | null>(null);
   const messagesRef = useRef<HTMLDivElement>(null);
   const searchFormRef = useRef<HTMLFormElement>(null);
@@ -222,10 +225,13 @@ export function SearchToSaleExperience({
   }
 
   function cycleSheet() {
+    if (sheetMoved.current) { sheetMoved.current = false; return; }
+    setSheetHeight(null);
     setSheet((current) => current === "closed" ? "peek" : current === "peek" ? "half" : current === "half" ? "full" : "peek");
   }
 
   function toggleSheet() {
+    if (sheet === "closed" && sheetHeight !== null && sheetHeight < 10) setSheetHeight(50);
     setSheet((current) => current === "closed" ? "half" : "closed");
   }
 
@@ -413,8 +419,35 @@ export function SearchToSaleExperience({
           </div>
         </section>
 
-        <aside className={`${styles.agentPanel} ${styles[`sheet-${sheet}`]}`} id="agent" aria-label="Agente de llantas">
-          <button className={styles.sheetHandle} type="button" onClick={cycleSheet} aria-label="Cambiar altura del agente"><span /></button>
+        <aside className={`${styles.agentPanel} ${styles[`sheet-${sheet}`]}`} style={sheet !== "closed" && sheetHeight !== null ? { height: `${sheetHeight}dvh`, minHeight: 0, transition: "none" } : undefined} id="agent" aria-label="Agente de llantas">
+          <button className={styles.sheetHandle} type="button" onClick={cycleSheet} aria-label="Cambiar altura del agente"
+            onPointerDown={(event) => {
+              sheetMoved.current = false;
+              sheetDrag.current = { y: event.clientY, height: event.currentTarget.parentElement!.getBoundingClientRect().height / window.innerHeight * 100 };
+              event.currentTarget.setPointerCapture(event.pointerId);
+            }}
+            onPointerMove={(event) => {
+              const drag = sheetDrag.current;
+              if (!drag || Math.abs(event.clientY - drag.y) < 3) return;
+              sheetMoved.current = true;
+              setSheet("half");
+              setSheetHeight(Math.max(0, Math.min(100, drag.height + (drag.y - event.clientY) / window.innerHeight * 100)));
+            }}
+            onPointerUp={(event) => {
+              if (sheetDrag.current && sheetMoved.current && (sheetHeight ?? 50) < 10) setSheet("closed");
+              sheetDrag.current = null;
+              event.currentTarget.releasePointerCapture(event.pointerId);
+            }}
+            onPointerCancel={() => { sheetDrag.current = null; }}
+            onLostPointerCapture={() => { sheetDrag.current = null; }}
+            onKeyDown={(event) => {
+              if (!["ArrowUp", "ArrowDown", "Home", "End"].includes(event.key)) return;
+              event.preventDefault();
+              if (event.key === "Home") { setSheet("closed"); return; }
+              setSheet("half");
+              setSheetHeight(height => event.key === "End" ? 100 : Math.max(10, Math.min(100, (height ?? 50) + (event.key === "ArrowUp" ? 5 : -5))));
+            }}
+          ><span /></button>
           <div className={styles.agentHeader}>
             <div className={styles.agentIdentity}>
               <span className={styles.agentIcon}><Bot size={22} /></span>
