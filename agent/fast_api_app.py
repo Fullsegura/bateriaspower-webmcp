@@ -105,7 +105,7 @@ app.description = "Orquestador ADK para herramientas WebMCP del navegador."
 
 @app.get("/health")
 def health() -> dict[str, str]:
-    return {"status": "ok", "model": "gemini-3.7-flash"}
+    return {"status": "ok", "model": "gemini-3.8-flash"}
 
 
 @app.post("/orchestrate", response_model=AgentAction)

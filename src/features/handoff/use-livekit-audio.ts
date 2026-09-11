@@ -5,6 +5,7 @@ import {
   RoomEvent,
   Track,
   type RemoteParticipant,
+  type RemoteAudioTrack,
   type RemoteTrack,
   type RemoteTrackPublication,
 } from "livekit-client";
@@ -32,11 +33,15 @@ export function useLiveKitAudio() {
   const [state, setState] = useState<AudioConnectionState>("idle");
   const [muted, setMuted] = useState(false);
   const [remoteParticipantCount, setRemoteParticipantCount] = useState(0);
+  const [remoteAudioTrack, setRemoteAudioTrack] = useState<RemoteAudioTrack>();
+  const [remoteSpeaking, setRemoteSpeaking] = useState(false);
   const [textMessages, setTextMessages] = useState<LiveKitTextMessage[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   const clearAudio = useCallback(() => {
     audioRootRef.current?.replaceChildren();
+    setRemoteAudioTrack(undefined);
+    setRemoteSpeaking(false);
   }, []);
 
   const disconnect = useCallback(async () => {
@@ -69,6 +74,7 @@ export function useLiveKitAudio() {
       void publication;
       void participant;
       if (track.kind !== Track.Kind.Audio) return;
+      setRemoteAudioTrack(track as RemoteAudioTrack);
       const element = track.attach();
       element.autoplay = true;
       element.setAttribute("playsinline", "");
@@ -76,6 +82,7 @@ export function useLiveKitAudio() {
     };
     const detachAudio = (track: RemoteTrack) => {
       for (const element of track.detach()) element.remove();
+      setRemoteAudioTrack((current) => current === track ? undefined : current);
     };
 
     room
@@ -83,6 +90,9 @@ export function useLiveKitAudio() {
       .on(RoomEvent.TrackUnsubscribed, detachAudio)
       .on(RoomEvent.ParticipantConnected, updateRemoteCount)
       .on(RoomEvent.ParticipantDisconnected, updateRemoteCount)
+      .on(RoomEvent.ActiveSpeakersChanged, (participants) => {
+        setRemoteSpeaking(participants.some((participant) => !participant.isLocal));
+      })
       // UNVERIFIED_MCP: Checked against docs.livekit.io and livekit-client 2.20 types.
       .on(RoomEvent.DataReceived, (payload, participant, kind, topic) => {
         void participant;
@@ -162,6 +172,8 @@ export function useLiveKitAudio() {
     error,
     muted,
     remoteParticipantCount,
+    remoteAudioTrack,
+    remoteSpeaking,
     sendText,
     state,
     textMessages,

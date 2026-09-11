@@ -33,7 +33,7 @@ export function createLiveKitTextMessage(
   };
 }
 
-export function encodeLiveKitTextMessage(message: LiveKitTextMessage): Uint8Array {
+export function encodeLiveKitTextMessage(message: LiveKitTextMessage): Uint8Array<ArrayBuffer> {
   const wireMessage: WireChatMessage = {
     version: 1,
     id: message.id,

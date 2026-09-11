@@ -176,9 +176,10 @@
   .agentPanel { height: 50vh; min-height: 245px; position: fixed; z-index: 30; top: auto; left: 0; right: 0; bottom: 0; border: 1px solid #d6d7d4; border-bottom: 0; border-radius: 20px 20px 0 0; box-shadow: 0 -14px 45px rgba(19, 23, 24, .18); transition: height .24s ease; }
   .agentPanel.sheet-peek { height: 104px; min-height: 104px; }
   .agentPanel.sheet-half { height: 50vh; }
-  .agentPanel.sheet-full { height: calc(100vh - 38px); }
+  .agentPanel.sheet-full { height: 100dvh; }
   .agentPanel.sheet-closed { width: 56px; height: 56px; min-height: 56px; left: auto; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom)); overflow: hidden; border: 0; border-radius: 50%; box-shadow: 0 8px 25px rgba(19, 23, 24, .25); }
   .sheetHandle { height: 19px; width: 100%; display: grid; place-items: center; border: 0; border-radius: 20px 20px 0 0; background: white; }
+  .sheetHandle { touch-action:none; cursor:ns-resize; flex-shrink:0; }
   .sheetHandle span { width: 42px; height: 4px; border-radius: 4px; background: #c4c6c5; }
   .agentHeader { height: 57px; padding: 0 17px; }
   .sheetToggle { width: 35px; height: 35px; display: grid; place-items: center; border: 0; border-radius: 8px; color: #4e5355; background: #f0f1ef; }

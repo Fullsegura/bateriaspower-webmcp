@@ -101,6 +101,8 @@ input {
   cursor: pointer;
 }
 .handoffClient button:disabled { opacity: .55; cursor: wait; }
+.handoffClient.handoffClientCompact { padding: 0; border: 0; background: transparent; display: flex; justify-content: flex-end; }
+.handoffClientCompact button { width: 44px; height: 44px; padding: 0; border-radius: 50%; }
 .handoffClient > p { color: #9a3029; font-size: 9px; line-height: 1.4; }
 .handoffClientActive { grid-template-columns: minmax(0, 1fr) auto; align-items: center; border-color: #0d766e; background: #f3faf8; }
 .handoffCallActions { gap: 6px; }

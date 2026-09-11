@@ -2,10 +2,13 @@
 
 import Image from "next/image";
 import {
+  Bot,
   CircleGauge,
   Clock3,
   Headphones,
   LogOut,
+  Maximize,
+  Minimize,
   Mic,
   MicOff,
   PhoneCall,
@@ -13,10 +16,11 @@ import {
   RefreshCw,
   Search,
   Send,
-  UserRound,
+  X,
   Zap,
 } from "lucide-react";
 import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { CallOrb } from "./call-orb";
 
 import type { LiveKitConnection, PublicHandoffCase } from "@/features/handoff/types";
 import {
@@ -52,6 +56,8 @@ export function AdvisorWorkspace() {
   const [connectedCaseId, setConnectedCaseId] = useState<string | null>(null);
   const [liveDraft, setLiveDraft] = useState("");
   const [liveChatError, setLiveChatError] = useState<string | null>(null);
+  const [chatHeight, setChatHeight] = useState(60);
+  const chatDrag = useRef<{ y: number; height: number } | null>(null);
   const activeCallIdRef = useRef<string | null>(null);
   const liveMessagesRef = useRef<HTMLDivElement>(null);
   const { playHangup, startRinging, stopRinging, unlock } = useForegroundCallSounds();
@@ -62,6 +68,8 @@ export function AdvisorWorkspace() {
     error: audioError,
     muted,
     remoteParticipantCount,
+    remoteAudioTrack,
+    remoteSpeaking,
     sendText: sendLiveText,
     state: audioState,
     textMessages,
@@ -181,6 +189,7 @@ export function AdvisorWorkspace() {
         setConnectedCaseId(targetCase.id);
         setLiveDraft("");
         setLiveChatError(null);
+        setChatHeight(60);
         await connectAudio(body.connection as LiveKitConnection);
       } else {
         stopRinging();
@@ -231,7 +240,7 @@ export function AdvisorWorkspace() {
   }
 
   return (
-    <main className={styles.shell}>
+    <main className={`${styles.shell} ${activeCall ? styles.inCall : ""}`}>
       <header className={styles.header}>
         <a className={styles.brand} href="/search">
           <span className={styles.logo}><Zap size={18} fill="currentColor" /></span>
@@ -296,7 +305,8 @@ export function AdvisorWorkspace() {
       ) : null}
 
       {activeCall && activeCall.status !== "ended" ? (
-        <section className={styles.activeCallDock} aria-label="Controles de llamada">
+        <section className={`${styles.activeCallDock} ${audioState === "connected" ? styles.connectedOrbDock : ""}`} aria-label="Controles de llamada">
+          {audioState === "connected" ? <CallOrb muted={muted} audioTrack={remoteAudioTrack} speaking={remoteSpeaking} /> : null}
           <div>
             <span>{audioState === "connected" ? "Llamada en curso" : "Conectando llamada"}</span>
             <strong>{activeCall.customerName}</strong>
@@ -308,6 +318,8 @@ export function AdvisorWorkspace() {
               disabled={audioState !== "connected"}
               onClick={() => void toggleMute()}
               aria-label={muted ? "Activar micrófono" : "Silenciar"}
+              aria-pressed={muted}
+              title={muted ? "Activar micrófono" : "Silenciar"}
             >
               {muted ? <MicOff size={18} /> : <Mic size={18} />}
             </button>
@@ -316,6 +328,7 @@ export function AdvisorWorkspace() {
               className={styles.endCall}
               onClick={() => void caseAction("end", activeCall)}
               aria-label="Finalizar llamada"
+              title="Finalizar llamada"
             >
               <PhoneOff size={18} />
             </button>
@@ -367,7 +380,7 @@ export function AdvisorWorkspace() {
           </div>
         </aside>
 
-        <section className={styles.caseDetail}>
+        <section className={styles.caseDetail} style={selected?.id === connectedCaseId && chatHeight > 0 ? { paddingBottom: `calc(${chatHeight}dvh + 8px)` } : undefined}>
           {selected ? (
             <>
               <div className={styles.detailHeader}>
@@ -385,26 +398,11 @@ export function AdvisorWorkspace() {
                     >
                       <PhoneCall size={17} /> {busy ? "Conectando…" : "Aceptar llamada"}
                     </button>
-                  ) : selected.status !== "ended" ? (
-                    <>
-                      {audioState !== "connected" ? (
-                        <button type="button" onClick={() => void caseAction("accept")} disabled={busy}>
-                          <PhoneCall size={17} /> Conectar audio
-                        </button>
-                      ) : (
-                        <button type="button" className={styles.secondary} onClick={() => void toggleMute()}>
-                          {muted ? <MicOff size={17} /> : <Mic size={17} />}
-                          {muted ? "Activar micrófono" : "Silenciar"}
-                        </button>
-                      )}
-                      <button type="button" className={styles.danger} onClick={() => void caseAction("end")}>
-                        <PhoneOff size={17} /> Finalizar
-                      </button>
-                    </>
                   ) : null}
                 </div>
               </div>
-              <div className={styles.caseContent}>
+              <details className={styles.caseContent}>
+              <summary>Ver detalles y contexto</summary>
 
               <div className={styles.contextGrid}>
                 <article>
@@ -428,11 +426,6 @@ export function AdvisorWorkspace() {
                     </>
                   ) : <p>El cliente todavía no agregó un producto.</p>}
                 </article>
-                <article>
-                  <span><UserRound size={16} /> Estado de voz</span>
-                  <strong>{remoteParticipantCount > 0 ? "Cliente conectado" : statusLabel(selected.status)}</strong>
-                  <p>{audioState === "connected" ? "Audio activo" : "Esperando conexión de audio"}</p>
-                </article>
               </div>
 
               <div className={styles.transcript}>
@@ -446,11 +439,38 @@ export function AdvisorWorkspace() {
                 {!selected.transcript.length ? <p>Sin mensajes previos.</p> : null}
               </div>
 
-              </div>
+              </details>
 
               {selected.id === connectedCaseId ? (
-                <section className={styles.liveChat} aria-label="Chat en vivo con el cliente">
-                  <h3>Chat en vivo</h3>
+                <>
+                {chatHeight === 0 ? <button type="button" className={styles.reopenChat} aria-label="Abrir chat" title="Abrir chat" onClick={() => setChatHeight(60)}><Bot size={22} aria-hidden="true" /></button> : null}
+                <section className={`${styles.liveChat} ${styles.resizableChat}`} style={{ height: `${chatHeight}dvh`, display: chatHeight === 0 ? "none" : undefined }} aria-label="Chat en vivo con el cliente">
+                  <div className={styles.sheetHeader}>
+                    <div
+                      className={styles.resizeHandle}
+                      role="slider" tabIndex={0} aria-label="Altura del chat" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(chatHeight)} aria-orientation="vertical"
+                      onPointerDown={(event) => {
+                        chatDrag.current = { y: event.clientY, height: chatHeight };
+                        event.currentTarget.setPointerCapture(event.pointerId);
+                      }}
+                      onPointerMove={(event) => {
+                        if (!chatDrag.current) return;
+                        setChatHeight(Math.max(0, Math.min(100, chatDrag.current.height + (chatDrag.current.y - event.clientY) / window.innerHeight * 100)));
+                      }}
+                      onPointerUp={() => { chatDrag.current = null; setChatHeight(height => height < 10 ? 0 : height); }}
+                      onPointerCancel={() => { chatDrag.current = null; }}
+                      onLostPointerCapture={() => { chatDrag.current = null; }}
+                      onKeyDown={(event) => {
+                        if (!["ArrowUp", "ArrowDown", "Home", "End"].includes(event.key)) return;
+                        event.preventDefault();
+                        setChatHeight(height => event.key === "Home" ? 0 : event.key === "End" ? 100 : Math.max(0, Math.min(100, height + (event.key === "ArrowUp" ? 5 : -5))));
+                      }}
+                    ><span /></div>
+                    <div className={styles.sheetTitle}><h3>Chat en vivo</h3><div>
+                      <button type="button" aria-label={chatHeight === 100 ? "Reducir" : "Pantalla completa"} title={chatHeight === 100 ? "Reducir" : "Pantalla completa"} onClick={() => setChatHeight(chatHeight === 100 ? 60 : 100)}>{chatHeight === 100 ? <Minimize size={18} strokeWidth={1.5} aria-hidden="true" /> : <Maximize size={18} strokeWidth={1.5} aria-hidden="true" />}</button>
+                      <button type="button" aria-label="Cerrar chat" title="Cerrar chat" onClick={() => setChatHeight(0)}><X size={18} strokeWidth={1.5} aria-hidden="true" /></button>
+                    </div></div>
+                  </div>
                   <div ref={liveMessagesRef} className={styles.liveMessages} aria-live="polite">
                     {textMessages.map((message) => (
                       <p key={message.id} data-direction={message.direction}>
@@ -491,6 +511,7 @@ export function AdvisorWorkspace() {
                   ) : null}
                   {liveChatError ? <p className={styles.error} role="alert">{liveChatError}</p> : null}
                 </section>
+                </>
               ) : null}
             </>
           ) : (

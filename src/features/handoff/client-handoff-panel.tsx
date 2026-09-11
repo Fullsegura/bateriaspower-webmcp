@@ -1,6 +1,6 @@
 "use client";
 
-import { Mic, MicOff, Phone, PhoneOff, Send, UserRound } from "lucide-react";
+import { Mic, MicOff, Phone, PhoneOff, Send, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 
 import type {
@@ -9,6 +9,8 @@ import type {
   PublicHandoffCase,
 } from "@/features/handoff/types";
 import { isClientHandoffVisible } from "@/features/handoff/handoff-view-state";
+import { CallOrb } from "./call-orb";
+import callStyles from "./call-orb.module.css";
 import {
   shouldRingClient,
   useForegroundCallSounds,
@@ -44,6 +46,7 @@ export function ClientHandoffPanel({
   onActiveChange,
 }: Props) {
   const [customerName, setCustomerName] = useState("");
+  const [showName, setShowName] = useState(false);
   const [session, setSession] = useState<Session | null>(null);
   const [handoff, setHandoff] = useState<PublicHandoffCase | null>(null);
   const [requesting, setRequesting] = useState(false);
@@ -60,6 +63,8 @@ export function ClientHandoffPanel({
     error: audioError,
     muted,
     remoteParticipantCount,
+    remoteAudioTrack,
+    remoteSpeaking,
     sendText: sendLiveText,
     textMessages,
     toggleMute,
@@ -200,16 +205,11 @@ export function ClientHandoffPanel({
 
   if (!handoff || !active) {
     return (
-      <section className="handoffClient" aria-label="Hablar con un asesor">
-        <div className="handoffClientIntro">
-          <span><UserRound size={16} /></span>
-          <div>
-            <strong>¿Prefieres hablar?</strong>
-            <small>Transfiere este chat y tu selección a un asesor.</small>
-          </div>
-        </div>
+      <section className={`handoffClient${showName ? "" : " handoffClientCompact"}`} aria-label="Hablar con un asesor">
+        {!showName ? <button type="button" aria-label="Hablar con asesor" title="Hablar con asesor" onClick={() => setShowName(true)}><Phone size={20} aria-hidden="true" /></button> : (
         <div className="handoffClientActions">
           <input
+            autoFocus
             value={customerName}
             onChange={(event) => setCustomerName(event.target.value)}
             placeholder="Tu nombre (opcional)"
@@ -220,7 +220,9 @@ export function ClientHandoffPanel({
             <Phone size={16} />
             {requesting ? "Conectando…" : "Hablar con asesor"}
           </button>
+          <button type="button" aria-label="Cancelar llamada" disabled={requesting} onClick={() => setShowName(false)}><X size={18} aria-hidden="true" /></button>
         </div>
+        )}
         {requestError ? <p role="alert">{requestError}</p> : null}
         <div ref={audioRootRef} hidden />
       </section>
@@ -228,22 +230,25 @@ export function ClientHandoffPanel({
   }
 
   return (
-    <section className="handoffClient handoffClientActive" aria-live="polite">
-      <div>
+    <section className={`handoffClient handoffClientActive ${remoteParticipantCount > 0 ? callStyles.clientConnected : ""}`} aria-live="polite">
+      <div className={remoteParticipantCount > 0 ? callStyles.clientStatus : undefined}>
+        {remoteParticipantCount > 0 ? <CallOrb muted={muted} audioTrack={remoteAudioTrack} speaking={remoteSpeaking} /> : null}
+        <div>
         <strong>{statusText}</strong>
         <small>
           {remoteParticipantCount > 0
             ? "Audio bidireccional activo"
             : "Sala de voz preparada"}
         </small>
+        </div>
       </div>
       <div className="handoffCallActions">
-        <button type="button" onClick={() => void toggleMute()}>
+        <button type="button" onClick={() => void toggleMute()} aria-label={muted ? "Activar micrófono" : "Silenciar"} title={muted ? "Activar micrófono" : "Silenciar"} aria-pressed={muted}>
           {muted ? <MicOff size={16} /> : <Mic size={16} />}
-          {muted ? "Activar" : "Silenciar"}
+          {remoteParticipantCount === 0 ? (muted ? "Activar" : "Silenciar") : null}
         </button>
-        <button type="button" className="danger" onClick={() => void end()}>
-          <PhoneOff size={16} /> Colgar
+        <button type="button" className="danger" onClick={() => void end()} aria-label="Colgar" title="Colgar">
+          <PhoneOff size={16} /> {remoteParticipantCount === 0 ? "Colgar" : null}
         </button>
       </div>
       <div className="handoffClientLiveChat">

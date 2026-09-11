@@ -5,7 +5,7 @@ from google.adk.apps import App
 from google.adk.models import Gemini
 from google.genai import types
 
-MODEL_ID = "gemini-3.7-flash"
+MODEL_ID = "gemini-3.8-flash"
 
 model = Gemini(
     model=MODEL_ID,
