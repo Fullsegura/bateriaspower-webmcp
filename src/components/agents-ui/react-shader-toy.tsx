@@ -986,4 +986,3 @@ export function ReactShaderToy({
     <canvas ref={canvasRef} style={{ height: '100%', width: '100%', ...style }} {...canvasProps} />
   );
 }
-
