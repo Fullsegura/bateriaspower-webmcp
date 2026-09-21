@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 import { CatalogInputError, parseStockCriteria } from "@/lib/catalog-input";
-import { DurallantaError, summarizeTireStock } from "@/lib/durallanta";
+import { PowerLlantaError, summarizeTireStock } from "@/lib/powerllanta";
 
 export const runtime = "nodejs";
 
@@ -13,7 +13,7 @@ export async function POST(request: Request) {
     if (error instanceof CatalogInputError) {
       return NextResponse.json({ detail: error.message }, { status: 400 });
     }
-    if (error instanceof DurallantaError) {
+    if (error instanceof PowerLlantaError) {
       return NextResponse.json(
         { detail: error.message, options: error.details },
         { status: error.status },

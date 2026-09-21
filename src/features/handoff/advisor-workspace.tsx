@@ -401,7 +401,7 @@ export function AdvisorWorkspace() {
                   ) : null}
                 </div>
               </div>
-              <details className={styles.caseContent}>
+              <details className={styles.caseContent} open>
               <summary>Ver detalles y contexto</summary>
 
               <div className={styles.contextGrid}>

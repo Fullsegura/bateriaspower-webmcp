@@ -36,7 +36,7 @@ check(exact.body.resolvedVehicle?.make === "TOYOTA", "marca resuelta por la fuen
 check(exact.body.resolvedVehicle?.model === exactModel, "versión exacta conservada");
 check(exact.body.resolvedVehicle?.year === 2018, "año exacto conservado");
 const sourceSizes = new Set(exact.body.resolvedVehicle?.sizes ?? []);
-check(sourceSizes.size > 0, "Durallanta reporta al menos una medida compatible");
+check(sourceSizes.size > 0, "PowerLlanta reporta al menos una medida compatible");
 check(
   Array.isArray(exact.body.tires) &&
     exact.body.tires.every((tire) =>

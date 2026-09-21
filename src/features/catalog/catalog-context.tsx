@@ -19,6 +19,7 @@ import {
 } from "@/features/catalog/catalog-state";
 import type {
   CatalogActions,
+  CatalogExecutionContext,
   CatalogState,
   QuoteQuantityMode,
   Tire,
@@ -42,11 +43,12 @@ ${options
     .join("\n")}`;
 }
 
-async function postJson<T>(path: string, body: unknown): Promise<T> {
+async function postJson<T>(path: string, body: unknown, signal?: AbortSignal): Promise<T> {
   const response = await fetch(path, {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify(body),
+    signal,
   });
   const payload = await response.json() as { detail?: string; options?: unknown } & T;
   if (!response.ok) {
@@ -54,6 +56,12 @@ async function postJson<T>(path: string, body: unknown): Promise<T> {
     throw new Error((payload.detail || "La consulta no pudo completarse.") + suffix);
   }
   return payload;
+}
+
+function assertCurrent(execution?: CatalogExecutionContext): void {
+  if (execution && !execution.isCurrent()) {
+    throw new DOMException("La ejecución fue cancelada.", "AbortError");
+  }
 }
 
 export function CatalogProvider({
@@ -75,8 +83,16 @@ export function CatalogProvider({
 
   const setQuery = useCallback((query: string) => dispatch({ type: "set-query", query }), []);
 
-  const search = useCallback(async (criteria: TireSearchCriteria): Promise<TireSearchResult> => {
-    const result = await postJson<TireSearchResult>("/api/catalog/search", criteria);
+  const search = useCallback(async (
+    criteria: TireSearchCriteria,
+    execution?: CatalogExecutionContext,
+  ): Promise<TireSearchResult> => {
+    const result = await postJson<TireSearchResult>(
+      "/api/catalog/search",
+      criteria,
+      execution?.signal,
+    );
+    assertCurrent(execution);
     dispatch({ type: "searched", criteria, result });
     return result;
   }, []);
@@ -85,13 +101,22 @@ export function CatalogProvider({
     category: "01" | "02" | "03" | "04";
     city?: string;
     warehouse?: string;
-  }): Promise<TireStockSummary> => {
-    const summary = await postJson<TireStockSummary>("/api/catalog/stock", input);
+  }, execution?: CatalogExecutionContext): Promise<TireStockSummary> => {
+    const summary = await postJson<TireStockSummary>(
+      "/api/catalog/stock",
+      input,
+      execution?.signal,
+    );
+    assertCurrent(execution);
     dispatch({ type: "stock-summary", summary });
     return summary;
   }, []);
 
-  const selectTire = useCallback((tireId: string): Tire => {
+  const selectTire = useCallback((
+    tireId: string,
+    execution?: CatalogExecutionContext,
+  ): Tire => {
+    assertCurrent(execution);
     const tire = runSelectTire(stateRef.current.tires, tireId);
     dispatch({ type: "select", tireId });
     return tire;
@@ -102,7 +127,9 @@ export function CatalogProvider({
     quantity: number,
     quantityMode: QuoteQuantityMode = "total",
     warehouse?: string,
+    execution?: CatalogExecutionContext,
   ) => {
+    assertCurrent(execution);
     const quote = runPrepareQuote(
       stateRef.current.tires,
       tireId,

@@ -45,7 +45,6 @@ const tire: Tire = {
   },
   image: null,
   secondaryImages: [],
-  sourceUrl: "https://durallanta.com",
 };
 
 describe("catálogo de llantas", () => {

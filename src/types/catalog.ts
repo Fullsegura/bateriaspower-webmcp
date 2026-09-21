@@ -46,7 +46,6 @@ export interface Tire {
   };
   image: string | null;
   secondaryImages: string[];
-  sourceUrl: string;
 }
 
 export interface VehicleSearchCriteria {
@@ -135,20 +134,29 @@ export interface CatalogState {
   queriedAt: string | null;
 }
 
+export interface CatalogExecutionContext {
+  signal: AbortSignal;
+  isCurrent(): boolean;
+}
+
 export interface CatalogActions {
   setQuery(query: string): void;
-  search(criteria: TireSearchCriteria): Promise<TireSearchResult>;
+  search(
+    criteria: TireSearchCriteria,
+    execution?: CatalogExecutionContext,
+  ): Promise<TireSearchResult>;
   summarizeStock(input: {
     category: TireCategory;
     city?: string;
     warehouse?: string;
-  }): Promise<TireStockSummary>;
-  selectTire(tireId: string): Tire;
+  }, execution?: CatalogExecutionContext): Promise<TireStockSummary>;
+  selectTire(tireId: string, execution?: CatalogExecutionContext): Tire;
   prepareQuote(
     tireId: string,
     quantity: number,
     quantityMode?: QuoteQuantityMode,
     warehouse?: string,
+    execution?: CatalogExecutionContext,
   ): Quote;
   clearQuote(): void;
   reset(): void;

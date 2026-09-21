@@ -8,6 +8,10 @@ import type {
   LiveKitConnection,
   PublicHandoffCase,
 } from "@/features/handoff/types";
+import {
+  bindAdvisorHandoffAction,
+  type AdvisorHandoffResult,
+} from "@/features/handoff/webmcp-tool";
 import { isClientHandoffVisible } from "@/features/handoff/handoff-view-state";
 import { CallOrb } from "./call-orb";
 import callStyles from "./call-orb.module.css";
@@ -55,6 +59,7 @@ export function ClientHandoffPanel({
   const [chatError, setChatError] = useState<string | null>(null);
   const liveMessagesRef = useRef<HTMLDivElement>(null);
   const finishingRef = useRef(false);
+  const requestingRef = useRef(false);
   const { playHangup, startRinging, stopRinging, unlock } = useForegroundCallSounds();
   const {
     audioRootRef,
@@ -140,8 +145,12 @@ export function ClientHandoffPanel({
     return "Llamada finalizada";
   }, [handoff, remoteParticipantCount, requesting]);
 
-  async function start() {
+  const start = useCallback(async (): Promise<AdvisorHandoffResult> => {
+    if (requestingRef.current || active) {
+      return { ok: false, error: "El handoff ya está activo o en preparación." };
+    }
     finishingRef.current = false;
+    requestingRef.current = true;
     setChatDraft("");
     setChatError(null);
     unlock();
@@ -160,8 +169,13 @@ export function ClientHandoffPanel({
       });
       created = await readJson(response) as Session;
       setSession(created);
-      setHandoff(created.handoff);
       await connectAudio(created.connection);
+      setHandoff(created.handoff);
+      return {
+        ok: true,
+        handoffId: created.handoff.id,
+        status: created.handoff.status,
+      };
     } catch (error) {
       if (created) {
         await fetch("/api/handoff/cases/" + created.handoff.id, {
@@ -176,11 +190,16 @@ export function ClientHandoffPanel({
       setSession(null);
       setHandoff(null);
       await disconnectAudio().catch(() => undefined);
-      setRequestError(error instanceof Error ? error.message : "No fue posible iniciar la llamada.");
+      const message = error instanceof Error ? error.message : "No fue posible iniciar la llamada.";
+      setRequestError(message);
+      return { ok: false, error: message };
     } finally {
+      requestingRef.current = false;
       setRequesting(false);
     }
-  }
+  }, [active, connectAudio, customerName, disconnectAudio, messages, tire, unlock, vehicle]);
+
+  useEffect(() => bindAdvisorHandoffAction(start), [start]);
 
   async function end() {
     try {

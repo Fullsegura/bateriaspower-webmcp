@@ -38,7 +38,7 @@ describe("validación del contexto de handoff", () => {
     expect(parsed.context.tire?.image).toBeNull();
   });
 
-  it("acepta imágenes públicas de motos en Durallanta", () => {
+  it("acepta imágenes públicas de motos en PowerLlanta", () => {
     const image = "https://durallanta.com/durallantaoutlet/productos/04_015_0027_1.jpg";
     expect(parseCreateHandoffInput(inputWithImage(image)).context.tire?.image).toBe(image);
   });
