@@ -206,6 +206,8 @@
   .sheetHandle { touch-action:none; cursor:ns-resize; flex-shrink:0; }
   .sheetHandle span { width: 42px; height: 4px; border-radius: 4px; background: #c4c6c5; }
   .agentHeader { height: 57px; padding: 0 17px; }
+  .cameraPreview { height: clamp(220px, 38dvh, 380px); }
+  .cameraPreview video { object-fit: contain; }
   .sheetToggle { width: 35px; height: 35px; display: grid; place-items: center; border: 0; border-radius: 8px; color: #4e5355; background: #f0f1ef; }
   .messages { padding: 18px 16px; }
   .chatComposer { margin: 12px 15px 7px; }
