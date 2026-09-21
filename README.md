@@ -1,6 +1,6 @@
 # Buscador IA de Llantas
 
-Next.js consulta el catálogo público actual de Durallanta y registra cinco
+Next.js consulta el catálogo público actual de PowerLlanta y registra cinco
 herramientas WebMCP; Google ADK orquesta la conversación con `gemini-3.8-flash`.
 
 ## Requisitos
@@ -65,9 +65,10 @@ El store de casos es temporal y vive en memoria. Para el challenge, el despliegu
 ## Cloud Run
 
 El challenge se despliega en `fullsegura-55e8c` como un servicio aislado con
-dos contenedores: Next.js en el puerto público `8080` y ADK en
-`127.0.0.1:8000`. La escala automática usa mínimo `0` y máximo `1`; al escalar
-a cero se elimina la cola temporal.
+tres contenedores: Nginx en el puerto público `8080`, Next.js en
+`127.0.0.1:3000` y ADK en `127.0.0.1:8000`. Nginx dirige `/ws/live` a ADK y el
+resto a Next.js. La escala automática usa mínimo `0` y máximo `1`; al escalar a
+cero se elimina la cola temporal.
 
 ```bash
 gcloud builds submit \
@@ -78,6 +79,6 @@ gcloud builds submit \
 TAG=v1 ./scripts/deploy-cloud-run.sh
 ```
 
-El script requiere una cuenta de servicio `bateriaspower-webmcp` y cinco
+El script requiere una cuenta de servicio `bateriaspower-webmcp` y seis
 secretos independientes con prefijo `bateriaspower-`; no crea ni modifica
 recursos de los servicios Fullsegura existentes.

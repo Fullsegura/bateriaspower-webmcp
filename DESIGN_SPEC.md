@@ -3,7 +3,7 @@
 ## Overview
 
 Buscador IA de Llantas permite que una persona y un agente colaboren sobre la
-misma interfaz para consultar el catálogo público actual de Durallanta, revisar
+misma interfaz para consultar el catálogo público actual de PowerLlanta, revisar
 precio y stock, seleccionar una llanta y preparar una cotización informativa.
 No crea reservas, pedidos, cobros ni efectos externos.
 
@@ -15,12 +15,12 @@ navegador y conectadas a rutas same-origin de Next.js.
 ## Example Use Cases
 
 1. “Toyota RAV4 2018 en Quito” resuelve marca, año, variante y medidas mediante
-   las consultas públicas usadas por Durallanta; después muestra productos
+   las consultas públicas usadas por PowerLlanta; después muestra productos
    vigentes que coinciden exactamente con esas medidas.
 2. “Busco 225/65R17, cuatro unidades en Quito” devuelve hasta cinco opciones con
    precio sin IVA, total de cargos conocidos y stock por local.
 3. “¿Cuántas llantas de moto hay?” suma automáticamente la única agrupación
-   `MOTO` reportada por Durallanta, sin pedir ciudad o bodega.
+   `MOTO` reportada por PowerLlanta, sin pedir ciudad o bodega.
 4. “Cotiza cuatro de la opción Firestone” genera un subtotal informativo con el
    precio actual retornado por la fuente.
 
@@ -49,7 +49,7 @@ Las herramientas se definen con `@nekuda/webmcp-sdk`. El cliente descubre y
 ejecuta las herramientas disponibles en cada estado. Búsqueda y stock son de
 solo lectura; selección, cotización y reset cambian únicamente estado local.
 
-## Durallanta Contract
+## PowerLlanta Contract
 
 - Categorías: `01` autos, `02` camionetas/SUV, `03` camiones, `04` motos.
 - Vehículos: `get_main_search_parameters`, `get_years_by_car_brand`,
@@ -65,11 +65,11 @@ solo lectura; selección, cotización y reset cambian únicamente estado local.
 ## Constraints and Safety Rules
 
 - No crear pedidos, ventas, reservas, cobros, pagos ni mensajes externos.
-- No usar sesión privada, carrito, pedidos o información de clientes de Durallanta.
+- No usar sesión privada, carrito, pedidos o información de clientes de PowerLlanta.
 - Root ADK siempre `tools=[]`.
 - Sin routing conversacional por regex, keywords o fast paths en Next.
 - No inventar productos, precios, stock ni compatibilidad.
-- Requerir variante exacta cuando Durallanta devuelve más de un modelo posible.
+- Requerir variante exacta cuando PowerLlanta devuelve más de un modelo posible.
 - Filtrar localmente la medida exacta porque una respuesta externa incorrecta no
   debe convertirse en una afirmación de compatibilidad.
 - No instalar polyfills ni crear un servidor MCP paralelo.

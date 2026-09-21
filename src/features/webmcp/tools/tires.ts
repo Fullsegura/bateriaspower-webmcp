@@ -1,5 +1,9 @@
 import { defineTool } from "@nekuda/webmcp-sdk";
 
+import {
+  invalidateCatalogExecutions,
+  withCatalogExecution,
+} from "@/features/webmcp/execution-guard";
 import { parseStockCriteria, parseTireSearchCriteria } from "@/lib/catalog-input";
 import type { CatalogActions, QuoteQuantityMode } from "@/types/catalog";
 
@@ -86,7 +90,8 @@ export const searchTiresTool = defineTool({
   annotations: { readOnlyHint: true, untrustedContentHint: true },
   intent: "answer",
   async execute(input: Record<string, unknown>) {
-    return executeSafely(() => actions().search(parseTireSearchCriteria(input)));
+    return executeSafely(() => withCatalogExecution((execution) =>
+      actions().search(parseTireSearchCriteria(input), execution)));
   },
 });
 
@@ -112,7 +117,8 @@ export const summarizeTireStockTool = defineTool({
   annotations: { readOnlyHint: true, untrustedContentHint: true },
   intent: "answer",
   async execute(input: Record<string, unknown>) {
-    return executeSafely(() => actions().summarizeStock(parseStockCriteria(input)));
+    return executeSafely(() => withCatalogExecution((execution) =>
+      actions().summarizeStock(parseStockCriteria(input), execution)));
   },
 });
 
@@ -130,9 +136,9 @@ export const selectTireTool = defineTool({
   annotations: { readOnlyHint: false, untrustedContentHint: true },
   intent: "act",
   async execute(input: Record<string, unknown>) {
-    return executeSafely(() => ({
-      tire: actions().selectTire(requiredString(input, "tireId")),
-    }));
+    return executeSafely(() => withCatalogExecution((execution) => ({
+      tire: actions().selectTire(requiredString(input, "tireId"), execution),
+    })));
   },
 });
 
@@ -167,14 +173,15 @@ export const prepareQuoteTool = defineTool({
   annotations: { readOnlyHint: false, untrustedContentHint: true },
   intent: "act",
   async execute(input: Record<string, unknown>) {
-    return executeSafely(() => ({
+    return executeSafely(() => withCatalogExecution((execution) => ({
       quote: actions().prepareQuote(
         requiredString(input, "tireId"),
         requiredInteger(input, "quantity"),
         requiredQuantityMode(input),
         typeof input.warehouse === "string" ? input.warehouse.trim() : undefined,
+        execution,
       ),
-    }));
+    })));
   },
 });
 
@@ -188,6 +195,7 @@ export const resetTireSearchTool = defineTool({
   intent: "act",
   async execute() {
     return executeSafely(() => {
+      invalidateCatalogExecutions();
       actions().reset();
       return { reset: true };
     });
@@ -196,3 +204,4 @@ export const resetTireSearchTool = defineTool({
 
 export const baseTireTools = [searchTiresTool, summarizeTireStockTool, resetTireSearchTool];
 export const resultTireTools = [selectTireTool, prepareQuoteTool];
+export const allTireTools = [...baseTireTools, ...resultTireTools];

@@ -6,19 +6,26 @@ import {
   Check,
   CircleGauge,
   MapPin,
+  Mic,
   PackageCheck,
+  PhoneOff,
   RotateCcw,
   Search,
   Send,
   ShoppingCart,
   Sparkles,
   UserRound,
+  Video,
+  VideoOff,
   X,
 } from "lucide-react";
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { FormEvent, useCallback, useEffect, useRef, useState } from "react";
 
+import { AgentAudioVisualizerAura } from "@/components/agents-ui/agent-audio-visualizer-aura";
 import { useCatalog } from "@/features/catalog/catalog-context";
 import { ClientHandoffPanel } from "@/features/handoff/client-handoff-panel";
+import { applyVoiceTranscriptUpdate } from "@/features/voice/transcript-stream";
+import { useGeminiLiveAssistant } from "@/features/voice/use-gemini-live-assistant";
 import { useWebMcp } from "@/features/webmcp/use-webmcp";
 import { formatUsd, getTireById } from "@/lib/catalog-search";
 import { runAgentTurn } from "@/lib/agent-client";
@@ -45,6 +52,27 @@ function formatQueryTime(value: string | null): string | null {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(new Date(value));
+}
+
+function CameraPreview({ stream }: { stream: MediaStream }) {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+    video.srcObject = stream;
+    void video.play().catch(() => undefined);
+    return () => {
+      if (video.srcObject === stream) video.srcObject = null;
+    };
+  }, [stream]);
+
+  return (
+    <div className={styles.cameraPreview} aria-label="Vista previa de la cámara">
+      <video ref={videoRef} autoPlay muted playsInline />
+      <span className={styles.cameraLive}><i /> Cámara activa</span>
+    </div>
+  );
 }
 
 function criteriaLabel(state: CatalogState): string {
@@ -135,7 +163,7 @@ export function SearchToSaleExperience({
   initialQuery?: string;
 }) {
   const { state, actions } = useCatalog();
-  const webMcpStatus = useWebMcp(actions, state.tires.length > 0);
+  const webMcpStatus = useWebMcp(actions);
   const [messages, setMessages] = useState<ChatMessage[]>(initialMessages);
   const [draft, setDraft] = useState("");
   const [busy, setBusy] = useState(false);
@@ -150,6 +178,32 @@ export function SearchToSaleExperience({
   const quoteRef = useRef<HTMLElement>(null);
   const initialQuerySubmitted = useRef(false);
   const stateRef = useRef(state);
+  const voiceTranscriptIds = useRef<Record<"user" | "assistant", string | null>>({
+    user: null,
+    assistant: null,
+  });
+  const handleVoiceTranscript = useCallback((
+    role: "user" | "assistant",
+    text: string,
+    final: boolean,
+  ) => {
+    const activeMessageId = voiceTranscriptIds.current[role] ?? createLocalId();
+    voiceTranscriptIds.current[role] = final ? null : activeMessageId;
+    setMessages((current) => {
+      const result = applyVoiceTranscriptUpdate({
+        messages: current,
+        activeMessageId,
+        update: { role, text, final },
+        createId: () => activeMessageId,
+      });
+      return result.messages;
+    });
+    setSheet("half");
+  }, []);
+  const voice = useGeminiLiveAssistant({
+    enabled: webMcpStatus === "ready" && !handoffActive,
+    onTranscript: handleVoiceTranscript,
+  });
 
   const selected = state.selectedTireId ? getTireById(state.tires, state.selectedTireId) : null;
   const queriedAt = formatQueryTime(state.queriedAt);
@@ -158,6 +212,10 @@ export function SearchToSaleExperience({
   useEffect(() => {
     stateRef.current = state;
   }, [state]);
+
+  useEffect(() => {
+    if (handoffActive && voice.active) void voice.stop();
+  }, [handoffActive, voice]);
 
   useEffect(() => {
     const container = messagesRef.current;
@@ -248,7 +306,7 @@ export function SearchToSaleExperience({
           <a href="#agent">Asesor</a>
         </nav>
         <div className={styles.headerMeta}>
-          <span><PackageCheck size={16} /> Fuente pública Durallanta</span>
+          <span><PackageCheck size={16} /> Fuente pública PowerLlanta</span>
           <span
             className={styles.headerCart}
             aria-label={cartQuantity
@@ -309,7 +367,7 @@ export function SearchToSaleExperience({
           <div className={styles.resultsSection} id="results">
             <div className={styles.resultsHeading}>
               <div>
-                <span>{queriedAt ? `Consultado ${queriedAt} · Durallanta` : "Resultados en tiempo real"}</span>
+                <span>{queriedAt ? `Consultado ${queriedAt} · PowerLlanta` : "Resultados en tiempo real"}</span>
                 <h2>{criteriaLabel(state)}</h2>
               </div>
               <span>{state.tires.length} opciones</span>
@@ -450,13 +508,60 @@ export function SearchToSaleExperience({
           ><span /></button>
           <div className={styles.agentHeader}>
             <div className={styles.agentIdentity}>
-              <span className={styles.agentIcon}><Bot size={22} /></span>
-              <div><strong>Asesor de llantas</strong><span><i /> En línea</span></div>
+              <span className={`${styles.agentIcon} ${voice.active ? styles.voiceAura : ""}`}>
+                {voice.active ? (
+                  <AgentAudioVisualizerAura
+                    size="icon"
+                    state={voice.status === "speaking" ? "speaking"
+                      : voice.status === "thinking" ? "thinking"
+                      : voice.status === "listening" ? "listening"
+                      : "connecting"}
+                    volume={voice.volume}
+                    color={embedded ? "#6f50bf" : "#f6a800"}
+                    themeMode="light"
+                  />
+                ) : <Bot size={22} />}
+              </span>
+              <div>
+                <strong>Asesor de llantas</strong>
+                <span><i /> {voice.status === "connecting" ? "Conectando"
+                  : voice.status === "listening" ? "Escuchando"
+                  : voice.status === "thinking" ? "Pensando"
+                  : voice.status === "speaking" ? "Hablando"
+                  : voice.status === "error" ? "Voz no disponible"
+                  : "En línea"}</span>
+              </div>
             </div>
-            <button className={styles.sheetToggle} type="button" onClick={toggleSheet} aria-label={sheet === "closed" ? "Abrir agente" : "Cerrar agente"} aria-expanded={sheet !== "closed"}>
-              {sheet === "closed" ? <Bot size={22} /> : <X size={20} />}
-            </button>
+            <div className={styles.agentControls}>
+              <button
+                className={styles.cameraToggle}
+                type="button"
+                onClick={() => { void (voice.cameraActive ? voice.stopCamera() : voice.startCamera()); }}
+                disabled={webMcpStatus !== "ready" || handoffActive || voice.status === "connecting" || voice.cameraStarting}
+                aria-label={voice.cameraActive ? "Detener cámara" : "Mostrar llanta con la cámara"}
+                aria-pressed={voice.cameraActive}
+                title={voice.cameraActive ? "Detener cámara" : "Mostrar llanta"}
+              >
+                {voice.cameraActive ? <VideoOff size={18} /> : <Video size={18} />}
+              </button>
+              <button
+                className={styles.voiceToggle}
+                type="button"
+                onClick={() => { void (voice.active ? voice.stop() : voice.start()); }}
+                disabled={webMcpStatus !== "ready" || handoffActive || voice.status === "connecting"}
+                aria-label={voice.active ? "Detener asistente de voz" : "Iniciar asistente de voz"}
+                aria-pressed={voice.active}
+                title={voice.active ? "Detener voz" : "Hablar con el asesor"}
+              >
+                {voice.active ? <PhoneOff size={18} /> : <Mic size={18} />}
+              </button>
+              <button className={styles.sheetToggle} type="button" onClick={toggleSheet} aria-label={sheet === "closed" ? "Abrir agente" : "Cerrar agente"} aria-expanded={sheet !== "closed"}>
+                {sheet === "closed" ? <Bot size={22} /> : <X size={20} />}
+              </button>
+            </div>
           </div>
+
+          {voice.cameraStream ? <CameraPreview stream={voice.cameraStream} /> : null}
 
           <div ref={messagesRef} className={styles.messages} aria-live="polite">
             {messages.map((message) => (
@@ -468,7 +573,7 @@ export function SearchToSaleExperience({
             {busy ? (
               <div className={`${styles.messageRow} ${styles.assistant}`}>
                 <span className={styles.avatar}><Sparkles size={15} /></span>
-                <p className={styles.thinking}><span>Consultando Durallanta…</span><span className={styles.thinkingDots} aria-hidden="true"><i /><i /><i /></span></p>
+                <p className={styles.thinking}><span>Consultando PowerLlanta…</span><span className={styles.thinkingDots} aria-hidden="true"><i /><i /><i /></span></p>
               </div>
             ) : null}
           </div>
@@ -486,6 +591,8 @@ export function SearchToSaleExperience({
             } : null}
             onActiveChange={setHandoffActive}
           />
+
+          {voice.error ? <p className={styles.voiceError} role="status">{voice.error}</p> : null}
 
           {!handoffActive ? (
             <form className={styles.chatComposer} onSubmit={submitChat} suppressHydrationWarning>

@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
+import { requestAdvisorHandoffTool } from "@/features/handoff/webmcp-tool";
 import {
   baseTireTools,
   bindCatalogActions,
@@ -15,13 +16,18 @@ import type { CatalogActions, Tire } from "@/types/catalog";
 const tire = { id: "sku-1", code: "sku-1", name: "Llanta" } as Tire;
 
 describe("herramientas WebMCP", () => {
-  it("define exactamente las cinco herramientas aprobadas", () => {
-    expect([...baseTireTools, ...resultTireTools].map(({ name }) => name)).toEqual([
+  it("define exactamente las seis herramientas aprobadas", () => {
+    expect([
+      ...baseTireTools,
+      ...resultTireTools,
+      requestAdvisorHandoffTool,
+    ].map(({ name }) => name)).toEqual([
       "search_tires",
       "summarize_tire_stock",
       "reset_tire_search",
       "select_tire",
       "prepare_quote",
+      "request_advisor_handoff",
     ]);
   });
 
@@ -31,7 +37,7 @@ describe("herramientas WebMCP", () => {
       search: vi.fn(async () => ({
         tires: [tire],
         queriedAt: "2026-09-07T20:00:00.000Z",
-        source: "https://durallanta.com",
+        source: "PowerLlanta",
         note: "Stock reportado",
       })),
       summarizeStock: vi.fn(async () => ({
@@ -39,7 +45,7 @@ describe("herramientas WebMCP", () => {
         groups: [],
         totalUnits: 0,
         queriedAt: "2026-09-07T20:00:00.000Z",
-        source: "https://durallanta.com",
+        source: "PowerLlanta",
         note: "MOTO",
       })),
       selectTire: vi.fn(() => tire),
@@ -74,6 +80,10 @@ describe("herramientas WebMCP", () => {
     });
     resetTireSearchTool.execute({});
 
+    const execution = expect.objectContaining({
+      signal: expect.any(AbortSignal),
+      isCurrent: expect.any(Function),
+    });
     expect(actions.search).toHaveBeenCalledWith({
       mode: "measure",
       category: "04",
@@ -84,14 +94,20 @@ describe("herramientas WebMCP", () => {
       width: undefined,
       height: undefined,
       rim: undefined,
-    });
+    }, execution);
     expect(actions.summarizeStock).toHaveBeenCalledWith({
       category: "04",
       city: undefined,
       warehouse: "ignorada",
-    });
-    expect(actions.selectTire).toHaveBeenCalledWith("sku-1");
-    expect(actions.prepareQuote).toHaveBeenCalledWith("sku-1", 2, "total", "EL INCA");
+    }, execution);
+    expect(actions.selectTire).toHaveBeenCalledWith("sku-1", execution);
+    expect(actions.prepareQuote).toHaveBeenCalledWith(
+      "sku-1",
+      2,
+      "total",
+      "EL INCA",
+      execution,
+    );
     expect(actions.reset).toHaveBeenCalledOnce();
     unbind();
   });

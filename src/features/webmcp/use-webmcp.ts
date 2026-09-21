@@ -3,23 +3,23 @@
 import { registerTools } from "@nekuda/webmcp-sdk";
 import { useEffect, useState } from "react";
 
+import { requestAdvisorHandoffTool } from "@/features/handoff/webmcp-tool";
 import {
-  baseTireTools,
+  allTireTools,
   bindCatalogActions,
-  resultTireTools,
 } from "@/features/webmcp/tools/tires";
 import type { CatalogActions } from "@/types/catalog";
 
 export type WebMcpStatus = "checking" | "ready" | "unsupported" | "error";
 
-export function useWebMcp(actions: CatalogActions, hasResults: boolean): WebMcpStatus {
+export function useWebMcp(actions: CatalogActions): WebMcpStatus {
   const [status, setStatus] = useState<WebMcpStatus>("checking");
 
   useEffect(() => {
     let active = true;
     const unbind = bindCatalogActions(actions);
     const registration = registerTools(
-      hasResults ? [...baseTireTools, ...resultTireTools] : baseTireTools,
+      [...allTireTools, requestAdvisorHandoffTool],
       { telemetry: false },
     );
 
@@ -40,7 +40,7 @@ export function useWebMcp(actions: CatalogActions, hasResults: boolean): WebMcpS
       registration.unregister();
       unbind();
     };
-  }, [actions, hasResults]);
+  }, [actions]);
 
   return status;
 }

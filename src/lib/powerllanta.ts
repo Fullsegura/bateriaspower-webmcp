@@ -11,7 +11,8 @@ import type {
   VehicleSearchCriteria,
 } from "@/types/catalog";
 
-const DURALLANTA_BASE_URL = "https://durallanta.com";
+const POWERLLANTA_BASE_URL = "https://durallanta.com";
+const POWERLLANTA_SOURCE_NAME = "PowerLlanta";
 const PAGE_SIZE = 1000;
 const REQUEST_TIMEOUT_MS = 15_000;
 const CATEGORY_LABELS: Record<TireCategory, string> = {
@@ -31,7 +32,7 @@ const CITY_CODES = new Map([
 
 type JsonObject = Record<string, unknown>;
 
-export class DurallantaError extends Error {
+export class PowerLlantaError extends Error {
   constructor(
     message: string,
     readonly status = 502,
@@ -43,7 +44,7 @@ export class DurallantaError extends Error {
 
 function asObject(value: unknown, label: string): JsonObject {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
-    throw new DurallantaError(`Durallanta devolvió ${label} inválido.`);
+    throw new PowerLlantaError(`PowerLlanta devolvió ${label} inválido.`);
   }
   return value as JsonObject;
 }
@@ -88,21 +89,21 @@ function normalize(value: string): string {
 function getResponse(payload: unknown): unknown {
   const root = asObject(payload, "una respuesta");
   const sourceError = asString(root.error);
-  if (sourceError) throw new DurallantaError(sourceError);
+  if (sourceError) throw new PowerLlantaError(sourceError);
   if (root.response === undefined || root.response === null) {
-    throw new DurallantaError("Durallanta devolvió una respuesta vacía.");
+    throw new PowerLlantaError("PowerLlanta devolvió una respuesta vacía.");
   }
   return root.response;
 }
 
-async function durallantaRequest(
+async function powerLlantaRequest(
   path: string,
   init?: { method?: "GET" | "POST"; body?: JsonObject },
 ): Promise<unknown> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
   try {
-    const response = await fetch(`${DURALLANTA_BASE_URL}${path}`, {
+    const response = await fetch(`${POWERLLANTA_BASE_URL}${path}`, {
       method: init?.method ?? "GET",
       headers: init?.body ? { "content-type": "application/json" } : undefined,
       body: init?.body ? JSON.stringify(init.body) : undefined,
@@ -110,18 +111,18 @@ async function durallantaRequest(
       signal: controller.signal,
     });
     if (!response.ok) {
-      throw new DurallantaError(
-        `Durallanta respondió HTTP ${response.status}.`,
+      throw new PowerLlantaError(
+        `PowerLlanta respondió HTTP ${response.status}.`,
         502,
       );
     }
     return getResponse(await response.json());
   } catch (error) {
-    if (error instanceof DurallantaError) throw error;
+    if (error instanceof PowerLlantaError) throw error;
     if (error instanceof Error && error.name === "AbortError") {
-      throw new DurallantaError("Durallanta excedió el tiempo de respuesta.", 504);
+      throw new PowerLlantaError("PowerLlanta excedió el tiempo de respuesta.", 504);
     }
-    throw new DurallantaError("No fue posible consultar Durallanta.");
+    throw new PowerLlantaError("No fue posible consultar PowerLlanta.");
   } finally {
     clearTimeout(timeout);
   }
@@ -155,13 +156,13 @@ export function normalizeProduct(value: unknown): Tire {
       : sourceCategory
   ) as TireCategory;
   if (!(category in CATEGORY_LABELS)) {
-    throw new DurallantaError("Durallanta devolvió una categoría desconocida.");
+    throw new PowerLlantaError("PowerLlanta devolvió una categoría desconocida.");
   }
 
   const code = asString(product.codigo_producto);
   const name = asString(product.nombre_producto);
   if (!code || !name) {
-    throw new DurallantaError("Durallanta devolvió un producto sin identificación.");
+    throw new PowerLlantaError("PowerLlanta devolvió un producto sin identificación.");
   }
 
   const listWithoutVat = asNumber(product.precio);
@@ -233,14 +234,13 @@ export function normalizeProduct(value: unknown): Tire {
     secondaryImages: [product.img_secundaria1, product.img_secundaria2]
       .map(asString)
       .filter(Boolean),
-    sourceUrl: DURALLANTA_BASE_URL,
   };
 }
 
 async function getCategoryProducts(category: TireCategory): Promise<Tire[]> {
   const byCode = new Map<string, Tire>();
   for (let start = 0; ; start += PAGE_SIZE) {
-    const response = asObject(await durallantaRequest("/api/get_products", {
+    const response = asObject(await powerLlantaRequest("/api/get_products", {
       method: "POST",
       body: { product_type: category, pag_start: start, pag_end: start + PAGE_SIZE },
     }), "el catálogo");
@@ -268,12 +268,12 @@ function findExactSourceValue<T>(
   const options = partial.length ? partial : values;
   const masculine = label === "modelo";
   const article = masculine ? "El" : "La";
-  throw new DurallantaError(
+  throw new PowerLlantaError(
     partial.length > 1
       ? `${article} ${label} es ${masculine ? "ambiguo" : "ambigua"}; selecciona una variante exacta.`
       : partial.length === 1
         ? `${article} ${label} no coincide de forma exacta; confirma la opción registrada.`
-        : `Durallanta no reconoce la ${label} solicitada.`,
+        : `PowerLlanta no reconoce la ${label} solicitada.`,
     422,
     options.slice(0, 20).map(getLabel),
   );
@@ -284,7 +284,7 @@ async function resolveVehicle(criteria: VehicleSearchCriteria): Promise<{
   tires: Tire[];
 }> {
   const parameters = asObject(
-    await durallantaRequest("/api/get_main_search_parameters"),
+    await powerLlantaRequest("/api/get_main_search_parameters"),
     "los parámetros de búsqueda",
   );
   const brands = asArray(parameters.car_brands).map((value) => {
@@ -293,7 +293,7 @@ async function resolveVehicle(criteria: VehicleSearchCriteria): Promise<{
   });
   const make = findExactSourceValue(brands, criteria.make, (item) => item.name, "marca");
 
-  const yearsResponse = await durallantaRequest("/api/get_years_by_car_brand", {
+  const yearsResponse = await powerLlantaRequest("/api/get_years_by_car_brand", {
     method: "POST",
     body: { brand: make.id },
   });
@@ -303,14 +303,14 @@ async function resolveVehicle(criteria: VehicleSearchCriteria): Promise<{
   });
   const year = years.find((item) => item.year === criteria.year);
   if (!year) {
-    throw new DurallantaError(
-      `Durallanta no registra ${criteria.make} para el año ${criteria.year}.`,
+    throw new PowerLlantaError(
+      `PowerLlanta no registra ${criteria.make} para el año ${criteria.year}.`,
       422,
       years.map((item) => item.year).filter((value) => value !== null),
     );
   }
 
-  const modelsResponse = await durallantaRequest("/api/get_car_models_by_year", {
+  const modelsResponse = await powerLlantaRequest("/api/get_car_models_by_year", {
     method: "POST",
     body: { brand: make.id, year: year.id },
   });
@@ -321,7 +321,7 @@ async function resolveVehicle(criteria: VehicleSearchCriteria): Promise<{
   });
   const model = findExactSourceValue(models, criteria.model, (item) => item.name, "modelo");
 
-  const tireResponse = await durallantaRequest("/api/get_tires_by_car", {
+  const tireResponse = await powerLlantaRequest("/api/get_tires_by_car", {
     method: "POST",
     body: { brand: make.id, year: year.id, model: model.id },
   });
@@ -338,7 +338,7 @@ async function resolveVehicle(criteria: VehicleSearchCriteria): Promise<{
 
   const pages = await Promise.all(
     specifications.map(async (specification) => {
-      const response = asObject(await durallantaRequest("/api/search_products", {
+      const response = asObject(await powerLlantaRequest("/api/search_products", {
         method: "POST",
         body: {
           width: specification.width,
@@ -371,16 +371,16 @@ async function resolveVehicle(criteria: VehicleSearchCriteria): Promise<{
 async function searchByMeasure(criteria: MeasureSearchCriteria): Promise<Tire[]> {
   if (criteria.category) return getCategoryProducts(criteria.category);
   if (!criteria.width && !criteria.height && !criteria.rim && !criteria.brand) {
-    throw new DurallantaError("Indica una medida, marca o categoría para buscar.", 400);
+    throw new PowerLlantaError("Indica una medida, marca o categoría para buscar.", 400);
   }
   if (criteria.brand && !criteria.width && !criteria.height && !criteria.rim) {
-    const response = asObject(await durallantaRequest("/api/search_products_by_brand", {
+    const response = asObject(await powerLlantaRequest("/api/search_products_by_brand", {
       method: "POST",
       body: { brand: criteria.brand },
     }), "los productos por marca");
     return asArray(response.products).map(normalizeProduct);
   }
-  const response = asObject(await durallantaRequest("/api/search_products", {
+  const response = asObject(await powerLlantaRequest("/api/search_products", {
     method: "POST",
     body: {
       width: criteria.width,
@@ -458,10 +458,10 @@ export async function searchTires(criteria: TireSearchCriteria): Promise<TireSea
   return {
     tires,
     queriedAt,
-    source: DURALLANTA_BASE_URL,
+    source: POWERLLANTA_SOURCE_NAME,
     note: tires.length
       ? "Stock reportado al momento de la consulta; no constituye una reserva."
-      : "Durallanta no reportó opciones que cumplan todos los criterios.",
+      : "PowerLlanta no reportó opciones que cumplan todos los criterios.",
     resolvedVehicle: result.resolved,
   };
 }
@@ -498,10 +498,10 @@ export async function summarizeTireStock(input: {
     groups,
     totalUnits: groups.reduce((sum, group) => sum + group.quantity, 0),
     queriedAt: new Date().toISOString(),
-    source: DURALLANTA_BASE_URL,
+    source: POWERLLANTA_SOURCE_NAME,
     note:
       input.category === "04"
-        ? "Motos usa automáticamente la única agrupación MOTO reportada por Durallanta."
+        ? "Motos usa automáticamente la única agrupación MOTO reportada por PowerLlanta."
         : "Stock reportado al momento de la consulta; no constituye una reserva.",
   };
 }

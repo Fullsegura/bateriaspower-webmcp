@@ -1,11 +1,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
-  DurallantaError,
+  PowerLlantaError,
   normalizeProduct,
   searchTires,
   summarizeTireStock,
-} from "@/lib/durallanta";
+} from "@/lib/powerllanta";
 
 function sourceProduct(overrides: Record<string, unknown> = {}) {
   return {
@@ -33,7 +33,7 @@ function sourceProduct(overrides: Record<string, unknown> = {}) {
   };
 }
 
-describe("normalización Durallanta", () => {
+describe("normalización PowerLlanta", () => {
   afterEach(() => vi.unstubAllGlobals());
 
   it("separa precio neto, EcoValor, IVA y stock por bodega", () => {
@@ -169,7 +169,7 @@ describe("normalización Durallanta", () => {
       quantity: 1,
     }).catch((reason: unknown) => reason);
 
-    expect(error).toBeInstanceOf(DurallantaError);
+    expect(error).toBeInstanceOf(PowerLlantaError);
     expect(error).toMatchObject({
       status: 422,
       message: "El modelo es ambiguo; selecciona una variante exacta.",
@@ -201,7 +201,7 @@ describe("normalización Durallanta", () => {
       quantity: 1,
     }).catch((reason: unknown) => reason);
 
-    expect(error).toBeInstanceOf(DurallantaError);
+    expect(error).toBeInstanceOf(PowerLlantaError);
     expect(error).toMatchObject({
       status: 422,
       message: "El modelo no coincide de forma exacta; confirma la opción registrada.",
@@ -210,7 +210,7 @@ describe("normalización Durallanta", () => {
     expect(fetchMock).toHaveBeenCalledTimes(3);
   });
 
-  it("no inventa una medida cuando Durallanta no reporta compatibilidad", async () => {
+  it("no inventa una medida cuando PowerLlanta no reporta compatibilidad", async () => {
     const fetchMock = vi.fn()
       .mockResolvedValueOnce(Response.json({
         response: { car_brands: [{ _id: "brand-1", name: "TOYOTA" }] },
@@ -271,10 +271,10 @@ describe("normalización Durallanta", () => {
       quantity: 1,
     }).catch((reason: unknown) => reason);
 
-    expect(error).toBeInstanceOf(DurallantaError);
+    expect(error).toBeInstanceOf(PowerLlantaError);
     expect(error).toMatchObject({
       status: 422,
-      message: "Durallanta no registra Toyota para el año 2020.",
+      message: "PowerLlanta no registra Toyota para el año 2020.",
       details: [2018, 2019],
     });
     expect(fetchMock).toHaveBeenCalledTimes(2);

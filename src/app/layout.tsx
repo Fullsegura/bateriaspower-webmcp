@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Buscador IA de Llantas",
-  description: "Consulta llantas, precios y stock público actual de Durallanta.",
+  description: "Consulta llantas, precios y stock público actual de PowerLlanta.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
