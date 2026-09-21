@@ -536,7 +536,15 @@ export function SearchToSaleExperience({
               <button
                 className={styles.cameraToggle}
                 type="button"
-                onClick={() => { void (voice.cameraActive ? voice.stopCamera() : voice.startCamera()); }}
+                onClick={() => {
+                  if (voice.cameraActive) {
+                    void voice.stopCamera();
+                    return;
+                  }
+                  setSheetHeight(null);
+                  setSheet("full");
+                  void voice.startCamera();
+                }}
                 disabled={webMcpStatus !== "ready" || handoffActive || voice.status === "connecting" || voice.cameraStarting}
                 aria-label={voice.cameraActive ? "Detener cámara" : "Mostrar llanta con la cámara"}
                 aria-pressed={voice.cameraActive}
