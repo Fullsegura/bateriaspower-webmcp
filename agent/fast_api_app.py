@@ -383,7 +383,7 @@ async def live_voice(websocket: WebSocket, session_id: str) -> None:
         for task in (receiver_task, producer_task):
             if task and not task.done():
                 task.cancel()
-        with contextlib.suppress(RuntimeError):
+        with contextlib.suppress(RuntimeError, WebSocketDisconnect):
             await websocket.close()
 
 
