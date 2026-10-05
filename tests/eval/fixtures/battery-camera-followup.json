@@ -1,0 +1,20 @@
+[
+  {
+    "imageUrl": "http://127.0.0.1:3000/products/bateriasecuador/40.png",
+    "audioPath": "/tmp/powerauto-camera-product.pcm",
+    "expectedCapacity": "45",
+    "requireWeb": true
+  },
+  {
+    "imageUrl": "https://www.exidegroup.com/pl/sites/default/files/2025-02/premium.png",
+    "audioPath": "/tmp/powerauto-camera-other.pcm",
+    "expectedCapacity": "77",
+    "requireExactWeb": true
+  },
+  {
+    "imageUrl": "http://127.0.0.1:3000/products/bateriasecuador/40.png",
+    "audioPath": "/tmp/powerauto-camera-look.pcm",
+    "expectedCapacity": "45",
+    "requireWeb": true
+  }
+]

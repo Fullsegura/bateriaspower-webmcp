@@ -23,6 +23,7 @@
 # misc
 .DS_Store
 *.pem
+/.local-payments/
 
 # debug
 npm-debug.log*

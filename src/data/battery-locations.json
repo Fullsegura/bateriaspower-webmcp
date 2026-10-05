@@ -1,0 +1,11 @@
+[
+  { "location": "Quito Norte", "cityId": "battery-city:quito", "city": "Quito", "fulfillment": "pickup" },
+  { "location": "Quito Sur", "cityId": "battery-city:quito", "city": "Quito", "fulfillment": "pickup" },
+  { "location": "Quito Valles", "cityId": "battery-city:quito", "city": "Quito", "fulfillment": "pickup" },
+  { "location": "Guayaquil Norte", "cityId": "battery-city:guayaquil", "city": "Guayaquil", "fulfillment": "pickup" },
+  { "location": "Guayaquil Sur", "cityId": "battery-city:guayaquil", "city": "Guayaquil", "fulfillment": "pickup" },
+  { "location": "Guayaquil Samborondón", "cityId": "battery-city:guayaquil", "city": "Guayaquil", "fulfillment": "pickup" },
+  { "location": "Cuenca", "cityId": "battery-city:cuenca", "city": "Cuenca", "fulfillment": "pickup" },
+  { "location": "Santo Domingo", "cityId": "battery-city:santo-domingo", "city": "Santo Domingo", "fulfillment": "pickup" },
+  { "location": "A domicilio", "cityId": null, "city": null, "fulfillment": "delivery" }
+]

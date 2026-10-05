@@ -24,11 +24,19 @@ custom_metrics:
               return {"score": 0}
 
           allowed = {
+              "discover_catalog",
               "search_tires",
               "summarize_tire_stock",
               "select_tire",
               "prepare_quote",
-              "reset_tire_search",
+              "reset_catalog",
+              "search_vehicle_batteries",
+              "select_battery",
+              "prepare_battery_quote",
+              "start_card_checkout",
+              "get_checkout_context",
+              "get_payment_status",
+              "request_advisor_handoff",
           }
           if actual.get("kind") not in {"message", "tool_call"}:
               return {"score": 0}
@@ -43,6 +51,7 @@ custom_metrics:
               for key, value in expected.items()
               if key not in {
                   "requiredMessageFragments",
+                  "requiredAnyMessageFragments",
                   "forbiddenMessageFragments",
                   "exactArguments",
                   "argumentSubset",
@@ -78,6 +87,12 @@ custom_metrics:
           required = expected.get("requiredMessageFragments", [])
           forbidden = expected.get("forbiddenMessageFragments", [])
           if any(normalized(fragment) not in message for fragment in required):
+              return {"score": 0}
+          required_any = expected.get("requiredAnyMessageFragments", [])
+          if any(
+              not any(normalized(fragment) in message for fragment in alternatives)
+              for alternatives in required_any
+          ):
               return {"score": 0}
           if any(normalized(fragment) in message for fragment in forbidden):
               return {"score": 0}

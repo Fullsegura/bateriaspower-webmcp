@@ -1,0 +1,19 @@
+[
+  {
+    "imageUrl": "http://127.0.0.1:3000/products/bateriasecuador/40.png",
+    "audioPath": "/tmp/powerauto-camera-product.pcm",
+    "expectedCapacity": "45",
+    "requireWeb": true,
+    "maxClosingReplies": 1,
+    "forbiddenPostResultFragments": ["estoy buscando", "sigo buscando", "estoy analizando", "sigo analizando", "sigo revisando", "voy a consultar", "estoy consolidando"]
+  },
+  {
+    "phase": "checkout",
+    "audioPath": "/tmp/powerauto-camera-checkout.pcm",
+    "productIndex": 0,
+    "quantity": 1,
+    "fulfillment": "delivery",
+    "maxClosingReplies": 1,
+    "forbiddenPostResultFragments": ["estoy preparando", "estoy consolidando", "estoy validando", "sigo revisando", "estoy trabajando", "espera un momento", "quieres abrir", "deseas abrir"]
+  }
+]

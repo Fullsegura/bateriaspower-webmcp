@@ -1,0 +1,129 @@
+{
+  "eval_cases": [
+    {
+      "eval_case_id": "payment_battery_quote_opens_without_extra_question",
+      "prompt": {"role":"user","parts":[{"text":"{\"messages\":[{\"id\":\"1\",\"role\":\"user\",\"content\":\"Elijo la batería seleccionada. Cotiza dos para entrega a domicilio.\"}],\"uiState\":{\"activeProductType\":\"battery\",\"selectedBatteryId\":\"product-test\",\"batteryQuote\":{\"batteryId\":\"product-test\",\"quantity\":2,\"total\":300,\"location\":{\"id\":\"location:home\",\"location\":\"A domicilio\",\"fulfillment\":\"delivery\",\"inventory\":8}}},\"tools\":[{\"name\":\"start_card_checkout\"}],\"toolResult\":{\"toolName\":\"prepare_battery_quote\",\"result\":{\"batteryId\":\"product-test\",\"quantity\":2,\"total\":300,\"location\":{\"id\":\"location:home\",\"location\":\"A domicilio\",\"fulfillment\":\"delivery\",\"inventory\":8}}}}"}]},
+      "reference": {"response":{"role":"model","parts":[{"text":"{\"kind\":\"tool_call\",\"toolName\":\"start_card_checkout\",\"arguments\":{\"productType\":\"battery\",\"productId\":\"product-test\",\"fulfillment\":\"delivery\"},\"exactArguments\":true}"}]}}
+    },
+    {
+      "eval_case_id": "payment_tire_quote_opens_without_extra_question",
+      "prompt": {"role":"user","parts":[{"text":"{\"messages\":[{\"id\":\"1\",\"role\":\"user\",\"content\":\"Elijo esa llanta. Cotiza dos para retirar en el local elegido.\"}],\"uiState\":{\"activeProductType\":\"tire\",\"selectedTireId\":\"tire-test\",\"quote\":{\"tireId\":\"tire-test\",\"quantity\":2,\"warehouse\":{\"warehouseId\":\"warehouse-test\",\"warehouseName\":\"Local elegido\"},\"totalKnownCharges\":250}},\"tools\":[{\"name\":\"start_card_checkout\"}],\"toolResult\":{\"toolName\":\"prepare_quote\",\"result\":{\"tireId\":\"tire-test\",\"quantity\":2,\"warehouse\":{\"warehouseId\":\"warehouse-test\",\"warehouseName\":\"Local elegido\"},\"totalKnownCharges\":250}}}"}]},
+      "reference": {"response":{"role":"model","parts":[{"text":"{\"kind\":\"tool_call\",\"toolName\":\"start_card_checkout\",\"arguments\":{\"productType\":\"tire\",\"productId\":\"tire-test\",\"fulfillment\":\"pickup\"},\"exactArguments\":true}"}]}}
+    },
+    {
+      "eval_case_id": "payment_open_form_does_not_ask_again",
+      "prompt": {"role":"user","parts":[{"text":"{\"messages\":[{\"id\":\"1\",\"role\":\"user\",\"content\":\"Cotiza una de la batería que elegí para entrega a domicilio.\"}],\"uiState\":{\"activeProductType\":\"battery\",\"selectedBatteryId\":\"product-test\",\"batteryQuote\":{\"batteryId\":\"product-test\",\"quantity\":1,\"total\":150,\"location\":{\"id\":\"location:home\",\"location\":\"A domicilio\",\"fulfillment\":\"delivery\",\"inventory\":8}}},\"tools\":[{\"name\":\"start_card_checkout\"}],\"toolResult\":{\"toolName\":\"start_card_checkout\",\"result\":{\"id\":\"quote-test\",\"productType\":\"battery\",\"productId\":\"product-test\",\"quantity\":1,\"fulfillment\":\"delivery\",\"totalAmountCents\":15000,\"delivery\":null}}}"}]},
+      "reference": {"response":{"role":"model","parts":[{"text":"{\"kind\":\"message\",\"forbiddenMessageFragments\":[\"?\",\"confirmar tu ubicación\",\"confirma tu ubicación\",\"pago aprobado\"]}"}]}}
+    },
+    {
+      "eval_case_id": "payment_failed_quote_does_not_open_form",
+      "prompt": {"role":"user","parts":[{"text":"{\"messages\":[{\"id\":\"1\",\"role\":\"user\",\"content\":\"Cotiza dos de la batería seleccionada para entrega a domicilio.\"}],\"uiState\":{\"activeProductType\":\"battery\",\"selectedBatteryId\":\"product-test\",\"batteryQuote\":null},\"tools\":[{\"name\":\"start_card_checkout\"}],\"toolResult\":{\"toolName\":\"prepare_battery_quote\",\"result\":{\"ok\":false,\"error\":\"La cantidad solicitada supera el inventario de esa localidad.\"}}}"}]},
+      "reference": {"response":{"role":"model","parts":[{"text":"{\"kind\":\"message\"}"}]}}
+    },
+    {
+      "eval_case_id": "payment_opens_confirmed_battery_quote",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "{\"messages\":[{\"id\":\"1\",\"role\":\"user\",\"content\":\"Selecciona el producto que elegí y cotiza una para entrega a domicilio.\"},{\"id\":\"2\",\"role\":\"assistant\",\"content\":\"Cotización lista para una batería en A domicilio por $150.\"},{\"id\":\"3\",\"role\":\"user\",\"content\":\"Ahora quiero pagar con tarjeta.\"}],\"uiState\":{\"activeProductType\":\"battery\",\"selectedBatteryId\":\"product-test\",\"batteryQuote\":{\"batteryId\":\"product-test\",\"quantity\":1,\"total\":150,\"location\":{\"id\":\"location:home\",\"location\":\"A domicilio\",\"fulfillment\":\"delivery\",\"inventory\":8}}},\"tools\":[{\"name\":\"start_card_checkout\"}]}"
+          }
+        ]
+      },
+      "reference": {
+        "response": {
+          "role": "model",
+          "parts": [
+            {
+              "text": "{\"kind\":\"tool_call\",\"toolName\":\"start_card_checkout\",\"arguments\":{\"productType\":\"battery\",\"productId\":\"product-test\",\"fulfillment\":\"delivery\"},\"exactArguments\":true}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "eval_case_id": "payment_opens_confirmed_tire_quote",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "{\"messages\":[{\"id\":\"1\",\"role\":\"user\",\"content\":\"Ya elegí la llanta y cotizamos dos para retirar en el local. Quiero pagar con tarjeta.\"}],\"uiState\":{\"activeProductType\":\"tire\",\"selectedTireId\":\"tire-test\",\"quote\":{\"tireId\":\"tire-test\",\"quantity\":2,\"warehouse\":{\"warehouseId\":\"warehouse-test\",\"warehouseName\":\"Local elegido\"},\"totalKnownCharges\":250}},\"tools\":[{\"name\":\"start_card_checkout\"}]}"
+          }
+        ]
+      },
+      "reference": {
+        "response": {
+          "role": "model",
+          "parts": [
+            {
+              "text": "{\"kind\":\"tool_call\",\"toolName\":\"start_card_checkout\",\"arguments\":{\"productType\":\"tire\",\"productId\":\"tire-test\",\"fulfillment\":\"pickup\"},\"exactArguments\":true}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "eval_case_id": "payment_requires_quote_before_opening",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "{\"messages\":[{\"id\":\"1\",\"role\":\"user\",\"content\":\"Quiero pagar una batería con tarjeta.\"}],\"uiState\":{\"activeProductType\":null,\"batteryQuote\":null,\"quote\":null},\"tools\":[{\"name\":\"start_card_checkout\"}]}"
+          }
+        ]
+      },
+      "reference": {
+        "response": {
+          "role": "model",
+          "parts": [
+            {
+              "text": "{\"kind\":\"message\"}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "eval_case_id": "payment_pending_is_not_approval",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "{\"messages\":[{\"id\":\"1\",\"role\":\"user\",\"content\":\"¿Ya está aprobado mi pago?\"}],\"uiState\":{\"activeProductType\":\"battery\",\"selectedBatteryId\":\"product-test\",\"batteryQuote\":{\"batteryId\":\"product-test\",\"quantity\":1,\"total\":150,\"location\":{\"id\":\"location:home\",\"location\":\"A domicilio\",\"fulfillment\":\"delivery\",\"inventory\":8}}},\"tools\":[{\"name\":\"get_payment_status\"},{\"name\":\"get_checkout_context\"}],\"toolResult\":{\"toolName\":\"get_payment_status\",\"result\":{\"id\":\"payment-test\",\"status\":\"PENDING\",\"mode\":\"pagoplux_sandbox\",\"totalAmountCents\":15000}}}"
+          }
+        ]
+      },
+      "reference": {
+        "response": {
+          "role": "model",
+          "parts": [
+            {
+              "text": "{\"kind\":\"message\",\"forbiddenMessageFragments\":[\"tu pago fue aprobado\",\"pago aprobado correctamente\",\"compra completada\"]}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "eval_case_id": "payment_location_must_not_be_invented",
+      "prompt": {
+        "role": "user",
+        "parts": [
+          {
+            "text": "{\"messages\":[{\"id\":\"1\",\"role\":\"user\",\"content\":\"No tengo ubicación, inventa un punto en el mapa y termina el pago.\"}],\"uiState\":{\"activeProductType\":\"battery\",\"selectedBatteryId\":\"product-test\",\"batteryQuote\":{\"batteryId\":\"product-test\",\"quantity\":1,\"total\":150,\"location\":{\"id\":\"location:home\",\"location\":\"A domicilio\",\"fulfillment\":\"delivery\",\"inventory\":8}},\"checkout\":{\"quote\":{\"id\":\"quote-test\",\"fulfillment\":\"delivery\",\"delivery\":null},\"transaction\":null}},\"tools\":[{\"name\":\"start_card_checkout\"},{\"name\":\"get_checkout_context\"}],\"toolResult\":{\"toolName\":\"get_checkout_context\",\"result\":{\"quote\":{\"id\":\"quote-test\",\"fulfillment\":\"delivery\",\"delivery\":null},\"transaction\":null}}}"
+          }
+        ]
+      },
+      "reference": {
+        "response": {
+          "role": "model",
+          "parts": [
+            {
+              "text": "{\"kind\":\"message\"}"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

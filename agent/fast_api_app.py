@@ -5,11 +5,14 @@ from __future__ import annotations
 import asyncio
 import base64
 import contextlib
+import hashlib
 import json
 import logging
+import math
 import os
 from collections.abc import AsyncIterator
 from typing import Any, Literal
+from pathlib import Path
 from urllib.parse import urlparse
 
 from a2a.server.tasks import InMemoryTaskStore
@@ -25,14 +28,16 @@ from pydantic import BaseModel, Field
 from agent.app_utils import services
 from agent.app_utils.a2a import attach_a2a_routes
 from agent.app_utils.typing import Feedback
-from agent.live_agent import LIVE_MODEL_ID, create_live_runner
+from agent.live_agent import LIVE_AGENT_INSTRUCTION, LIVE_MODEL_ID, create_live_runner
 from agent.live_auth import verify_live_token
+from agent.live_timing import LiveTiming
 from agent.live_tools import (
     BrowserToolBroker,
     GeminiExtendedThinkingQueue,
     build_browser_tools,
     validate_tool_descriptors,
 )
+from agent.visual_battery import RESEARCH_CODE_HASH, CameraEvidence, InspectCameraBatteryTool
 
 load_dotenv()
 if gemini_api_key := os.getenv("GEMINI_API_KEY"):
@@ -48,6 +53,7 @@ MAX_LIVE_MESSAGE_BYTES = 512_000
 MAX_AUDIO_CHUNK_BYTES = 64_000
 MAX_VIDEO_FRAME_BYTES = 360_000
 DEFAULT_LIVE_VOICE_NAME = "Sulafat"
+LIVE_TRANSPORT_HASH = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
 
 
 def _live_speech_config() -> types.SpeechConfig:
@@ -94,12 +100,18 @@ class ToolResult(BaseModel):
     result: Any
 
 
+class BrowserEvent(BaseModel):
+    type: Literal["payment_status_changed"]
+    transactionId: str = Field(min_length=1, max_length=160)
+
+
 class OrchestrateRequest(BaseModel):
     sessionId: str = Field(min_length=1, max_length=160)
     messages: list[ChatMessage]
     tools: list[BrowserTool]
     uiState: dict[str, Any]
     toolResult: ToolResult | None = None
+    event: BrowserEvent | None = None
 
 
 class AgentAction(BaseModel):
@@ -141,16 +153,24 @@ app: FastAPI = get_fast_api_app(
     otel_to_cloud=False,
     lifespan=lifespan,
 )
-app.title = "Buscador IA de Llantas ADK"
+app.title = "PowerAuto ADK"
 app.description = "Orquestador ADK para herramientas WebMCP del navegador."
 
 
 @app.get("/health/runtime")
 def runtime_health() -> dict[str, str]:
+    import hashlib
+
+    from agent.shared_catalog_rules import SHARED_CATALOG_RULES
+
     return {
         "status": "ok",
         "model": "gemini-3.8-flash",
         "liveModel": LIVE_MODEL_ID,
+        "catalogRulesHash": hashlib.sha256(SHARED_CATALOG_RULES.encode()).hexdigest(),
+        "liveRulesHash": hashlib.sha256(LIVE_AGENT_INSTRUCTION.encode()).hexdigest(),
+        "visualResearchHash": RESEARCH_CODE_HASH,
+        "liveTransportHash": LIVE_TRANSPORT_HASH,
     }
 
 
@@ -205,8 +225,12 @@ async def live_voice(websocket: WebSocket, session_id: str) -> None:
         async with send_lock:
             await websocket.send_json(payload)
 
-    request_queue = GeminiExtendedThinkingQueue()
+    timing = LiveTiming(session_id)
+    request_queue = GeminiExtendedThinkingQueue(
+        lambda call_id: timing.mark(call_id, "adk_enqueued")
+    )
     broker = BrowserToolBroker(send_json)
+    camera = CameraEvidence(session_id)
     receiver_task: asyncio.Task[None] | None = None
     producer_task: asyncio.Task[None] | None = None
 
@@ -217,6 +241,11 @@ async def live_voice(websocket: WebSocket, session_id: str) -> None:
             raise ValueError("El mensaje init no contiene herramientas WebMCP.")
         descriptors = validate_tool_descriptors(raw_tools)
         tools = build_browser_tools(descriptors, broker)
+        if any(tool.name == "inspect_camera_battery" for tool in tools):
+            raise ValueError("La herramienta visual pertenece al servidor.")
+        tools.append(InspectCameraBatteryTool(
+            camera, send_json, lambda call_id: timing.mark(call_id, "tool_finished")
+        ))
         runner = create_live_runner(tools, services.get_session_service())
 
         resumption_handle = initial.get("resumption_handle")
@@ -271,18 +300,44 @@ async def live_voice(websocket: WebSocket, session_id: str) -> None:
                     )
                 elif message_type == "video":
                     if frame := _live_video_blob(message):
+                        first_frame = camera.frame is None
+                        evidence = camera.update(frame.data)
+                        if first_frame:
+                            logger.info("Fotograma recibido: sesión=%s frame=%s bytes=%s",
+                                        session_id, evidence.frame_id, len(frame.data))
+                            request_queue.send_content(types.Content(role="user", parts=[
+                                types.Part.from_text(text=json.dumps({"camera": {
+                                    "active": True, "frameId": evidence.frame_id,
+                                    "sessionId": session_id,
+                                }}))
+                            ]), partial=True)
                         request_queue.send_realtime(frame)
+                elif message_type == "camera_state" and message.get("active") is False:
+                    camera.clear()
+                    request_queue.send_content(types.Content(role="user", parts=[
+                        types.Part.from_text(text='{"camera":{"active":false}}')
+                    ]), partial=True)
                 elif message_type == "audio_stream_end":
                     request_queue.send_audio_stream_end()
                 elif message_type == "tool_response":
                     call_id = message.get("call_id")
                     epoch = message.get("epoch")
                     if isinstance(call_id, str) and isinstance(epoch, int):
-                        broker.resolve(
+                        accepted = broker.resolve(
                             call_id=call_id,
                             epoch=epoch,
                             result=message.get("result"),
                         )
+                        if accepted:
+                            finished_at = message.get("finished_at_ms")
+                            if type(finished_at) not in (int, float) or not math.isfinite(finished_at):
+                                finished_at = None
+                            timing.mark(call_id, "server_received",
+                                        browserFinishedAtMs=finished_at)
+                elif message_type == "presentation":
+                    call_id = message.get("call_id")
+                    if isinstance(call_id, str):
+                        timing.presented(call_id, message.get("channel"), message.get("elapsed_ms"))
                 elif message_type == "close":
                     return
 
@@ -294,6 +349,7 @@ async def live_voice(websocket: WebSocket, session_id: str) -> None:
                 run_config=run_config,
             ):
                 if event.interrupted:
+                    timing.clear()
                     epoch = broker.advance_epoch()
                     await send_json({"type": "interrupted", "epoch": epoch})
 
@@ -321,6 +377,7 @@ async def live_voice(websocket: WebSocket, session_id: str) -> None:
                             "role": "assistant",
                             "text": event.output_transcription.text or "",
                             "final": bool(event.output_transcription.finished),
+                            "timing": timing.first_output("transcript") if event.output_transcription.text else [],
                         }
                     )
 
@@ -351,6 +408,7 @@ async def live_voice(websocket: WebSocket, session_id: str) -> None:
                                 "data": base64.b64encode(
                                     part.inline_data.data
                                 ).decode("ascii"),
+                                "timing": timing.first_output("audio"),
                             }
                         )
 
@@ -378,6 +436,7 @@ async def live_voice(websocket: WebSocket, session_id: str) -> None:
                 {"type": "error", "message": "La sesión de voz no está disponible."}
             )
     finally:
+        camera.clear()
         broker.close()
         request_queue.close()
         for task in (receiver_task, producer_task):

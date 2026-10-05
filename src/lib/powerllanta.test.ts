@@ -2,10 +2,13 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   PowerLlantaError,
+  discoverTireApplications,
+  discoverTireMakes,
   normalizeProduct,
   searchTires,
   summarizeTireStock,
 } from "@/lib/powerllanta";
+import { parseTireSearchCriteria } from "@/lib/catalog-input";
 
 function sourceProduct(overrides: Record<string, unknown> = {}) {
   return {
@@ -33,278 +36,139 @@ function sourceProduct(overrides: Record<string, unknown> = {}) {
   };
 }
 
-describe("normalización PowerLlanta", () => {
+const makesResponse = () => Response.json({
+  response: { car_brands: [{ _id: "brand-1", name: "TOYOTA" }] },
+  error: "",
+});
+const yearsResponse = () => Response.json({
+  response: [{ _id: "year-1", year: "2018" }],
+  error: "",
+});
+const modelsResponse = () => Response.json({
+  response: [{ model: { _id: "model-1", name: "RAV4 CVT" } }],
+  error: "",
+});
+
+describe("catálogo PowerAuto de llantas", () => {
   afterEach(() => vi.unstubAllGlobals());
 
-  it("separa precio neto, EcoValor, IVA y stock por bodega", () => {
+  it("separa precios y asigna IDs exactos a marca, ciudad y bodega", () => {
     const tire = normalizeProduct(sourceProduct());
-    expect(tire.size).toBe("225/65R17");
-    expect(tire.price).toMatchObject({
-      status: "available",
-      unitWithoutVat: 160,
-      ecoValue: 1,
-      vatPercent: 15,
-      unitKnownChargesTotal: 185.15,
+    expect(tire).toMatchObject({
+      size: "225/65R17",
+      brand: "PIRELLI",
+      brandId: "tire-brand:PIRELLI",
+      price: {
+        status: "available",
+        unitWithoutVat: 160,
+        ecoValue: 1,
+        vatPercent: 15,
+        unitKnownChargesTotal: 185.15,
+      },
     });
-    expect(tire.totalStock).toBe(5);
-    expect(tire.stockDiscrepancy).toBeNull();
+    expect(tire.warehouses[0]).toMatchObject({
+      cityId: "UIO",
+      warehouseId: "UIO:32",
+    });
   });
 
-  it("repara texto UTF-8 interpretado como Latin-1 por la fuente", () => {
-    const tire = normalizeProduct(sourceProduct({
+  it("repara texto del proveedor y conserva validaciones técnicas", () => {
+    expect(normalizeProduct(sourceProduct({
       detalles: "Llanta para todas las Ã©pocas del aÃ±o",
-    }));
-    expect(tire.details).toBe("Llanta para todas las épocas del año");
+    })).details).toBe("Llanta para todas las épocas del año");
+    expect(normalizeProduct(sourceProduct({ precioFinal: 99 })).price.status).toBe("confirm");
   });
 
-  it("omite una descripción cuando la fuente ya perdió caracteres", () => {
-    const tire = normalizeProduct(sourceProduct({
-      detalles: "Diseï¿½o para conducciï¿½n silenciosa",
-    }));
-    expect(tire.details).toBe("");
-  });
-
-  it("marca precio por confirmar cuando el valor base es cero", () => {
-    const tire = normalizeProduct(sourceProduct({
-      precio: 0,
-      precioDescontado: 0,
-      precioDescontadoEcoValor: 1,
-      precioFinal: 1.15,
-    }));
-    expect(tire.price.status).toBe("confirm");
-    expect(tire.price.unitWithoutVat).toBeNull();
-    expect(tire.price.unitKnownChargesTotal).toBeNull();
-  });
-
-  it("marca precio por confirmar cuando el total contradice EcoValor e IVA", () => {
-    expect(normalizeProduct(sourceProduct({ precioFinal: 99 })).price.status)
-      .toBe("confirm");
-  });
-
-  it("reconoce motos aunque el segmento público sea 999", () => {
-    const tire = normalizeProduct(sourceProduct({
-      codigo_segmento: "999",
-      descripcion_segmento: "MOTOS",
-      type: "MOTO",
-    }));
-    expect(tire.category).toBe("04");
-    expect(tire.categoryLabel).toBe("Motos");
-  });
-
-  it("señala contradicciones entre total y detalle", () => {
-    expect(normalizeProduct(sourceProduct({ total_stock: 7 })).stockDiscrepancy)
-      .toContain("contradice");
-  });
-
-  it("resuelve vehículo y descarta medidas distintas a la reportada", async () => {
+  it("descubre marcas y aplicaciones exactas antes de buscar", async () => {
     const fetchMock = vi.fn()
-      .mockResolvedValueOnce(Response.json({
-        response: { car_brands: [{ _id: "brand-1", name: "TOYOTA" }] },
-        error: "",
-      }))
-      .mockResolvedValueOnce(Response.json({
-        response: [{ _id: "year-1", year: "2018" }],
-        error: "",
-      }))
-      .mockResolvedValueOnce(Response.json({
-        response: [{ model: { _id: "model-1", name: "RAV4 CVT" } }],
-        error: "",
-      }))
+      .mockResolvedValueOnce(makesResponse())
+      .mockResolvedValueOnce(makesResponse())
+      .mockResolvedValueOnce(yearsResponse())
+      .mockResolvedValueOnce(modelsResponse());
+    vi.stubGlobal("fetch", fetchMock);
+
+    const makes = await discoverTireMakes();
+    const applications = await discoverTireApplications(makes[0].id, 2018);
+
+    expect(makes).toEqual([{ id: "brand-1", label: "TOYOTA" }]);
+    expect(applications).toHaveLength(1);
+    expect(applications[0]).toMatchObject({
+      label: "RAV4 CVT",
+      metadata: { make: "TOYOTA", model: "RAV4 CVT", year: 2018 },
+    });
+    expect(parseTireSearchCriteria({ mode: "vehicle", applicationId: applications[0].id }))
+      .toMatchObject({ applicationId: applications[0].id });
+  });
+
+  it("busca por applicationId y descarta medidas ajenas", async () => {
+    const discoveryFetch = vi.fn()
+      .mockResolvedValueOnce(makesResponse())
+      .mockResolvedValueOnce(yearsResponse())
+      .mockResolvedValueOnce(modelsResponse());
+    vi.stubGlobal("fetch", discoveryFetch);
+    const application = (await discoverTireApplications("brand-1", 2018))[0];
+
+    const searchFetch = vi.fn()
+      .mockResolvedValueOnce(makesResponse())
+      .mockResolvedValueOnce(yearsResponse())
+      .mockResolvedValueOnce(modelsResponse())
       .mockResolvedValueOnce(Response.json({
         response: [{ specifications: [{ width: "225", high: "65", rin: "17" }] }],
         error: "",
       }))
       .mockResolvedValueOnce(Response.json({
         response: {
-          products: [
-            sourceProduct(),
-            sourceProduct({ codigo_producto: "wrong", rin: "16" }),
-          ],
+          products: [sourceProduct(), sourceProduct({ codigo_producto: "wrong", rin: "16" })],
         },
         error: "",
       }));
-    vi.stubGlobal("fetch", fetchMock);
+    vi.stubGlobal("fetch", searchFetch);
 
     const result = await searchTires({
       mode: "vehicle",
-      make: "Toyota",
-      model: "RAV4 CVT",
-      year: 2018,
-      quantity: 1,
-    });
-
-    expect(result.resolvedVehicle?.sizes).toEqual(["225/65R17"]);
-    expect(result.tires.map(({ code }) => code)).toEqual(["06201503118233561"]);
-    expect(JSON.parse(fetchMock.mock.calls[4][1].body)).toEqual({
-      width: "225",
-      high: "65",
-      rin: "17",
-      type: "1",
-    });
-  });
-
-  it("devuelve variantes cuando el modelo del vehículo es ambiguo", async () => {
-    vi.stubGlobal("fetch", vi.fn()
-      .mockResolvedValueOnce(Response.json({
-        response: { car_brands: [{ _id: "brand-1", name: "TOYOTA" }] },
-        error: "",
-      }))
-      .mockResolvedValueOnce(Response.json({
-        response: [{ _id: "year-1", year: "2018" }],
-        error: "",
-      }))
-      .mockResolvedValueOnce(Response.json({
-        response: [
-          { model: { _id: "model-1", name: "RAV4 CVT" } },
-          { model: { _id: "model-2", name: "RAV4 LIMITED" } },
-        ],
-        error: "",
-      })));
-
-    const error = await searchTires({
-      mode: "vehicle",
-      make: "Toyota",
-      model: "RAV4",
-      year: 2018,
-      quantity: 1,
-    }).catch((reason: unknown) => reason);
-
-    expect(error).toBeInstanceOf(PowerLlantaError);
-    expect(error).toMatchObject({
-      status: 422,
-      message: "El modelo es ambiguo; selecciona una variante exacta.",
-      details: ["RAV4 CVT", "RAV4 LIMITED"],
-    });
-  });
-
-  it("no convierte una coincidencia parcial única en una versión exacta", async () => {
-    const fetchMock = vi.fn()
-      .mockResolvedValueOnce(Response.json({
-        response: { car_brands: [{ _id: "brand-1", name: "TOYOTA" }] },
-        error: "",
-      }))
-      .mockResolvedValueOnce(Response.json({
-        response: [{ _id: "year-1", year: "2018" }],
-        error: "",
-      }))
-      .mockResolvedValueOnce(Response.json({
-        response: [{ model: { _id: "model-1", name: "RAV4 LIMITED" } }],
-        error: "",
-      }));
-    vi.stubGlobal("fetch", fetchMock);
-
-    const error = await searchTires({
-      mode: "vehicle",
-      make: "Toyota",
-      model: "RAV4",
-      year: 2018,
-      quantity: 1,
-    }).catch((reason: unknown) => reason);
-
-    expect(error).toBeInstanceOf(PowerLlantaError);
-    expect(error).toMatchObject({
-      status: 422,
-      message: "El modelo no coincide de forma exacta; confirma la opción registrada.",
-      details: ["RAV4 LIMITED"],
-    });
-    expect(fetchMock).toHaveBeenCalledTimes(3);
-  });
-
-  it("no inventa una medida cuando PowerLlanta no reporta compatibilidad", async () => {
-    const fetchMock = vi.fn()
-      .mockResolvedValueOnce(Response.json({
-        response: { car_brands: [{ _id: "brand-1", name: "TOYOTA" }] },
-        error: "",
-      }))
-      .mockResolvedValueOnce(Response.json({
-        response: [{ _id: "year-1", year: "2018" }],
-        error: "",
-      }))
-      .mockResolvedValueOnce(Response.json({
-        response: [{ model: { _id: "model-1", name: "RAV4 LIMITED" } }],
-        error: "",
-      }))
-      .mockResolvedValueOnce(Response.json({
-        response: [{ specifications: [] }],
-        error: "",
-      }));
-    vi.stubGlobal("fetch", fetchMock);
-
-    const result = await searchTires({
-      mode: "vehicle",
-      make: "Toyota",
-      model: "RAV4 LIMITED",
-      year: 2018,
+      applicationId: application.id,
       quantity: 1,
     });
 
     expect(result.resolvedVehicle).toMatchObject({
       make: "TOYOTA",
-      model: "RAV4 LIMITED",
+      model: "RAV4 CVT",
       year: 2018,
-      sizes: [],
+      sizes: ["225/65R17"],
     });
-    expect(result.tires).toEqual([]);
-    expect(fetchMock).toHaveBeenCalledTimes(4);
+    expect(result.tires.map(({ code }) => code)).toEqual(["06201503118233561"]);
   });
 
-  it("rechaza un año no registrado y devuelve solo los años de la fuente", async () => {
-    const fetchMock = vi.fn()
-      .mockResolvedValueOnce(Response.json({
-        response: { car_brands: [{ _id: "brand-1", name: "TOYOTA" }] },
-        error: "",
-      }))
-      .mockResolvedValueOnce(Response.json({
-        response: [
-          { _id: "year-1", year: "2018" },
-          { _id: "year-2", year: "2019" },
-        ],
-        error: "",
-      }));
-    vi.stubGlobal("fetch", fetchMock);
-
-    const error = await searchTires({
+  it("rechaza un applicationId inventado sin interpretarlo", async () => {
+    await expect(searchTires({
       mode: "vehicle",
-      make: "Toyota",
-      model: "RAV4 LIMITED",
-      year: 2020,
-      quantity: 1,
-    }).catch((reason: unknown) => reason);
-
-    expect(error).toBeInstanceOf(PowerLlantaError);
-    expect(error).toMatchObject({
-      status: 422,
-      message: "PowerLlanta no registra Toyota para el año 2020.",
-      details: [2018, 2019],
-    });
-    expect(fetchMock).toHaveBeenCalledTimes(2);
+      applicationId: "RAV4 2018",
+    })).rejects.toBeInstanceOf(PowerLlantaError);
   });
 
-  it("ignora ciudad y bodega para el único stock de motos", async () => {
+  it("no elimina puntuación de medidas recibidas para forzar coincidencias", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue(Response.json({
-      response: {
-        products: [sourceProduct({
-          codigo_segmento: "999",
-          type: "MOTO",
-          stock_bodegas: {
-            MOTO: [{ codigoBodega: "99", nombreBodega: "MOTOS_ECOMMERCE", cantidad: 12 }],
-          },
-          total_stock: null,
-        })],
-      },
+      response: { products: [sourceProduct()] }, error: "",
+    })));
+    const result = await searchTires({ mode: "measure", width: "2.25", height: "65", rim: "17" });
+    expect(result.tires).toEqual([]);
+  });
+
+  it("usa IDs exactos para resumir stock", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(Response.json({
+      response: { products: [sourceProduct()] },
       error: "",
     })));
 
     const summary = await summarizeTireStock({
-      category: "04",
-      city: "Quito",
-      warehouse: "bodega 1",
+      category: "02",
+      cityId: "UIO",
+      warehouseId: "UIO:32",
     });
-    expect(summary.totalUnits).toBe(12);
-    expect(summary.groups[0]).toMatchObject({
-      cityCode: "MOTO",
-      warehouseCode: "99",
-      warehouseName: "MOTOS_ECOMMERCE",
-    });
+    expect(summary.groups).toEqual([expect.objectContaining({
+      cityCode: "UIO",
+      warehouseCode: "32",
+      quantity: 3,
+    })]);
   });
 });

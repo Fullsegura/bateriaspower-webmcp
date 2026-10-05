@@ -15,9 +15,11 @@ class GeminiPcmProcessor extends AudioWorkletProcessor {
     this.available = 0;
     this.playbackPhase = 0;
     this.wasPlaying = false;
+    this.presentationMarkers = [];
     this.levelFrame = 0;
     this.port.onmessage = (event) => {
       if (event.data?.type === "playback" && event.data.samples instanceof ArrayBuffer) {
+        if (event.data.marker) this.presentationMarkers.push({ marker: event.data.marker, remaining: this.available });
         this.appendPlayback(new Int16Array(event.data.samples));
       } else if (event.data?.type === "clear") {
         this.readIndex = 0;
@@ -25,6 +27,7 @@ class GeminiPcmProcessor extends AudioWorkletProcessor {
         this.available = 0;
         this.playbackPhase = 0;
         this.wasPlaying = false;
+        this.presentationMarkers = [];
         this.port.postMessage({ type: "playback", active: false });
       }
     };
@@ -33,6 +36,7 @@ class GeminiPcmProcessor extends AudioWorkletProcessor {
   appendPlayback(samples) {
     for (let index = 0; index < samples.length; index += 1) {
       if (this.available === this.playback.length) {
+        for (const mark of this.presentationMarkers) mark.remaining -= 1;
         this.readIndex = (this.readIndex + 1) % this.playback.length;
         this.available -= 1;
       }
@@ -77,6 +81,9 @@ class GeminiPcmProcessor extends AudioWorkletProcessor {
     for (let index = 0; index < output.length; index += 1) {
       let value = 0;
       if (this.available > 1) {
+        while (this.presentationMarkers.length && this.presentationMarkers[0].remaining <= 0) {
+          this.port.postMessage({ type: "presentation", marker: this.presentationMarkers.shift().marker });
+        }
         const nextIndex = (this.readIndex + 1) % this.playback.length;
         const current = this.playback[this.readIndex];
         const next = this.playback[nextIndex];
@@ -86,6 +93,7 @@ class GeminiPcmProcessor extends AudioWorkletProcessor {
           this.playbackPhase -= 1;
           this.readIndex = (this.readIndex + 1) % this.playback.length;
           this.available -= 1;
+          for (const mark of this.presentationMarkers) mark.remaining -= 1;
         }
       }
       output[index] = value;

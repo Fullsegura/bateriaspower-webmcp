@@ -1,0 +1,24 @@
+{
+  "eval_cases": [
+    {
+      "eval_case_id": "battery_capacity_comparison_without_vehicle",
+      "prompt": { "parts": [{ "text": "{\"messages\":[{\"id\":\"1\",\"role\":\"user\",\"content\":\"Quiero una batería parecida en capacidad a una de 60 Ah. Solo comparar, no verificar mi auto.\"}],\"tools\":[{\"name\":\"read_battery_catalog\"},{\"name\":\"search_vehicle_batteries\"}],\"uiState\":{}}" }] },
+      "reference": { "response": { "parts": [{ "text": "{\"kind\":\"tool_call\",\"toolName\":\"read_battery_catalog\",\"arguments\":{},\"exactArguments\":true}" }] } }
+    },
+    {
+      "eval_case_id": "battery_partial_evidence_is_enough_to_compare",
+      "prompt": { "parts": [{ "text": "{\"messages\":[{\"id\":\"1\",\"role\":\"user\",\"content\":\"De esta batería solo pude leer 55 Ah. Dame opciones parecidas en capacidad de tu catálogo.\"}],\"tools\":[{\"name\":\"read_battery_catalog\"}],\"uiState\":{}}" }] },
+      "reference": { "response": { "parts": [{ "text": "{\"kind\":\"tool_call\",\"toolName\":\"read_battery_catalog\",\"arguments\":{},\"exactArguments\":true}" }] } }
+    },
+    {
+      "eval_case_id": "battery_uncertain_visual_identification_requests_capture",
+      "prompt": { "parts": [{ "text": "{\"messages\":[{\"id\":\"1\",\"role\":\"user\",\"content\":\"Mira la batería en la cámara y busca sus especificaciones.\"}],\"tools\":[{\"name\":\"read_battery_catalog\"},{\"name\":\"search_vehicle_batteries\"}],\"uiState\":{},\"toolResult\":{\"toolName\":\"inspect_camera_battery\",\"result\":{\"identification\":{\"status\":\"uncertain\",\"brand\":\"Exide\",\"reference\":null,\"clarification\":\"Acerca la etiqueta: la referencia no es legible.\"},\"specifications\":[],\"sources\":[]}}}" }] },
+      "reference": { "response": { "parts": [{ "text": "{\"kind\":\"message\",\"requiredAnyMessageFragments\":[[\"etiqueta\",\"referencia\"],[\"acerca\",\"acerques\",\"captura\",\"foto\"]],\"forbiddenMessageFragments\":[\"año de tu\",\"modelo de tu vehículo\",\"60 Ah\"]}" }] } }
+    },
+    {
+      "eval_case_id": "battery_comparison_does_not_prove_fitment",
+      "prompt": { "parts": [{ "text": "{\"messages\":[{\"id\":\"1\",\"role\":\"user\",\"content\":\"Si tiene los mismos Ah, ¿ya significa que sirve para mi auto?\"}],\"tools\":[{\"name\":\"read_battery_catalog\"},{\"name\":\"search_vehicle_batteries\"}],\"uiState\":{}}" }] },
+      "reference": { "response": { "parts": [{ "text": "{\"kind\":\"message\",\"requiredAnyMessageFragments\":[[\"no garantiza\",\"no basta\",\"no significa\",\"no asegura\",\"no necesariamente\"],[\"dimensiones\",\"tamaño\",\"polaridad\",\"voltaje\"]]}" }] } }
+    }
+  ]
+}

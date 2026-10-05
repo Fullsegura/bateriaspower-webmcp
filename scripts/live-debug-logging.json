@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "disable_existing_loggers": false,
+  "formatters": {
+    "timestamped": {
+      "format": "%(asctime)s %(levelname)s %(name)s %(message)s"
+    }
+  },
+  "handlers": {
+    "console": {
+      "class": "logging.StreamHandler",
+      "formatter": "timestamped",
+      "stream": "ext://sys.stderr"
+    },
+    "live_native": {
+      "class": "logging.handlers.RotatingFileHandler",
+      "formatter": "timestamped",
+      "filename": "artifacts/evals/adk-live-native.log",
+      "maxBytes": 67108864,
+      "backupCount": 2,
+      "encoding": "utf-8"
+    }
+  },
+  "loggers": {
+    "uvicorn": {
+      "handlers": ["console"],
+      "level": "INFO",
+      "propagate": false
+    },
+    "google_adk.google.adk.models.gemini_llm_connection": {
+      "handlers": ["live_native"],
+      "level": "DEBUG",
+      "propagate": false
+    },
+    "agent.live_timing": {
+      "handlers": ["live_native"],
+      "level": "INFO",
+      "propagate": false
+    }
+  },
+  "root": {
+    "handlers": ["console"],
+    "level": "WARNING"
+  }
+}

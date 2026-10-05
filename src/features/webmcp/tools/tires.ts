@@ -7,9 +7,9 @@ import {
 import { parseStockCriteria, parseTireSearchCriteria } from "@/lib/catalog-input";
 import type { CatalogActions, QuoteQuantityMode } from "@/types/catalog";
 
-let catalogActions: CatalogActions | null = null;
+let catalogBinding: { actions: CatalogActions; token: symbol } | null = null;
 
-async function executeSafely<T>(operation: () => T | Promise<T>): Promise<T | {
+export async function executeSafely<T>(operation: () => T | Promise<T>): Promise<T | {
   ok: false;
   error: string;
 }> {
@@ -25,9 +25,9 @@ async function executeSafely<T>(operation: () => T | Promise<T>): Promise<T | {
   }
 }
 
-function actions(): CatalogActions {
-  if (!catalogActions) throw new Error("El catálogo visible todavía no está disponible.");
-  return catalogActions;
+export function getCatalogActions(): CatalogActions {
+  if (!catalogBinding) throw new Error("El catálogo visible todavía no está disponible.");
+  return catalogBinding.actions;
 }
 
 function requiredString(input: Record<string, unknown>, key: string): string {
@@ -53,9 +53,10 @@ function requiredQuantityMode(input: Record<string, unknown>): QuoteQuantityMode
 }
 
 export function bindCatalogActions(nextActions: CatalogActions): () => void {
-  catalogActions = nextActions;
+  const token = Symbol("catalog-actions");
+  catalogBinding = { actions: nextActions, token };
   return () => {
-    if (catalogActions === nextActions) catalogActions = null;
+    if (catalogBinding?.token === token) catalogBinding = null;
   };
 }
 
@@ -63,15 +64,13 @@ export const searchTiresTool = defineTool({
   stableKey: "tire.search",
   name: "search_tires",
   title: "Buscar llantas",
-  description: "Busca hasta cinco opciones actuales y las muestra.",
+  description: "Busca hasta cinco opciones actuales. En mode=vehicle requiere applicationId de discover_catalog. En mode=measure requiere una medida, category o productBrandId descubierto. productBrandId y cityId deben venir de un descubrimiento vigente del mismo contexto.",
   inputSchema: {
     type: "object",
     additionalProperties: false,
     properties: {
       mode: { type: "string", enum: ["vehicle", "measure"] },
-      make: { type: "string", description: "Marca del vehículo" },
-      year: { type: "integer", minimum: 1900, maximum: 2100 },
-      model: { type: "string", description: "Modelo y variante exacta" },
+      applicationId: { type: "string", description: "ID exacto de una aplicación descubierta" },
       width: { type: "string", description: "Ancho, por ejemplo 225" },
       height: { type: "string", description: "Perfil, por ejemplo 65" },
       rim: { type: "string", description: "Rin, por ejemplo 17" },
@@ -80,8 +79,8 @@ export const searchTiresTool = defineTool({
         enum: ["01", "02", "03", "04"],
         description: "01 autos, 02 camionetas/SUV, 03 camiones, 04 motos",
       },
-      brand: { type: "string", description: "Marca de la llanta" },
-      city: { type: "string", description: "Quito, Guayaquil o Cuenca" },
+      productBrandId: { type: "string", description: "ID exacto de marca de producto descubierta" },
+      cityId: { type: "string", description: "ID exacto de ciudad descubierta" },
       quantity: { type: "integer", minimum: 1, maximum: 20 },
       budget: { type: "number", exclusiveMinimum: 0, description: "Presupuesto total con cargos conocidos" },
     },
@@ -91,7 +90,7 @@ export const searchTiresTool = defineTool({
   intent: "answer",
   async execute(input: Record<string, unknown>) {
     return executeSafely(() => withCatalogExecution((execution) =>
-      actions().search(parseTireSearchCriteria(input), execution)));
+      getCatalogActions().search(parseTireSearchCriteria(input), execution)));
   },
 });
 
@@ -109,8 +108,8 @@ export const summarizeTireStockTool = defineTool({
         enum: ["01", "02", "03", "04"],
         description: "01 autos, 02 camionetas/SUV, 03 camiones, 04 motos",
       },
-      city: { type: "string", description: "Quito, Guayaquil o Cuenca" },
-      warehouse: { type: "string", description: "Código o nombre exacto de bodega" },
+      cityId: { type: "string", description: "ID exacto de ciudad descubierta" },
+      warehouseId: { type: "string", description: "ID exacto de bodega descubierta" },
     },
     required: ["category"],
   },
@@ -118,7 +117,7 @@ export const summarizeTireStockTool = defineTool({
   intent: "answer",
   async execute(input: Record<string, unknown>) {
     return executeSafely(() => withCatalogExecution((execution) =>
-      actions().summarizeStock(parseStockCriteria(input), execution)));
+      getCatalogActions().summarizeStock(parseStockCriteria(input), execution)));
   },
 });
 
@@ -126,7 +125,7 @@ export const selectTireTool = defineTool({
   stableKey: "tire.select",
   name: "select_tire",
   title: "Seleccionar llanta",
-  description: "Selecciona una opción sin reservarla.",
+  description: "Selecciona una opción de los resultados actuales únicamente cuando el usuario confirme ese producto. Elegir una aplicación de vehículo no confirma un producto.",
   inputSchema: {
     type: "object",
     additionalProperties: false,
@@ -137,7 +136,7 @@ export const selectTireTool = defineTool({
   intent: "act",
   async execute(input: Record<string, unknown>) {
     return executeSafely(() => withCatalogExecution((execution) => ({
-      tire: actions().selectTire(requiredString(input, "tireId"), execution),
+      tire: getCatalogActions().selectTire(requiredString(input, "tireId"), execution),
     })));
   },
 });
@@ -146,7 +145,7 @@ export const prepareQuoteTool = defineTool({
   stableKey: "quote.prepare",
   name: "prepare_quote",
   title: "Preparar cotización",
-  description: "Calcula subtotal informativo sin comprar ni reservar.",
+  description: "Calcula subtotal y selecciona la llanta. Requiere que el usuario haya confirmado este producto y la cantidad; elegir una versión del vehículo no es confirmación del producto.",
   inputSchema: {
     type: "object",
     additionalProperties: false,
@@ -163,9 +162,9 @@ export const prepareQuoteTool = defineTool({
         enum: ["total", "additional"],
         description: "total fija la cantidad final; additional suma unidades a la cotización actual",
       },
-      warehouse: {
+      warehouseId: {
         type: "string",
-        description: "Código o nombre exacto del local solicitado",
+        description: "ID exacto de un local del stock visible",
       },
     },
     required: ["tireId", "quantity", "quantityMode"],
@@ -174,34 +173,34 @@ export const prepareQuoteTool = defineTool({
   intent: "act",
   async execute(input: Record<string, unknown>) {
     return executeSafely(() => withCatalogExecution((execution) => ({
-      quote: actions().prepareQuote(
+      quote: getCatalogActions().prepareQuote(
         requiredString(input, "tireId"),
         requiredInteger(input, "quantity"),
         requiredQuantityMode(input),
-        typeof input.warehouse === "string" ? input.warehouse.trim() : undefined,
+        typeof input.warehouseId === "string" ? input.warehouseId.trim() : undefined,
         execution,
       ),
     })));
   },
 });
 
-export const resetTireSearchTool = defineTool({
-  stableKey: "tire.reset",
-  name: "reset_tire_search",
+export const resetCatalogTool = defineTool({
+  stableKey: "catalog.reset",
+  name: "reset_catalog",
   title: "Reiniciar búsqueda",
-  description: "Limpia el estado visible.",
+  description: "Limpia resultados, selecciones, localidades, cotizaciones e IDs descubiertos de llantas y baterías, e inicia una nueva sesión de catálogo. No borra la conversación. Tras ejecutarla vuelve a descubrir los IDs necesarios.",
   inputSchema: { type: "object", additionalProperties: false, properties: {} },
   annotations: { readOnlyHint: false },
   intent: "act",
   async execute() {
     return executeSafely(() => {
       invalidateCatalogExecutions();
-      actions().reset();
+      getCatalogActions().reset();
       return { reset: true };
     });
   },
 });
 
-export const baseTireTools = [searchTiresTool, summarizeTireStockTool, resetTireSearchTool];
+export const baseTireTools = [searchTiresTool, summarizeTireStockTool, resetCatalogTool];
 export const resultTireTools = [selectTireTool, prepareQuoteTool];
 export const allTireTools = [...baseTireTools, ...resultTireTools];

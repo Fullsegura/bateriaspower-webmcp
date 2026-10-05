@@ -1,0 +1,24 @@
+{
+  "eval_cases": [
+    {
+      "eval_case_id": "vehicle_identity_without_product_type_requires_clarification",
+      "prompt": {"role":"user","parts":[{"text":"{\"messages\":[{\"id\":\"1\",\"role\":\"user\",\"content\":\"Toyota RAV4 LIMITED AC 2.5 5P 4X4 TA 2018\"}],\"tools\":[{\"name\":\"discover_catalog\"},{\"name\":\"search_tires\"},{\"name\":\"search_vehicle_batteries\"}],\"uiState\":{\"activeProductType\":null,\"discoveries\":[],\"tires\":[],\"batteries\":[]}}"}]},
+      "reference": {"response":{"role":"model","parts":[{"text":"{\"kind\":\"message\",\"requiredAnyMessageFragments\":[[\"llantas\",\"neumáticos\"],[\"batería\",\"baterías\"]],\"requiredMessageFragments\":[\"?\"]}"}]}}
+    },
+    {
+      "eval_case_id": "battery_model_year_coverage_discovers_applications_without_year",
+      "prompt": {"role":"user","parts":[{"text":"{\"messages\":[{\"id\":\"1\",\"role\":\"user\",\"content\":\"¿Para qué años tienes baterías para Chevrolet Luv Dmax?\"}],\"tools\":[{\"name\":\"discover_catalog\"}],\"uiState\":{\"discoveries\":[{\"productType\":\"battery\",\"scope\":\"vehicle_makes\",\"context\":{},\"options\":[{\"id\":\"make:chevrolet\",\"label\":\"CHEVROLET\"},{\"id\":\"make:toyota\",\"label\":\"TOYOTA\"}]}]}}"}]},
+      "reference": {"response":{"role":"model","parts":[{"text":"{\"kind\":\"tool_call\",\"toolName\":\"discover_catalog\",\"arguments\":{\"productType\":\"battery\",\"scope\":\"vehicle_applications\",\"makeId\":\"make:chevrolet\"},\"exactArguments\":true}"}]}}
+    },
+    {
+      "eval_case_id": "tire_model_year_coverage_discovers_applications_without_year",
+      "prompt": {"role":"user","parts":[{"text":"{\"messages\":[{\"id\":\"1\",\"role\":\"user\",\"content\":\"¿Para qué años tienes llantas para Toyota RAV4?\"}],\"tools\":[{\"name\":\"discover_catalog\"}],\"uiState\":{\"discoveries\":[{\"productType\":\"tire\",\"scope\":\"vehicle_makes\",\"context\":{},\"options\":[{\"id\":\"make:toyota\",\"label\":\"TOYOTA\"},{\"id\":\"make:ford\",\"label\":\"FORD\"}]}]}}"}]},
+      "reference": {"response":{"role":"model","parts":[{"text":"{\"kind\":\"tool_call\",\"toolName\":\"discover_catalog\",\"arguments\":{\"productType\":\"tire\",\"scope\":\"vehicle_applications\",\"makeId\":\"make:toyota\"},\"exactArguments\":true}"}]}}
+    },
+    {
+      "eval_case_id": "battery_make_year_coverage_uses_year_discovery",
+      "prompt": {"role":"user","parts":[{"text":"{\"messages\":[{\"id\":\"1\",\"role\":\"user\",\"content\":\"¿Qué años de vehículos Chevrolet cubre tu catálogo de baterías?\"}],\"tools\":[{\"name\":\"discover_catalog\"}],\"uiState\":{\"discoveries\":[{\"productType\":\"battery\",\"scope\":\"vehicle_makes\",\"context\":{},\"options\":[{\"id\":\"make:chevrolet\",\"label\":\"CHEVROLET\"}]}]}}"}]},
+      "reference": {"response":{"role":"model","parts":[{"text":"{\"kind\":\"tool_call\",\"toolName\":\"discover_catalog\",\"arguments\":{\"productType\":\"battery\",\"scope\":\"vehicle_years\",\"makeId\":\"make:chevrolet\"},\"exactArguments\":true}"}]}}
+    }
+  ]
+}

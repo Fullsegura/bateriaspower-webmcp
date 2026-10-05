@@ -1,6 +1,6 @@
 "use client";
 
-import { Mic, MicOff, Phone, PhoneOff, Send, X } from "lucide-react";
+import { Headset, Mic, MicOff, PhoneOff, Send, X } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 
 import type {
@@ -21,11 +21,13 @@ import {
 } from "@/features/handoff/use-foreground-call-sounds";
 import { useLiveKitAudio } from "@/features/handoff/use-livekit-audio";
 import type { ChatMessage } from "@/types/agent";
+import type { DeliveryLocation } from "@/types/payment";
 
 interface Props {
   messages: ChatMessage[];
   vehicle: string | null;
   tire: HandoffTireContext | null;
+  delivery?: DeliveryLocation | null;
   onActiveChange: (active: boolean) => void;
 }
 
@@ -47,6 +49,7 @@ export function ClientHandoffPanel({
   messages,
   vehicle,
   tire,
+  delivery,
   onActiveChange,
 }: Props) {
   const [customerName, setCustomerName] = useState("");
@@ -164,7 +167,7 @@ export function ClientHandoffPanel({
         body: JSON.stringify({
           customerName,
           transcript: messages,
-          context: { vehicle, tire },
+          context: { vehicle, tire, ...(delivery ? { delivery } : {}) },
         }),
       });
       created = await readJson(response) as Session;
@@ -197,7 +200,7 @@ export function ClientHandoffPanel({
       requestingRef.current = false;
       setRequesting(false);
     }
-  }, [active, connectAudio, customerName, disconnectAudio, messages, tire, unlock, vehicle]);
+  }, [active, connectAudio, customerName, delivery, disconnectAudio, messages, tire, unlock, vehicle]);
 
   useEffect(() => bindAdvisorHandoffAction(start), [start]);
 
@@ -225,7 +228,7 @@ export function ClientHandoffPanel({
   if (!handoff || !active) {
     return (
       <section className={`handoffClient${showName ? "" : " handoffClientCompact"}`} aria-label="Hablar con un asesor">
-        {!showName ? <button type="button" aria-label="Hablar con asesor" title="Hablar con asesor" onClick={() => setShowName(true)}><Phone size={20} aria-hidden="true" /></button> : (
+        {!showName ? <button type="button" aria-label="Hablar con asesor" title="Hablar con asesor" onClick={() => setShowName(true)}><Headset size={20} aria-hidden="true" /></button> : (
         <div className="handoffClientActions">
           <input
             autoFocus
@@ -236,7 +239,7 @@ export function ClientHandoffPanel({
             maxLength={80}
           />
           <button type="button" onClick={() => void start()} disabled={requesting}>
-            <Phone size={16} />
+            <Headset size={16} />
             {requesting ? "Conectando…" : "Hablar con asesor"}
           </button>
           <button type="button" aria-label="Cancelar llamada" disabled={requesting} onClick={() => setShowName(false)}><X size={18} aria-hidden="true" /></button>

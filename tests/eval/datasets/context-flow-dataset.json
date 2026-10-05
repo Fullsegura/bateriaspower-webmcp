@@ -1,0 +1,28 @@
+[
+  {
+    "id": "battery_missing_coverage_year_change_and_shared_application",
+    "productType": "battery",
+    "turns": [
+      { "text": "Quiero buscar la batería Mega Power NS40.", "expect": "clarification" },
+      { "text": "hyundai accent 2020", "expect": "empty" },
+      { "text": "para 2018?", "expect": "results", "year": 2018, "make": "HYUNDAI", "model": "ACCENT / NEW ACCENT" },
+      { "text": "Sí, elijo la High Power 55. Cotiza una para retirar en Quito Norte.", "expect": "quote", "product": "High Power 55", "quantity": 1 },
+      { "text": "¿Y para otro año?", "expect": "missing_year" },
+      { "text": "Para 2017.", "expect": "results", "year": 2017, "make": "HYUNDAI", "model": "ACCENT / NEW ACCENT", "reuseApplication": true },
+      { "text": "Sí, elijo la High Power 55. Cotiza una para retirar en Quito Norte.", "expect": "quote", "product": "High Power 55", "quantity": 1 },
+      { "text": "Ahora para 2020.", "expect": "empty", "cleared": true }
+    ]
+  },
+  {
+    "id": "tire_empty_results_context_change_and_missing_year",
+    "productType": "tire",
+    "turns": [
+      { "text": "Quiero llantas para mi Toyota RAV4 2021.", "expect": "empty" },
+      { "text": "¿Y para 2018?", "expect": "results", "year": 2018, "make": "TOYOTA", "model": "RAV4" },
+      { "text": "Sí, selecciona la Firestone All Season y cotiza una en Ponciano.", "expect": "quote", "product": "Firestone All Season", "quantity": 1 },
+      { "text": "¿Y para otro año?", "expect": "missing_year" },
+      { "text": "Para 2017.", "expect": "results", "year": 2017, "make": "TOYOTA", "model": "RAV4" },
+      { "text": "Me equivoqué, es un Hyundai Accent de ese mismo año.", "expect": "results", "year": 2017, "make": "HYUNDAI", "model": "ACCENT" }
+    ]
+  }
+]

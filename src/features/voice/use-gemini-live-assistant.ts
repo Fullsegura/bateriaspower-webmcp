@@ -40,6 +40,12 @@ interface ToolCallMessage {
   args: Record<string, unknown>;
 }
 
+export interface VisualBatteryEvidence {
+  identification: { status: string; brand: string | null; reference: string | null };
+  specifications: Array<{ name: string; value: string; evidence: string }>;
+  sources: Array<{ id: number; url: string; title: string }>;
+}
+
 function websocketUrl(sessionId: string, token: string): string {
   const configured = process.env.NEXT_PUBLIC_LIVE_WS_URL?.replace(/\/$/, "");
   if (configured) {
@@ -83,6 +89,7 @@ export function useGeminiLiveAssistant({
   const [cameraActive, setCameraActive] = useState(false);
   const [cameraStarting, setCameraStarting] = useState(false);
   const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
+  const [visualEvidence, setVisualEvidence] = useState<VisualBatteryEvidence | null>(null);
   const socketRef = useRef<WebSocket | null>(null);
   const audioRef = useRef<GeminiLiveAudio | null>(null);
   const cameraRef = useRef<GeminiLiveCamera | null>(null);
@@ -97,6 +104,15 @@ export function useGeminiLiveAssistant({
   const reconnectAttemptsRef = useRef(0);
   const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const transcriptRef = useRef(onTranscript);
+  const presentationRef = useRef(new Map<string, { callIds: string[]; receivedAt: number }>());
+
+  const reportPresentation = useCallback((callIds: string[], channel: string, receivedAt: number) => {
+    const socket = socketRef.current;
+    if (socket?.readyState !== WebSocket.OPEN) return;
+    for (const call_id of callIds) socket.send(JSON.stringify({
+      type: "presentation", call_id, channel, elapsed_ms: performance.now() - receivedAt,
+    }));
+  }, []);
 
   useEffect(() => {
     transcriptRef.current = onTranscript;
@@ -134,6 +150,7 @@ export function useGeminiLiveAssistant({
         serializeToolArguments(message.args),
         { signal: controller.signal },
       );
+      const finishedAt = Date.now();
       const socket = socketRef.current;
       if (
         controller.signal.aborted
@@ -145,6 +162,7 @@ export function useGeminiLiveAssistant({
         call_id: message.call_id,
         epoch: message.epoch,
         result,
+        finished_at_ms: finishedAt,
       }));
     } catch (caught) {
       const socket = socketRef.current;
@@ -158,6 +176,7 @@ export function useGeminiLiveAssistant({
         call_id: message.call_id,
         epoch: message.epoch,
         result: serializeToolFailure(caught),
+        finished_at_ms: Date.now(),
       }));
     } finally {
       executionsRef.current.delete(message.call_id);
@@ -194,12 +213,16 @@ export function useGeminiLiveAssistant({
       }));
     };
     socket.onmessage = (event) => {
+      const receivedAt = performance.now();
       let message: Record<string, unknown>;
       try {
         message = JSON.parse(String(event.data)) as Record<string, unknown>;
       } catch {
         return;
       }
+      const callIds = Array.isArray(message.timing)
+        ? message.timing.flatMap((entry) => typeof entry?.callId === "string" ? [entry.callId] : [])
+        : [];
       if (message.type === "ready" && typeof message.epoch === "number") {
         epochRef.current = message.epoch;
         readyRef.current = true;
@@ -207,7 +230,12 @@ export function useGeminiLiveAssistant({
         setError(null);
         setStatus("listening");
       } else if (message.type === "audio" && typeof message.data === "string") {
-        audioRef.current?.enqueuePlayback(message.data);
+        const marker = callIds.length ? crypto.randomUUID() : undefined;
+        if (marker) {
+          if (presentationRef.current.size >= 128) presentationRef.current.clear();
+          presentationRef.current.set(marker, { callIds, receivedAt });
+        }
+        audioRef.current?.enqueuePlayback(message.data, marker);
         setStatus("speaking");
       } else if (message.type === "state" && (
         message.state === "IN_PROGRESS" || message.state === "IDLE"
@@ -218,6 +246,7 @@ export function useGeminiLiveAssistant({
         epochRef.current = message.epoch;
         abortExecutions(executionsRef.current, message.epoch);
         audioRef.current?.clearPlayback();
+        presentationRef.current.clear();
         setStatus("listening");
       } else if (message.type === "tool_call") {
         const candidate = message as unknown as ToolCallMessage;
@@ -237,6 +266,11 @@ export function useGeminiLiveAssistant({
         && message.text.trim()
       ) {
         transcriptRef.current?.(message.role, message.text, message.final === true);
+        if (callIds.length && transcriptRef.current) {
+          requestAnimationFrame(() => requestAnimationFrame(() => {
+            if (socketRef.current === socket) reportPresentation(callIds, "transcript", receivedAt);
+          }));
+        }
       } else if (message.type === "session_resumption") {
         resumptionHandleRef.current = message.resumable === true && typeof message.handle === "string"
           ? message.handle
@@ -244,12 +278,18 @@ export function useGeminiLiveAssistant({
       } else if (message.type === "error" && typeof message.message === "string") {
         setError(message.message);
         setStatus("error");
+      } else if (message.type === "visual_evidence" && message.evidence && typeof message.evidence === "object") {
+        const evidence = message.evidence as VisualBatteryEvidence;
+        if (evidence.identification && Array.isArray(evidence.specifications) && Array.isArray(evidence.sources)) {
+          setVisualEvidence(evidence);
+        }
       }
     };
     socket.onerror = () => {
       if (activeRef.current) setStatus("connecting");
     };
     socket.onclose = () => {
+      presentationRef.current.clear();
       readyRef.current = false;
       if (!activeRef.current || stoppingRef.current) return;
       epochRef.current += 1;
@@ -277,17 +317,22 @@ export function useGeminiLiveAssistant({
         });
       }, delay);
     };
-  }, [executeBrowserTool]);
+  }, [executeBrowserTool, reportPresentation]);
 
   useEffect(() => {
     connectRef.current = connect;
   }, [connect]);
 
   const stopCamera = useCallback(() => {
+    const socket = socketRef.current;
+    if (cameraRef.current && socket?.readyState === WebSocket.OPEN) {
+      socket.send(JSON.stringify({ type: "camera_state", active: false }));
+    }
     cameraRef.current?.stop();
     cameraRef.current = null;
     setCameraStream(null);
     setCameraActive(false);
+    setVisualEvidence(null);
     setCameraStarting(false);
   }, []);
 
@@ -306,6 +351,7 @@ export function useGeminiLiveAssistant({
     }
     socket?.close();
     socketRef.current = null;
+    presentationRef.current.clear();
     stopCamera();
     await audioRef.current?.stop();
     audioRef.current = null;
@@ -326,6 +372,12 @@ export function useGeminiLiveAssistant({
       await audio.start({
         onCapture: sendAudio,
         onLevel: setVolume,
+        onPresentation: (marker) => {
+          const pending = presentationRef.current.get(marker);
+          if (!pending) return;
+          presentationRef.current.delete(marker);
+          reportPresentation(pending.callIds, "audio", pending.receivedAt);
+        },
         onPlayback: (playing) => {
           if (playing) {
             setStatus("speaking");
@@ -342,7 +394,7 @@ export function useGeminiLiveAssistant({
       setError(caught instanceof Error ? caught.message : "No se pudo iniciar la voz.");
       setStatus("error");
     }
-  }, [connect, enabled, sendAudio]);
+  }, [connect, enabled, reportPresentation, sendAudio]);
 
   const startCamera = useCallback(async () => {
     if (!enabled || cameraRef.current || cameraStarting) return;
@@ -390,6 +442,7 @@ export function useGeminiLiveAssistant({
     cameraActive,
     cameraStarting,
     cameraStream,
+    visualEvidence,
     error,
     start,
     startCamera,
@@ -397,5 +450,5 @@ export function useGeminiLiveAssistant({
     stop,
     stopCamera,
     volume,
-  }), [cameraActive, cameraStarting, cameraStream, error, start, startCamera, status, stop, stopCamera, volume]);
+  }), [cameraActive, cameraStarting, cameraStream, visualEvidence, error, start, startCamera, status, stop, stopCamera, volume]);
 }

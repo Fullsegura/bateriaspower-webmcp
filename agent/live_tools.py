@@ -20,12 +20,19 @@ _MAX_TOOLS = 16
 class GeminiExtendedThinkingQueue(LiveRequestQueue):
     """Keeps ADK async scheduling internal to models that reject wire hints."""
 
+    def __init__(self, on_response: Callable[[str], None] | None = None):
+        super().__init__()
+        self.on_response = on_response
+
     def send_content(self, content: types.Content, partial: bool = False) -> None:
         sanitized = content.model_copy(deep=True)
         for part in sanitized.parts or []:
             if part.function_response:
                 part.function_response.scheduling = None
         super().send_content(sanitized, partial=partial)
+        for part in sanitized.parts or []:
+            if part.function_response and self.on_response:
+                self.on_response(part.function_response.id or "")
 
 
 class BrowserToolDescriptor(BaseModel):

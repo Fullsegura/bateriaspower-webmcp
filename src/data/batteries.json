@@ -11,7 +11,29 @@
     "dimensions": "195 × 138 × 220 mm",
     "reserveCapacityMinutes": 78,
     "price": 133.4,
-    "image": "/products/bateriasecuador/40.png?v=3d608e6d1845"
+    "image": "/products/bateriasecuador/40.png?v=3d608e6d1845",
+    "localidad": [
+      "Quito Norte",
+      "Quito Sur",
+      "Quito Valles",
+      "Guayaquil Norte",
+      "Guayaquil Sur",
+      "Guayaquil Samborondón",
+      "Cuenca",
+      "Santo Domingo",
+      "A domicilio"
+    ],
+    "inventario": [
+      6,
+      11,
+      11,
+      10,
+      15,
+      18,
+      5,
+      8,
+      18
+    ]
   },
   {
     "id": "be-ns40-high-power",
@@ -25,7 +47,29 @@
     "dimensions": "195 × 138 × 220 mm",
     "reserveCapacityMinutes": 75,
     "price": 123.03,
-    "image": "/products/bateriasecuador/40.png?v=3d608e6d1845"
+    "image": "/products/bateriasecuador/40.png?v=3d608e6d1845",
+    "localidad": [
+      "Quito Norte",
+      "Quito Sur",
+      "Quito Valles",
+      "Guayaquil Norte",
+      "Guayaquil Sur",
+      "Guayaquil Samborondón",
+      "Cuenca",
+      "Santo Domingo",
+      "A domicilio"
+    ],
+    "inventario": [
+      10,
+      15,
+      5,
+      9,
+      17,
+      16,
+      5,
+      13,
+      12
+    ]
   },
   {
     "id": "be-ns40-full-equipo",
@@ -39,7 +83,29 @@
     "dimensions": "195 × 138 × 220 mm",
     "reserveCapacityMinutes": 71,
     "price": 105.23,
-    "image": "/products/bateriasecuador/40.png?v=3d608e6d1845"
+    "image": "/products/bateriasecuador/40.png?v=3d608e6d1845",
+    "localidad": [
+      "Quito Norte",
+      "Quito Sur",
+      "Quito Valles",
+      "Guayaquil Norte",
+      "Guayaquil Sur",
+      "Guayaquil Samborondón",
+      "Cuenca",
+      "Santo Domingo",
+      "A domicilio"
+    ],
+    "inventario": [
+      8,
+      6,
+      14,
+      12,
+      10,
+      18,
+      15,
+      10,
+      13
+    ]
   },
   {
     "id": "be-n40-mega-power",
@@ -53,7 +119,29 @@
     "dimensions": "234 × 126 × 227 mm",
     "reserveCapacityMinutes": 100,
     "price": 155.83,
-    "image": "/products/bateriasecuador/40.png?v=3d608e6d1845"
+    "image": "/products/bateriasecuador/40.png?v=3d608e6d1845",
+    "localidad": [
+      "Quito Norte",
+      "Quito Sur",
+      "Quito Valles",
+      "Guayaquil Norte",
+      "Guayaquil Sur",
+      "Guayaquil Samborondón",
+      "Cuenca",
+      "Santo Domingo",
+      "A domicilio"
+    ],
+    "inventario": [
+      7,
+      5,
+      20,
+      13,
+      19,
+      9,
+      7,
+      6,
+      12
+    ]
   },
   {
     "id": "be-n40-high-power",
@@ -67,7 +155,29 @@
     "dimensions": "234 × 126 × 227 mm",
     "reserveCapacityMinutes": 87,
     "price": 130.53,
-    "image": "/products/bateriasecuador/40.png?v=3d608e6d1845"
+    "image": "/products/bateriasecuador/40.png?v=3d608e6d1845",
+    "localidad": [
+      "Quito Norte",
+      "Quito Sur",
+      "Quito Valles",
+      "Guayaquil Norte",
+      "Guayaquil Sur",
+      "Guayaquil Samborondón",
+      "Cuenca",
+      "Santo Domingo",
+      "A domicilio"
+    ],
+    "inventario": [
+      5,
+      14,
+      8,
+      7,
+      9,
+      12,
+      18,
+      7,
+      8
+    ]
   },
   {
     "id": "be-n40-full-equipo",
@@ -81,7 +191,29 @@
     "dimensions": "234 × 126 × 227 mm",
     "reserveCapacityMinutes": 80,
     "price": 123.05,
-    "image": "/products/bateriasecuador/40.png?v=3d608e6d1845"
+    "image": "/products/bateriasecuador/40.png?v=3d608e6d1845",
+    "localidad": [
+      "Quito Norte",
+      "Quito Sur",
+      "Quito Valles",
+      "Guayaquil Norte",
+      "Guayaquil Sur",
+      "Guayaquil Samborondón",
+      "Cuenca",
+      "Santo Domingo",
+      "A domicilio"
+    ],
+    "inventario": [
+      11,
+      5,
+      14,
+      7,
+      19,
+      16,
+      17,
+      18,
+      5
+    ]
   },
   {
     "id": "be-42-mega-power",
@@ -95,7 +227,29 @@
     "dimensions": "238 × 174 × 175 mm",
     "reserveCapacityMinutes": 110,
     "price": 177.1,
-    "image": "/products/bateriasecuador/42.png?v=26b859381768"
+    "image": "/products/bateriasecuador/42.png?v=26b859381768",
+    "localidad": [
+      "Quito Norte",
+      "Quito Sur",
+      "Quito Valles",
+      "Guayaquil Norte",
+      "Guayaquil Sur",
+      "Guayaquil Samborondón",
+      "Cuenca",
+      "Santo Domingo",
+      "A domicilio"
+    ],
+    "inventario": [
+      19,
+      9,
+      4,
+      9,
+      14,
+      20,
+      11,
+      20,
+      19
+    ]
   },
   {
     "id": "be-42-high-power",
@@ -109,7 +263,29 @@
     "dimensions": "238 × 174 × 175 mm",
     "reserveCapacityMinutes": 100,
     "price": 148.93,
-    "image": "/products/bateriasecuador/42.png?v=26b859381768"
+    "image": "/products/bateriasecuador/42.png?v=26b859381768",
+    "localidad": [
+      "Quito Norte",
+      "Quito Sur",
+      "Quito Valles",
+      "Guayaquil Norte",
+      "Guayaquil Sur",
+      "Guayaquil Samborondón",
+      "Cuenca",
+      "Santo Domingo",
+      "A domicilio"
+    ],
+    "inventario": [
+      6,
+      20,
+      5,
+      5,
+      20,
+      11,
+      16,
+      10,
+      11
+    ]
   },
   {
     "id": "be-42-full-equipo",
@@ -123,7 +299,29 @@
     "dimensions": "238 × 174 × 175 mm",
     "reserveCapacityMinutes": 72,
     "price": 109.83,
-    "image": "/products/bateriasecuador/42.png?v=26b859381768"
+    "image": "/products/bateriasecuador/42.png?v=26b859381768",
+    "localidad": [
+      "Quito Norte",
+      "Quito Sur",
+      "Quito Valles",
+      "Guayaquil Norte",
+      "Guayaquil Sur",
+      "Guayaquil Samborondón",
+      "Cuenca",
+      "Santo Domingo",
+      "A domicilio"
+    ],
+    "inventario": [
+      4,
+      19,
+      14,
+      16,
+      19,
+      13,
+      8,
+      15,
+      11
+    ]
   },
   {
     "id": "be-55-mega-power",
@@ -137,7 +335,29 @@
     "dimensions": "241 × 172 × 190 mm",
     "reserveCapacityMinutes": 111,
     "price": 173.08,
-    "image": "/products/bateriasecuador/55.png?v=ca543fd6bc82"
+    "image": "/products/bateriasecuador/55.png?v=ca543fd6bc82",
+    "localidad": [
+      "Quito Norte",
+      "Quito Sur",
+      "Quito Valles",
+      "Guayaquil Norte",
+      "Guayaquil Sur",
+      "Guayaquil Samborondón",
+      "Cuenca",
+      "Santo Domingo",
+      "A domicilio"
+    ],
+    "inventario": [
+      12,
+      20,
+      8,
+      18,
+      6,
+      11,
+      8,
+      7,
+      12
+    ]
   },
   {
     "id": "be-55-high-power",
@@ -151,7 +371,29 @@
     "dimensions": "241 × 172 × 190 mm",
     "reserveCapacityMinutes": 100,
     "price": 157.55,
-    "image": "/products/bateriasecuador/55.png?v=ca543fd6bc82"
+    "image": "/products/bateriasecuador/55.png?v=ca543fd6bc82",
+    "localidad": [
+      "Quito Norte",
+      "Quito Sur",
+      "Quito Valles",
+      "Guayaquil Norte",
+      "Guayaquil Sur",
+      "Guayaquil Samborondón",
+      "Cuenca",
+      "Santo Domingo",
+      "A domicilio"
+    ],
+    "inventario": [
+      14,
+      9,
+      8,
+      12,
+      6,
+      14,
+      20,
+      11,
+      8
+    ]
   },
   {
     "id": "be-55-full-equipo",
@@ -165,7 +407,29 @@
     "dimensions": "241 × 172 × 190 mm",
     "reserveCapacityMinutes": 91,
     "price": 138,
-    "image": "/products/bateriasecuador/55.png?v=ca543fd6bc82"
+    "image": "/products/bateriasecuador/55.png?v=ca543fd6bc82",
+    "localidad": [
+      "Quito Norte",
+      "Quito Sur",
+      "Quito Valles",
+      "Guayaquil Norte",
+      "Guayaquil Sur",
+      "Guayaquil Samborondón",
+      "Cuenca",
+      "Santo Domingo",
+      "A domicilio"
+    ],
+    "inventario": [
+      5,
+      4,
+      11,
+      13,
+      11,
+      15,
+      17,
+      20,
+      19
+    ]
   },
   {
     "id": "be-48-mega-power",
@@ -179,7 +443,29 @@
     "dimensions": "275 × 174 × 190 mm",
     "reserveCapacityMinutes": 130,
     "price": 207,
-    "image": "/products/bateriasecuador/48.png?v=fed28893caf6"
+    "image": "/products/bateriasecuador/48.png?v=fed28893caf6",
+    "localidad": [
+      "Quito Norte",
+      "Quito Sur",
+      "Quito Valles",
+      "Guayaquil Norte",
+      "Guayaquil Sur",
+      "Guayaquil Samborondón",
+      "Cuenca",
+      "Santo Domingo",
+      "A domicilio"
+    ],
+    "inventario": [
+      16,
+      17,
+      14,
+      10,
+      18,
+      8,
+      13,
+      8,
+      15
+    ]
   },
   {
     "id": "be-48-high-power",
@@ -193,7 +479,29 @@
     "dimensions": "275 × 174 × 190 mm",
     "reserveCapacityMinutes": 100,
     "price": 199.53,
-    "image": "/products/bateriasecuador/48.png?v=fed28893caf6"
+    "image": "/products/bateriasecuador/48.png?v=fed28893caf6",
+    "localidad": [
+      "Quito Norte",
+      "Quito Sur",
+      "Quito Valles",
+      "Guayaquil Norte",
+      "Guayaquil Sur",
+      "Guayaquil Samborondón",
+      "Cuenca",
+      "Santo Domingo",
+      "A domicilio"
+    ],
+    "inventario": [
+      18,
+      9,
+      5,
+      17,
+      14,
+      12,
+      13,
+      18,
+      15
+    ]
   },
   {
     "id": "be-fb5-mega-power",
@@ -207,7 +515,29 @@
     "dimensions": "306 × 188 × 192 mm",
     "reserveCapacityMinutes": 185,
     "price": 278.88,
-    "image": "/products/bateriasecuador/fb5.png?v=08e2a141732b"
+    "image": "/products/bateriasecuador/fb5.png?v=08e2a141732b",
+    "localidad": [
+      "Quito Norte",
+      "Quito Sur",
+      "Quito Valles",
+      "Guayaquil Norte",
+      "Guayaquil Sur",
+      "Guayaquil Samborondón",
+      "Cuenca",
+      "Santo Domingo",
+      "A domicilio"
+    ],
+    "inventario": [
+      15,
+      7,
+      7,
+      20,
+      6,
+      11,
+      18,
+      20,
+      17
+    ]
   },
   {
     "id": "be-fb5-high-power",
@@ -221,7 +551,29 @@
     "dimensions": "306 × 188 × 192 mm",
     "reserveCapacityMinutes": 115,
     "price": 227.13,
-    "image": "/products/bateriasecuador/fb5.png?v=08e2a141732b"
+    "image": "/products/bateriasecuador/fb5.png?v=08e2a141732b",
+    "localidad": [
+      "Quito Norte",
+      "Quito Sur",
+      "Quito Valles",
+      "Guayaquil Norte",
+      "Guayaquil Sur",
+      "Guayaquil Samborondón",
+      "Cuenca",
+      "Santo Domingo",
+      "A domicilio"
+    ],
+    "inventario": [
+      14,
+      6,
+      11,
+      18,
+      5,
+      13,
+      6,
+      16,
+      12
+    ]
   },
   {
     "id": "be-24-mega-power",
@@ -235,7 +587,29 @@
     "dimensions": "258 × 171 × 227 mm",
     "reserveCapacityMinutes": 165,
     "price": 220.8,
-    "image": "/products/bateriasecuador/24.png?v=dc95530bd612"
+    "image": "/products/bateriasecuador/24.png?v=dc95530bd612",
+    "localidad": [
+      "Quito Norte",
+      "Quito Sur",
+      "Quito Valles",
+      "Guayaquil Norte",
+      "Guayaquil Sur",
+      "Guayaquil Samborondón",
+      "Cuenca",
+      "Santo Domingo",
+      "A domicilio"
+    ],
+    "inventario": [
+      8,
+      11,
+      8,
+      6,
+      13,
+      4,
+      7,
+      7,
+      11
+    ]
   },
   {
     "id": "be-24-high-power",
@@ -249,7 +623,29 @@
     "dimensions": "258 × 171 × 227 mm",
     "reserveCapacityMinutes": 130,
     "price": 180.55,
-    "image": "/products/bateriasecuador/24.png?v=dc95530bd612"
+    "image": "/products/bateriasecuador/24.png?v=dc95530bd612",
+    "localidad": [
+      "Quito Norte",
+      "Quito Sur",
+      "Quito Valles",
+      "Guayaquil Norte",
+      "Guayaquil Sur",
+      "Guayaquil Samborondón",
+      "Cuenca",
+      "Santo Domingo",
+      "A domicilio"
+    ],
+    "inventario": [
+      7,
+      4,
+      10,
+      10,
+      20,
+      12,
+      12,
+      17,
+      7
+    ]
   },
   {
     "id": "be-24-full-equipo",
@@ -263,7 +659,29 @@
     "dimensions": "258 × 171 × 227 mm",
     "reserveCapacityMinutes": 117,
     "price": 158.13,
-    "image": "/products/bateriasecuador/24.png?v=dc95530bd612"
+    "image": "/products/bateriasecuador/24.png?v=dc95530bd612",
+    "localidad": [
+      "Quito Norte",
+      "Quito Sur",
+      "Quito Valles",
+      "Guayaquil Norte",
+      "Guayaquil Sur",
+      "Guayaquil Samborondón",
+      "Cuenca",
+      "Santo Domingo",
+      "A domicilio"
+    ],
+    "inventario": [
+      8,
+      12,
+      8,
+      17,
+      8,
+      6,
+      17,
+      17,
+      7
+    ]
   },
   {
     "id": "be-34-mega-power",
@@ -277,7 +695,29 @@
     "dimensions": "258 × 171 × 205 mm",
     "reserveCapacityMinutes": 155,
     "price": 221.95,
-    "image": "/products/bateriasecuador/34.png?v=75ff88f5d62b"
+    "image": "/products/bateriasecuador/34.png?v=75ff88f5d62b",
+    "localidad": [
+      "Quito Norte",
+      "Quito Sur",
+      "Quito Valles",
+      "Guayaquil Norte",
+      "Guayaquil Sur",
+      "Guayaquil Samborondón",
+      "Cuenca",
+      "Santo Domingo",
+      "A domicilio"
+    ],
+    "inventario": [
+      6,
+      10,
+      11,
+      15,
+      16,
+      7,
+      16,
+      12,
+      17
+    ]
   },
   {
     "id": "be-34-high-power",
@@ -291,7 +731,29 @@
     "dimensions": "258 × 171 × 205 mm",
     "reserveCapacityMinutes": 144,
     "price": 193.43,
-    "image": "/products/bateriasecuador/34.png?v=75ff88f5d62b"
+    "image": "/products/bateriasecuador/34.png?v=75ff88f5d62b",
+    "localidad": [
+      "Quito Norte",
+      "Quito Sur",
+      "Quito Valles",
+      "Guayaquil Norte",
+      "Guayaquil Sur",
+      "Guayaquil Samborondón",
+      "Cuenca",
+      "Santo Domingo",
+      "A domicilio"
+    ],
+    "inventario": [
+      17,
+      13,
+      8,
+      4,
+      20,
+      4,
+      8,
+      10,
+      16
+    ]
   },
   {
     "id": "be-34-full-equipo",
@@ -305,7 +767,29 @@
     "dimensions": "258 × 171 × 205 mm",
     "reserveCapacityMinutes": 122,
     "price": 149.5,
-    "image": "/products/bateriasecuador/34.png?v=75ff88f5d62b"
+    "image": "/products/bateriasecuador/34.png?v=75ff88f5d62b",
+    "localidad": [
+      "Quito Norte",
+      "Quito Sur",
+      "Quito Valles",
+      "Guayaquil Norte",
+      "Guayaquil Sur",
+      "Guayaquil Samborondón",
+      "Cuenca",
+      "Santo Domingo",
+      "A domicilio"
+    ],
+    "inventario": [
+      16,
+      19,
+      18,
+      8,
+      9,
+      20,
+      12,
+      5,
+      12
+    ]
   },
   {
     "id": "be-27-mega-power",
@@ -319,7 +803,29 @@
     "dimensions": "306 × 172 × 227 mm",
     "reserveCapacityMinutes": 194,
     "price": 274.85,
-    "image": "/products/bateriasecuador/27.png?v=a070bf9643d7"
+    "image": "/products/bateriasecuador/27.png?v=a070bf9643d7",
+    "localidad": [
+      "Quito Norte",
+      "Quito Sur",
+      "Quito Valles",
+      "Guayaquil Norte",
+      "Guayaquil Sur",
+      "Guayaquil Samborondón",
+      "Cuenca",
+      "Santo Domingo",
+      "A domicilio"
+    ],
+    "inventario": [
+      14,
+      4,
+      7,
+      15,
+      5,
+      13,
+      17,
+      15,
+      11
+    ]
   },
   {
     "id": "be-27-high-power",
@@ -333,7 +839,29 @@
     "dimensions": "306 × 172 × 227 mm",
     "reserveCapacityMinutes": 172,
     "price": 225.4,
-    "image": "/products/bateriasecuador/27.png?v=a070bf9643d7"
+    "image": "/products/bateriasecuador/27.png?v=a070bf9643d7",
+    "localidad": [
+      "Quito Norte",
+      "Quito Sur",
+      "Quito Valles",
+      "Guayaquil Norte",
+      "Guayaquil Sur",
+      "Guayaquil Samborondón",
+      "Cuenca",
+      "Santo Domingo",
+      "A domicilio"
+    ],
+    "inventario": [
+      6,
+      19,
+      20,
+      10,
+      11,
+      4,
+      17,
+      17,
+      10
+    ]
   },
   {
     "id": "be-27-full-equipo",
@@ -347,7 +875,29 @@
     "dimensions": "306 × 172 × 227 mm",
     "reserveCapacityMinutes": 166,
     "price": 189.18,
-    "image": "/products/bateriasecuador/27.png?v=a070bf9643d7"
+    "image": "/products/bateriasecuador/27.png?v=a070bf9643d7",
+    "localidad": [
+      "Quito Norte",
+      "Quito Sur",
+      "Quito Valles",
+      "Guayaquil Norte",
+      "Guayaquil Sur",
+      "Guayaquil Samborondón",
+      "Cuenca",
+      "Santo Domingo",
+      "A domicilio"
+    ],
+    "inventario": [
+      8,
+      12,
+      14,
+      5,
+      20,
+      20,
+      13,
+      9,
+      12
+    ]
   },
   {
     "id": "be-36-high-power",
@@ -361,7 +911,29 @@
     "dimensions": "206 × 174 × 175 mm",
     "reserveCapacityMinutes": 80,
     "price": 143.75,
-    "image": "/products/bateriasecuador/36.png?v=23f452e45430"
+    "image": "/products/bateriasecuador/36.png?v=23f452e45430",
+    "localidad": [
+      "Quito Norte",
+      "Quito Sur",
+      "Quito Valles",
+      "Guayaquil Norte",
+      "Guayaquil Sur",
+      "Guayaquil Samborondón",
+      "Cuenca",
+      "Santo Domingo",
+      "A domicilio"
+    ],
+    "inventario": [
+      12,
+      6,
+      4,
+      17,
+      9,
+      5,
+      14,
+      8,
+      6
+    ]
   },
   {
     "id": "be-65-high-power",
@@ -375,7 +947,29 @@
     "dimensions": "278 × 174 × 175 mm",
     "reserveCapacityMinutes": 121,
     "price": 177.1,
-    "image": "/products/bateriasecuador/65.png?v=29a823567001"
+    "image": "/products/bateriasecuador/65.png?v=29a823567001",
+    "localidad": [
+      "Quito Norte",
+      "Quito Sur",
+      "Quito Valles",
+      "Guayaquil Norte",
+      "Guayaquil Sur",
+      "Guayaquil Samborondón",
+      "Cuenca",
+      "Santo Domingo",
+      "A domicilio"
+    ],
+    "inventario": [
+      6,
+      17,
+      12,
+      5,
+      9,
+      17,
+      4,
+      5,
+      18
+    ]
   },
   {
     "id": "be-66-high-power",
@@ -389,7 +983,29 @@
     "dimensions": "278 × 174 × 175 mm",
     "reserveCapacityMinutes": 121,
     "price": 177.1,
-    "image": "/products/bateriasecuador/66.png?v=c0b1632534b7"
+    "image": "/products/bateriasecuador/66.png?v=c0b1632534b7",
+    "localidad": [
+      "Quito Norte",
+      "Quito Sur",
+      "Quito Valles",
+      "Guayaquil Norte",
+      "Guayaquil Sur",
+      "Guayaquil Samborondón",
+      "Cuenca",
+      "Santo Domingo",
+      "A domicilio"
+    ],
+    "inventario": [
+      7,
+      9,
+      14,
+      20,
+      8,
+      5,
+      6,
+      8,
+      15
+    ]
   },
   {
     "id": "be-86-high-power",
@@ -403,7 +1019,29 @@
     "dimensions": "230 × 175 × 220 mm",
     "reserveCapacityMinutes": 125,
     "price": 179.4,
-    "image": "/products/bateriasecuador/86.png?v=ead2cc040f10"
+    "image": "/products/bateriasecuador/86.png?v=ead2cc040f10",
+    "localidad": [
+      "Quito Norte",
+      "Quito Sur",
+      "Quito Valles",
+      "Guayaquil Norte",
+      "Guayaquil Sur",
+      "Guayaquil Samborondón",
+      "Cuenca",
+      "Santo Domingo",
+      "A domicilio"
+    ],
+    "inventario": [
+      15,
+      16,
+      16,
+      4,
+      15,
+      17,
+      17,
+      14,
+      20
+    ]
   },
   {
     "id": "be-49-high-power",
@@ -417,7 +1055,29 @@
     "dimensions": "351 × 175 × 190 mm",
     "reserveCapacityMinutes": 130,
     "price": 300.73,
-    "image": "/products/bateriasecuador/49.png?v=ffece3abd6f6"
+    "image": "/products/bateriasecuador/49.png?v=ffece3abd6f6",
+    "localidad": [
+      "Quito Norte",
+      "Quito Sur",
+      "Quito Valles",
+      "Guayaquil Norte",
+      "Guayaquil Sur",
+      "Guayaquil Samborondón",
+      "Cuenca",
+      "Santo Domingo",
+      "A domicilio"
+    ],
+    "inventario": [
+      7,
+      20,
+      14,
+      15,
+      4,
+      14,
+      18,
+      10,
+      17
+    ]
   },
   {
     "id": "be-u1-heavy-duty",
@@ -431,7 +1091,29 @@
     "dimensions": "195 × 132 × 184 mm",
     "reserveCapacityMinutes": 40,
     "price": 126.5,
-    "image": "/products/bateriasecuador/u1.png?v=6a8332f1a348"
+    "image": "/products/bateriasecuador/u1.png?v=6a8332f1a348",
+    "localidad": [
+      "Quito Norte",
+      "Quito Sur",
+      "Quito Valles",
+      "Guayaquil Norte",
+      "Guayaquil Sur",
+      "Guayaquil Samborondón",
+      "Cuenca",
+      "Santo Domingo",
+      "A domicilio"
+    ],
+    "inventario": [
+      19,
+      9,
+      13,
+      19,
+      8,
+      12,
+      4,
+      11,
+      9
+    ]
   },
   {
     "id": "be-55-heavy-duty",
@@ -445,6 +1127,28 @@
     "dimensions": "241 × 172 × 190 mm",
     "reserveCapacityMinutes": 100,
     "price": 144.9,
-    "image": "/products/bateriasecuador/55.png?v=ca543fd6bc82"
+    "image": "/products/bateriasecuador/55.png?v=ca543fd6bc82",
+    "localidad": [
+      "Quito Norte",
+      "Quito Sur",
+      "Quito Valles",
+      "Guayaquil Norte",
+      "Guayaquil Sur",
+      "Guayaquil Samborondón",
+      "Cuenca",
+      "Santo Domingo",
+      "A domicilio"
+    ],
+    "inventario": [
+      6,
+      9,
+      5,
+      4,
+      11,
+      7,
+      16,
+      16,
+      8
+    ]
   }
 ]

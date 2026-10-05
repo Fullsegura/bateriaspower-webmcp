@@ -6,7 +6,7 @@
         "role": "user",
         "parts": [
           {
-            "text": "{\"messages\":[{\"id\":\"1\",\"role\":\"user\",\"content\":\"Toyota RAV4 CVT 2018 en Quito\"}],\"tools\":[{\"name\":\"search_tires\",\"title\":\"Buscar llantas\",\"description\":\"Busca hasta cinco opciones actuales y las muestra.\",\"inputSchema\":{\"type\":\"object\",\"properties\":{\"mode\":{\"type\":\"string\"},\"make\":{\"type\":\"string\"},\"model\":{\"type\":\"string\"},\"year\":{\"type\":\"integer\"},\"city\":{\"type\":\"string\"}},\"required\":[\"mode\"]}}],\"uiState\":{\"query\":\"Toyota RAV4 CVT 2018 en Quito\",\"criteria\":null,\"tires\":[],\"selectedTireId\":null,\"quote\":null,\"stockSummary\":null,\"queriedAt\":null}}"
+            "text": "{\"messages\":[{\"id\":\"1\",\"role\":\"user\",\"content\":\"Toyota RAV4 CVT 2018 en Quito\"}],\"tools\":[{\"name\":\"discover_catalog\",\"title\":\"Descubrir opciones del catálogo\",\"inputSchema\":{\"type\":\"object\",\"properties\":{\"productType\":{\"type\":\"string\"},\"scope\":{\"type\":\"string\"}},\"required\":[\"productType\",\"scope\"]}}],\"uiState\":{\"query\":\"Toyota RAV4 CVT 2018 en Quito\",\"discoveries\":[],\"tires\":[]}}"
           }
         ]
       },
@@ -15,7 +15,7 @@
           "role": "model",
           "parts": [
             {
-              "text": "{\"kind\":\"tool_call\",\"toolName\":\"search_tires\"}"
+              "text": "{\"kind\":\"tool_call\",\"toolName\":\"discover_catalog\"}"
             }
           ]
         }
