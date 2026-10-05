@@ -167,10 +167,14 @@ al proveedor, no nombres, datos de facturación ni referencias escritas por el u
 
 El servicio público de Nominatim tiene capacidad limitada: requiere identificación
 y atribución, máximo una consulta por segundo por aplicación, caché y no permite
-autocompletado. Esta demo usa una cola compartida por proceso y caché temporal.
+autocompletar búsquedas mientras se escribe. Completar una dirección desde un punto
+GPS es geocodificación inversa. Esta demo usa una cola compartida por proceso y caché temporal.
 Ver https://operations.osmfoundation.org/policies/nominatim/ .
-En producción, configura `NOMINATIM_REVERSE_URL` con un endpoint propio o gestionado;
-el público no se habilita con un limitador local que no coordina varias instancias.
+Para el demo publicado con una única instancia y un único proceso web, habilita
+`NOMINATIM_PUBLIC_DEMO_ENABLED=true`; completa la dirección automáticamente sin claves.
+No habilites el servicio público simultáneamente en otra revisión o proceso local.
+El límite sigue siendo por proceso: esta opción no crea una cuota distribuida.
+Para múltiples instancias, configura `NOMINATIM_REVERSE_URL` con un endpoint propio o gestionado.
 Si la consulta falla, se permite ingresar la dirección manualmente.
 
 El modo local predeterminado es `PAYMENT_MODE=simulation`: valida facturación,

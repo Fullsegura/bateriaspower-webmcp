@@ -6,7 +6,10 @@ import { createReverseGeocoder, parseCoordinates, reverseGeocodeAddress } from "
 const endpoint = "https://nominatim.openstreetmap.org/reverse";
 const point = { latitude: -0.15, longitude: -78.46 };
 const provider = (data: unknown, status = 200) => vi.fn<typeof fetch>().mockResolvedValue(Response.json(data, { status }));
-afterEach(() => { vi.useRealTimers(); vi.unstubAllEnvs(); vi.unstubAllGlobals(); });
+afterEach(() => {
+  Reflect.deleteProperty(globalThis, Symbol.for("powerauto.delivery.reverse-geocoder"));
+  vi.useRealTimers(); vi.unstubAllEnvs(); vi.unstubAllGlobals();
+});
 
 describe("Nominatim delivery address", () => {
   it("returns the provider address and sends coordinates only, with identification", async () => {
@@ -57,10 +60,69 @@ describe("Nominatim delivery address", () => {
     await expect(createReverseGeocoder(endpoint, provider({}, 503))(point)).rejects.toThrow("Escríbela");
     await expect(createReverseGeocoder(endpoint, vi.fn().mockRejectedValue(new Error("provider details")))(point)).rejects.toThrow("Escríbela");
   });
-  it("does not use a process-local public quota in multi-instance production", async () => {
+  it.each(["", "false", "1"])("requires explicit public demo opt-in in production: %s", async (enabled) => {
     vi.stubEnv("NODE_ENV", "production");
     vi.stubEnv("NOMINATIM_REVERSE_URL", "");
+    vi.stubEnv("NOMINATIM_PUBLIC_DEMO_ENABLED", enabled);
+    const fetchImpl = provider({ display_name: "Dirección verificada" });
+    vi.stubGlobal("fetch", fetchImpl);
     await expect(reverseGeocodeAddress(point)).rejects.toThrow("producción");
+    expect(fetchImpl).not.toHaveBeenCalled();
+  });
+  it("fills the address in the explicitly enabled production demo behind ingress", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("NOMINATIM_REVERSE_URL", "");
+    vi.stubEnv("NOMINATIM_PUBLIC_DEMO_ENABLED", "true");
+    const fetchImpl = provider({ display_name: "Dirección verificada" });
+    vi.stubGlobal("fetch", fetchImpl);
+    const response = await POST(new Request("http://0.0.0.0:3000/api/payments/maps/address", {
+      method: "POST", headers: { "content-type": "application/json", "x-catalog-session": createCatalogSession(),
+        host: "webmcp.fullsegura.com", origin: "https://webmcp.fullsegura.com", "x-forwarded-proto": "https" },
+      body: JSON.stringify(point),
+    }));
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ address: "Dirección verificada" });
+    expect(new URL(String(fetchImpl.mock.calls[0][0])).origin).toBe("https://nominatim.openstreetmap.org");
+  });
+  it("shares the production demo queue and cache between catalog sessions", async () => {
+    vi.useFakeTimers();
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("NOMINATIM_REVERSE_URL", "");
+    vi.stubEnv("NOMINATIM_PUBLIC_DEMO_ENABLED", "true");
+    const starts: number[] = [];
+    const fetchImpl = vi.fn<typeof fetch>().mockImplementation(async () => {
+      starts.push(Date.now()); return Response.json({ display_name: "Dirección verificada" });
+    });
+    vi.stubGlobal("fetch", fetchImpl);
+    const query = (coordinates: unknown) => POST(new Request("http://localhost:3000/api/payments/maps/address", {
+      method: "POST", headers: { "content-type": "application/json", "x-catalog-session": createCatalogSession() },
+      body: JSON.stringify(coordinates),
+    }));
+    const first = query(point);
+    const duplicate = query(point);
+    const second = query({ ...point, latitude: -0.16 });
+    await vi.advanceTimersByTimeAsync(999);
+    expect(starts).toHaveLength(1);
+    await vi.advanceTimersByTimeAsync(1);
+    expect((await Promise.all([first, duplicate, second])).map(response => response.status)).toEqual([200, 200, 200]);
+    expect(starts).toHaveLength(2);
+    expect(starts[1] - starts[0]).toBeGreaterThanOrEqual(1000);
+    expect((await query(point)).status).toBe(200);
+    expect(fetchImpl).toHaveBeenCalledTimes(2);
+  });
+  it("keeps manual entry available when the production demo provider fails", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("NOMINATIM_REVERSE_URL", "");
+    vi.stubEnv("NOMINATIM_PUBLIC_DEMO_ENABLED", "true");
+    vi.stubGlobal("fetch", provider({}, 503));
+    await expect(reverseGeocodeAddress(point)).rejects.toThrow("Escríbela para continuar");
+  });
+  it("allows a managed production endpoint without public demo opt-in", async () => {
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("NOMINATIM_REVERSE_URL", "https://geocoder.example.test/reverse");
+    vi.stubEnv("NOMINATIM_PUBLIC_DEMO_ENABLED", "false");
+    vi.stubGlobal("fetch", provider({ display_name: "Dirección verificada" }));
+    expect(await reverseGeocodeAddress(point)).toBe("Dirección verificada");
   });
   it("requires a session and same-origin requests before querying Nominatim", async () => {
     const fetchImpl = provider({});

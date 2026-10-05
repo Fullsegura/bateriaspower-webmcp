@@ -69,8 +69,9 @@ const RESOLVER = Symbol.for("powerauto.delivery.reverse-geocoder");
 
 export async function reverseGeocodeAddress(point: BrowserCoordinates): Promise<string> {
   const endpoint = process.env.NOMINATIM_REVERSE_URL?.trim() || PUBLIC_ENDPOINT;
-  // The public demo limiter is process-local, not a distributed production quota.
-  if (process.env.NODE_ENV === "production" && new URL(endpoint).hostname === "nominatim.openstreetmap.org") {
+  // Explicit opt-in is limited to the demo's single web process, not a distributed quota.
+  if (process.env.NODE_ENV === "production" && new URL(endpoint).hostname === "nominatim.openstreetmap.org" &&
+      process.env.NOMINATIM_PUBLIC_DEMO_ENABLED !== "true") {
     throw new Error("Configura el servicio de direcciones para producción. Puedes escribir la dirección para continuar.");
   }
   const store = globalThis as typeof globalThis & {
