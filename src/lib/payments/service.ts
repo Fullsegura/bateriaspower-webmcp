@@ -7,6 +7,7 @@ import { publicQuote, publicTransaction, withPaymentStore, type StoredQuote } fr
 import { inputObject, parseBilling, parseDeliveryLocation, parsePaymentQuoteInput, requiredText } from "@/lib/payments/validation";
 import type { Battery, Tire } from "@/types/catalog";
 import type { PaymentMode, PaymentQuoteInput } from "@/types/payment";
+import { isSameOriginRequest } from "@/lib/payments/request-origin";
 
 function sessionHash(request: Request): string {
   requireCatalogSession(request);
@@ -59,8 +60,7 @@ function requireOwnedQuote(quotes: StoredQuote[], id: unknown, owner: string): S
 
 export async function handlePaymentRequest(request: Request, action: "quote" | "delivery" | "checkout" | "status" | "simulate" | "return"): Promise<Response> {
   try {
-    const origin = request.headers.get("origin");
-    if (origin && origin !== new URL(request.url).origin) return Response.json({ detail: "Origen no permitido." }, { status: 403 });
+    if (!isSameOriginRequest(request)) return Response.json({ detail: "Origen no permitido." }, { status: 403 });
     const owner = sessionHash(request);
     const body = inputObject(await request.json());
     const result = await withPaymentStore((store) => {

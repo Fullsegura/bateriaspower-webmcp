@@ -43,6 +43,17 @@ beforeEach(async () => {
 afterEach(async () => { vi.unstubAllEnvs(); await rm(directory, { recursive: true, force: true }); });
 
 describe("checkout local", () => {
+  it("acepta cotizar desde el origen HTTPS público detrás de ingress", async () => {
+    const response = await handlePaymentRequest(new Request("http://0.0.0.0:3000/api/payments/quote", {
+      method: "POST",
+      headers: { "content-type": "application/json", "x-catalog-session": sessionId,
+        host: "webmcp.fullsegura.com", origin: "https://webmcp.fullsegura.com", "x-forwarded-proto": "https" },
+      body: JSON.stringify({ productType: "battery", productId: battery.id, quantity: 1,
+        locationId: battery.locations[0].id, fulfillment: "pickup" }),
+    }), "quote");
+    expect(response.status).toBe(200);
+    expect((await response.json()).totalAmountCents).toBe(Math.round(battery.price * 100));
+  });
   it("calcula el importe en servidor y no acepta totales enviados por el navegador", async () => {
     const location = battery.locations[0];
     const response = await handlePaymentRequest(request({ productType: "battery", productId: battery.id, quantity: 2, fulfillment: "pickup", locationId: location.id, totalAmountCents: 1 }), "quote");
