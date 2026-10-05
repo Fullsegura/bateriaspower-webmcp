@@ -1,0 +1,208 @@
+{
+  "eval_cases": [
+    {
+      "eval_case_id": "novice_unknown_product_type",
+      "prompt": {
+        "role": "user",
+        "parts": [{
+          "text": "{\"messages\":[{\"id\":\"1\",\"role\":\"user\",\"content\":\"No sé qué comprar para mi carro\"}],\"tools\":[{\"name\":\"discover_catalog\",\"inputSchema\":{\"type\":\"object\",\"required\":[\"productType\",\"scope\"]}},{\"name\":\"search_tires\",\"inputSchema\":{\"type\":\"object\",\"required\":[\"mode\"]}},{\"name\":\"search_vehicle_batteries\",\"inputSchema\":{\"type\":\"object\",\"required\":[\"applicationId\",\"year\"]}}],\"uiState\":{\"activeProductType\":null,\"discoveries\":[],\"tires\":[],\"batteries\":[]}}"
+        }]
+      },
+      "reference": {
+        "response": {
+          "role": "model",
+          "parts": [{
+            "text": "{\"kind\":\"message\",\"requiredMessageFragments\":[\"llantas\",\"batería\",\"?\"],\"forbiddenMessageFragments\":[\"aplicación\",\"SKU\",\"código\"]}"
+          }]
+        }
+      }
+    },
+    {
+      "eval_case_id": "novice_battery_requests_basic_vehicle_identity",
+      "prompt": {
+        "role": "user",
+        "parts": [{
+          "text": "{\"messages\":[{\"id\":\"1\",\"role\":\"user\",\"content\":\"Necesito una batería, pero no sé cuál\"}],\"tools\":[{\"name\":\"discover_catalog\",\"inputSchema\":{\"type\":\"object\",\"required\":[\"productType\",\"scope\"]}}],\"uiState\":{\"activeProductType\":null,\"discoveries\":[],\"batteries\":[]}}"
+        }]
+      },
+      "reference": {
+        "response": {
+          "role": "model",
+          "parts": [{
+            "text": "{\"kind\":\"message\",\"requiredMessageFragments\":[\"marca\",\"modelo\",\"año\"],\"forbiddenMessageFragments\":[\"motor\",\"CCA\",\"precio\",\"aplicación\"]}"
+          }]
+        }
+      }
+    },
+    {
+      "eval_case_id": "explain_tire_size_without_search",
+      "prompt": {
+        "role": "user",
+        "parts": [{
+          "text": "{\"messages\":[{\"id\":\"1\",\"role\":\"user\",\"content\":\"¿Qué significa 225/65R17 en una llanta?\"}],\"tools\":[{\"name\":\"search_tires\",\"title\":\"Buscar llantas\",\"description\":\"Busca llantas para un vehículo o medida.\",\"inputSchema\":{\"type\":\"object\",\"required\":[\"mode\"]}}],\"uiState\":{\"tires\":[]}}"
+        }]
+      },
+      "reference": {
+        "response": {
+          "role": "model",
+          "parts": [{
+            "text": "{\"kind\":\"message\",\"requiredMessageFragments\":[\"225\",\"ancho\",\"65\",\"17\",\"rin\"],\"requiredAnyMessageFragments\":[[\"perfil\",\"altura\",\"costado\"]],\"forbiddenMessageFragments\":[\"compatible\",\"precio\",\"stock\"]}"
+          }]
+        }
+      }
+    },
+    {
+      "eval_case_id": "explain_battery_specs_without_search",
+      "prompt": {
+        "role": "user",
+        "parts": [{
+          "text": "{\"messages\":[{\"id\":\"1\",\"role\":\"user\",\"content\":\"¿Qué significan Ah y CCA en una batería?\"}],\"tools\":[{\"name\":\"search_vehicle_batteries\",\"inputSchema\":{\"type\":\"object\",\"required\":[\"applicationId\",\"year\"]}}],\"uiState\":{\"batteries\":[]}}"
+        }]
+      },
+      "reference": {
+        "response": {
+          "role": "model",
+          "parts": [{
+            "text": "{\"kind\":\"message\",\"requiredMessageFragments\":[\"Ah\",\"capacidad\",\"CCA\",\"arranque\"],\"forbiddenMessageFragments\":[\"compatible\",\"precio\",\"stock\"]}"
+          }]
+        }
+      }
+    },
+    {
+      "eval_case_id": "unknown_variant_gets_practical_help",
+      "prompt": {
+        "role": "user",
+        "parts": [{
+          "text": "{\"messages\":[{\"id\":\"1\",\"role\":\"assistant\",\"content\":\"¿Cuál versión corresponde a tu vehículo?\\n1. RAV4 CVT AC 2.0 5P 4x2 TA\\n2. RAV4 AC 2.0 5P 4X2 TM\\n3. RAV4 LIMITED AC 2.5 5P 4X4 TA\"},{\"id\":\"2\",\"role\":\"user\",\"content\":\"No sé cuál es\"}],\"tools\":[{\"name\":\"search_tires\",\"title\":\"Buscar llantas\",\"description\":\"Busca llantas para un vehículo o medida.\",\"inputSchema\":{\"type\":\"object\",\"required\":[\"mode\"]}}],\"uiState\":{\"tires\":[]}}"
+        }]
+      },
+      "reference": {
+        "response": {
+          "role": "model",
+          "parts": [{
+            "text": "{\"kind\":\"message\",\"requiredAnyMessageFragments\":[[\"documento\",\"matrícula\",\"cámara\",\"foto\"],[\"medida\",\"motor\",\"transmisión\",\"números\",\"costado\",\"etiqueta\"]],\"forbiddenMessageFragments\":[\"elige una\",\"1. RAV4\",\"2. RAV4\",\"3. RAV4\"]}"
+          }]
+        }
+      }
+    },
+    {
+      "eval_case_id": "recommendation_asks_priority_before_choosing",
+      "prompt": {
+        "role": "user",
+        "parts": [{
+          "text": "{\"messages\":[{\"id\":\"1\",\"role\":\"user\",\"content\":\"¿Cuál de estas llantas me conviene?\"}],\"tools\":[{\"name\":\"select_tire\",\"title\":\"Seleccionar llanta\",\"description\":\"Selecciona una opción visible sin reservarla.\",\"inputSchema\":{\"type\":\"object\",\"required\":[\"tireId\"]}}],\"uiState\":{\"tires\":[{\"id\":\"ht-1\",\"name\":\"Ruta HT\",\"application\":\"HT\",\"details\":\"Uso de carretera\",\"price\":{\"unitKnownChargesTotal\":120}},{\"id\":\"at-1\",\"name\":\"Mixta AT\",\"application\":\"AT\",\"details\":\"Uso mixto carretera y terreno\",\"price\":{\"unitKnownChargesTotal\":145}}],\"selectedTireId\":null}}"
+        }]
+      },
+      "reference": {
+        "response": {
+          "role": "model",
+          "parts": [{
+            "text": "{\"kind\":\"message\",\"requiredMessageFragments\":[\"?\"],\"requiredAnyMessageFragments\":[[\"ciudad\",\"carretera\",\"terreno\",\"presupuesto\",\"duración\"]],\"forbiddenMessageFragments\":[\"seleccioné\",\"seleccionada\",\"compatible\"]}"
+          }]
+        }
+      }
+    },
+    {
+      "eval_case_id": "recommendation_uses_stated_highway_need",
+      "prompt": {
+        "role": "user",
+        "parts": [{
+          "text": "{\"messages\":[{\"id\":\"1\",\"role\":\"assistant\",\"content\":\"¿La usarás principalmente en ciudad, carretera o terreno?\"},{\"id\":\"2\",\"role\":\"user\",\"content\":\"Principalmente carretera y quiero una conducción cómoda\"}],\"tools\":[{\"name\":\"select_tire\",\"title\":\"Seleccionar llanta\",\"description\":\"Selecciona una opción visible sin reservarla.\",\"inputSchema\":{\"type\":\"object\",\"required\":[\"tireId\"]}}],\"uiState\":{\"tires\":[{\"id\":\"ht-1\",\"name\":\"Ruta HT\",\"application\":\"HT\",\"details\":\"Diseñada para carretera y conducción cómoda\",\"price\":{\"unitKnownChargesTotal\":120}},{\"id\":\"at-1\",\"name\":\"Mixta AT\",\"application\":\"AT\",\"details\":\"Diseñada para carretera y terreno\",\"price\":{\"unitKnownChargesTotal\":145}}],\"selectedTireId\":null}}"
+        }]
+      },
+      "reference": {
+        "response": {
+          "role": "model",
+          "parts": [{
+            "text": "{\"kind\":\"message\",\"requiredMessageFragments\":[\"Ruta HT\",\"carretera\"],\"forbiddenMessageFragments\":[\"ya seleccioné\",\"quedó seleccionada\",\"he seleccionado\",\"más compatible\"]}"
+          }]
+        }
+      }
+    },
+    {
+      "eval_case_id": "battery_comparison_explains_visible_value",
+      "prompt": {
+        "role": "user",
+        "parts": [{
+          "text": "{\"messages\":[{\"id\":\"1\",\"role\":\"user\",\"content\":\"¿Por qué la Mega Power cuesta más?\"}],\"tools\":[{\"name\":\"select_battery\",\"title\":\"Seleccionar batería\",\"description\":\"Selecciona una opción visible sin reservarla.\",\"inputSchema\":{\"type\":\"object\",\"required\":[\"batteryId\"]}}],\"uiState\":{\"batteries\":[{\"id\":\"hp\",\"name\":\"High Power 24\",\"capacityAh\":85,\"cca\":550,\"reserveCapacityMinutes\":130,\"price\":180.55},{\"id\":\"mp\",\"name\":\"Mega Power 24\",\"capacityAh\":95,\"cca\":650,\"reserveCapacityMinutes\":165,\"price\":220.8}],\"selectedBatteryId\":null}}"
+        }]
+      },
+      "reference": {
+        "response": {
+          "role": "model",
+          "parts": [{
+            "text": "{\"kind\":\"message\",\"requiredMessageFragments\":[\"Mega Power\",\"CCA\",\"reserva\"],\"forbiddenMessageFragments\":[\"más compatible\",\"stock\",\"seleccioné\"]}"
+          }]
+        }
+      }
+    },
+    {
+      "eval_case_id": "tire_bulge_prioritizes_safety",
+      "prompt": {
+        "role": "user",
+        "parts": [{
+          "text": "{\"messages\":[{\"id\":\"1\",\"role\":\"user\",\"content\":\"Mi llanta tiene un bulto en el costado, ¿puedo seguir manejando?\"}],\"tools\":[],\"uiState\":{}}"
+        }]
+      },
+      "reference": {
+        "response": {
+          "role": "model",
+          "parts": [{
+            "text": "{\"kind\":\"message\",\"requiredAnyMessageFragments\":[[\"no conduzcas\",\"no sigas\",\"no es seguro seguir\",\"no se recomienda seguir\",\"deja de usar\",\"detener su uso\"],[\"revisión\",\"técnico\",\"taller\"]],\"forbiddenMessageFragments\":[\"está rota\",\"precio\",\"compatible\"]}"
+          }]
+        }
+      }
+    },
+    {
+      "eval_case_id": "recommendation_does_not_select_without_confirmation",
+      "prompt": {
+        "role": "user",
+        "parts": [{
+          "text": "{\"messages\":[{\"id\":\"1\",\"role\":\"assistant\",\"content\":\"Para carretera te conviene Ruta HT.\"},{\"id\":\"2\",\"role\":\"user\",\"content\":\"La HT me parece mejor, ¿qué opinas?\"}],\"tools\":[{\"name\":\"select_tire\",\"title\":\"Seleccionar llanta\",\"description\":\"Selecciona una opción visible sin reservarla.\",\"inputSchema\":{\"type\":\"object\",\"required\":[\"tireId\"]}}],\"uiState\":{\"tires\":[{\"id\":\"ht-1\",\"name\":\"Ruta HT\",\"application\":\"HT\",\"details\":\"Uso de carretera\"}],\"selectedTireId\":null}}"
+        }]
+      },
+      "reference": {
+        "response": {
+          "role": "model",
+          "parts": [{
+            "text": "{\"kind\":\"message\",\"requiredMessageFragments\":[\"Ruta HT\"],\"forbiddenMessageFragments\":[\"ya seleccioné\",\"quedó seleccionada\",\"he seleccionado\"]}"
+          }]
+        }
+      }
+    },
+    {
+      "eval_case_id": "explicit_selection_uses_current_product_id",
+      "prompt": {
+        "role": "user",
+        "parts": [{
+          "text": "{\"messages\":[{\"id\":\"1\",\"role\":\"assistant\",\"content\":\"Para carretera te conviene Ruta HT.\"},{\"id\":\"2\",\"role\":\"user\",\"content\":\"Selecciona la Ruta HT\"}],\"tools\":[{\"name\":\"select_tire\",\"title\":\"Seleccionar llanta\",\"description\":\"Selecciona una opción visible sin reservarla.\",\"inputSchema\":{\"type\":\"object\",\"properties\":{\"tireId\":{\"type\":\"string\"}},\"required\":[\"tireId\"]}}],\"uiState\":{\"tires\":[{\"id\":\"ht-1\",\"name\":\"Ruta HT\",\"application\":\"HT\",\"details\":\"Uso de carretera\"}],\"selectedTireId\":null}}"
+        }]
+      },
+      "reference": {
+        "response": {
+          "role": "model",
+          "parts": [{
+            "text": "{\"kind\":\"tool_call\",\"toolName\":\"select_tire\",\"arguments\":{\"tireId\":\"ht-1\"},\"exactArguments\":true}"
+          }]
+        }
+      }
+    },
+    {
+      "eval_case_id": "general_tire_replacement_guidance",
+      "prompt": {
+        "role": "user",
+        "parts": [{
+          "text": "{\"messages\":[{\"id\":\"1\",\"role\":\"user\",\"content\":\"¿Cómo sé cuándo debo cambiar mis llantas?\"}],\"tools\":[],\"uiState\":{}}"
+        }]
+      },
+      "reference": {
+        "response": {
+          "role": "model",
+          "parts": [{
+            "text": "{\"kind\":\"message\",\"requiredAnyMessageFragments\":[[\"desgaste\",\"gastado\"],[\"grieta\",\"daño\",\"bulto\",\"deformación\"]],\"forbiddenMessageFragments\":[\"precio\",\"stock\"]}"
+          }]
+        }
+      }
+    }
+  ]
+}

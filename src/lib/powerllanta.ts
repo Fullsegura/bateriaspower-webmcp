@@ -1,4 +1,5 @@
 import type {
+  CatalogDiscoveryOption,
   MeasureSearchCriteria,
   ResolvedVehicle,
   Tire,
@@ -12,7 +13,7 @@ import type {
 } from "@/types/catalog";
 
 const POWERLLANTA_BASE_URL = "https://durallanta.com";
-const POWERLLANTA_SOURCE_NAME = "PowerLlanta";
+const POWERLLANTA_SOURCE_NAME = "PowerAuto";
 const PAGE_SIZE = 1000;
 const REQUEST_TIMEOUT_MS = 15_000;
 const CATEGORY_LABELS: Record<TireCategory, string> = {
@@ -21,16 +22,16 @@ const CATEGORY_LABELS: Record<TireCategory, string> = {
   "03": "Camiones",
   "04": "Motos",
 };
-const CITY_CODES = new Map([
-  ["quito", "UIO"],
-  ["uio", "UIO"],
-  ["guayaquil", "GYE"],
-  ["gye", "GYE"],
-  ["cuenca", "CUE"],
-  ["cue", "CUE"],
-]);
-
 type JsonObject = Record<string, unknown>;
+
+interface TireApplicationToken {
+  makeId: string;
+  make: string;
+  yearId: string;
+  year: number;
+  modelId: string;
+  model: string;
+}
 
 export class PowerLlantaError extends Error {
   constructor(
@@ -44,7 +45,7 @@ export class PowerLlantaError extends Error {
 
 function asObject(value: unknown, label: string): JsonObject {
   if (!value || typeof value !== "object" || Array.isArray(value)) {
-    throw new PowerLlantaError(`PowerLlanta devolvió ${label} inválido.`);
+    throw new PowerLlantaError(`PowerAuto devolvió ${label} inválido.`);
   }
   return value as JsonObject;
 }
@@ -86,12 +87,43 @@ function normalize(value: string): string {
     .replace(/[^a-z0-9]/g, "");
 }
 
+function tireBrandId(label: string): string {
+  return `tire-brand:${encodeURIComponent(label)}`;
+}
+
+function encodeTireApplication(value: TireApplicationToken): string {
+  return `tire-application:${Buffer.from(JSON.stringify(value)).toString("base64url")}`;
+}
+
+function decodeTireApplication(applicationId: string): TireApplicationToken {
+  const encoded = applicationId.startsWith("tire-application:")
+    ? applicationId.slice("tire-application:".length)
+    : "";
+  try {
+    const value = JSON.parse(Buffer.from(encoded, "base64url").toString("utf8")) as TireApplicationToken;
+    if (
+      !value.makeId || !value.make || !value.yearId || !Number.isInteger(value.year) ||
+      !value.modelId || !value.model
+    ) throw new Error("invalid");
+    return value;
+  } catch {
+    throw new PowerLlantaError("applicationId no es válido para llantas.", 422);
+  }
+}
+
+function decodeTireBrandId(brandId: string): string {
+  if (!brandId.startsWith("tire-brand:")) {
+    throw new PowerLlantaError("productBrandId no es válido para llantas.", 422);
+  }
+  return decodeURIComponent(brandId.slice("tire-brand:".length));
+}
+
 function getResponse(payload: unknown): unknown {
   const root = asObject(payload, "una respuesta");
   const sourceError = asString(root.error);
   if (sourceError) throw new PowerLlantaError(sourceError);
   if (root.response === undefined || root.response === null) {
-    throw new PowerLlantaError("PowerLlanta devolvió una respuesta vacía.");
+    throw new PowerLlantaError("PowerAuto devolvió una respuesta vacía.");
   }
   return root.response;
 }
@@ -112,7 +144,7 @@ async function powerLlantaRequest(
     });
     if (!response.ok) {
       throw new PowerLlantaError(
-        `PowerLlanta respondió HTTP ${response.status}.`,
+        `PowerAuto respondió HTTP ${response.status}.`,
         502,
       );
     }
@@ -120,9 +152,9 @@ async function powerLlantaRequest(
   } catch (error) {
     if (error instanceof PowerLlantaError) throw error;
     if (error instanceof Error && error.name === "AbortError") {
-      throw new PowerLlantaError("PowerLlanta excedió el tiempo de respuesta.", 504);
+      throw new PowerLlantaError("PowerAuto excedió el tiempo de respuesta.", 504);
     }
-    throw new PowerLlantaError("No fue posible consultar PowerLlanta.");
+    throw new PowerLlantaError("No fue posible consultar PowerAuto.");
   } finally {
     clearTimeout(timeout);
   }
@@ -137,6 +169,8 @@ function parseWarehouses(value: unknown): TireWarehouseStock[] {
       const quantity = asNumber(record.cantidad);
       if (quantity === null) continue;
       warehouses.push({
+        cityId: cityCode,
+        warehouseId: `${cityCode}:${asString(record.codigoBodega)}`,
         cityCode,
         warehouseCode: asString(record.codigoBodega),
         warehouseName: asString(record.nombreBodega) || "Bodega sin nombre",
@@ -156,13 +190,13 @@ export function normalizeProduct(value: unknown): Tire {
       : sourceCategory
   ) as TireCategory;
   if (!(category in CATEGORY_LABELS)) {
-    throw new PowerLlantaError("PowerLlanta devolvió una categoría desconocida.");
+    throw new PowerLlantaError("PowerAuto devolvió una categoría desconocida.");
   }
 
   const code = asString(product.codigo_producto);
   const name = asString(product.nombre_producto);
   if (!code || !name) {
-    throw new PowerLlantaError("PowerLlanta devolvió un producto sin identificación.");
+    throw new PowerLlantaError("PowerAuto devolvió un producto sin identificación.");
   }
 
   const listWithoutVat = asNumber(product.precio);
@@ -194,6 +228,9 @@ export function normalizeProduct(value: unknown): Tire {
     code,
     name,
     brand: asString(asObject(product.brand ?? {}, "la marca").name) || "Sin marca informada",
+    brandId: tireBrandId(
+      asString(asObject(product.brand ?? {}, "la marca").name) || "Sin marca informada",
+    ),
     category,
     categoryLabel: CATEGORY_LABELS[category],
     width,
@@ -224,7 +261,7 @@ export function normalizeProduct(value: unknown): Tire {
         ? `El total ${sourceTotal} contradice el detalle por bodegas ${computedTotal}.`
         : null,
     availability: {
-      scope: "Todas las bodegas reportadas",
+      scope: "Todas las bodegas",
       requestedQuantity: 1,
       availableUnits: computedTotal,
       singleWarehouseCanFulfill: warehouses.some((item) => item.quantity >= 1),
@@ -254,45 +291,24 @@ async function getCategoryProducts(category: TireCategory): Promise<Tire[]> {
   return [...byCode.values()];
 }
 
-function findExactSourceValue<T>(
-  values: T[],
-  query: string,
-  getLabel: (value: T) => string,
-  label: string,
-): T {
-  const target = normalize(query);
-  const exact = values.find((value) => normalize(getLabel(value)) === target);
-  if (exact) return exact;
-
-  const partial = values.filter((value) => normalize(getLabel(value)).includes(target));
-  const options = partial.length ? partial : values;
-  const masculine = label === "modelo";
-  const article = masculine ? "El" : "La";
-  throw new PowerLlantaError(
-    partial.length > 1
-      ? `${article} ${label} es ${masculine ? "ambiguo" : "ambigua"}; selecciona una variante exacta.`
-      : partial.length === 1
-        ? `${article} ${label} no coincide de forma exacta; confirma la opción registrada.`
-        : `PowerLlanta no reconoce la ${label} solicitada.`,
-    422,
-    options.slice(0, 20).map(getLabel),
-  );
-}
-
-async function resolveVehicle(criteria: VehicleSearchCriteria): Promise<{
-  resolved: ResolvedVehicle;
-  tires: Tire[];
-}> {
+export async function discoverTireMakes(): Promise<CatalogDiscoveryOption[]> {
   const parameters = asObject(
     await powerLlantaRequest("/api/get_main_search_parameters"),
     "los parámetros de búsqueda",
   );
-  const brands = asArray(parameters.car_brands).map((value) => {
+  return asArray(parameters.car_brands).map((value) => {
     const record = asObject(value, "una marca de vehículo");
-    return { id: asString(record._id), name: asString(record.name) };
-  });
-  const make = findExactSourceValue(brands, criteria.make, (item) => item.name, "marca");
+    return { id: asString(record._id), label: asString(record.name) };
+  }).filter((option) => option.id && option.label);
+}
 
+export async function discoverTireApplications(
+  makeId: string,
+  year?: number,
+): Promise<CatalogDiscoveryOption[]> {
+  const makes = await discoverTireMakes();
+  const make = makes.find((option) => option.id === makeId);
+  if (!make) throw new PowerLlantaError("makeId no pertenece al catálogo de llantas.", 422);
   const yearsResponse = await powerLlantaRequest("/api/get_years_by_car_brand", {
     method: "POST",
     body: { brand: make.id },
@@ -301,29 +317,131 @@ async function resolveVehicle(criteria: VehicleSearchCriteria): Promise<{
     const record = asObject(value, "un año de vehículo");
     return { id: asString(record._id), year: asNumber(record.year) };
   });
-  const year = years.find((item) => item.year === criteria.year);
-  if (!year) {
-    throw new PowerLlantaError(
-      `PowerLlanta no registra ${criteria.make} para el año ${criteria.year}.`,
-      422,
-      years.map((item) => item.year).filter((value) => value !== null),
-    );
+  const selectedYears = years.filter((item) => item.year !== null &&
+    (year === undefined || item.year === year));
+  const applications: CatalogDiscoveryOption[] = [];
+  // Reuse the provider's make/year response when querying all years.
+  for (const yearOption of selectedYears) {
+    const modelsResponse = await powerLlantaRequest("/api/get_car_models_by_year", {
+      method: "POST",
+      body: { brand: make.id, year: yearOption.id },
+    });
+    applications.push(...asArray(modelsResponse).map((value) => {
+      const row = asObject(value, "un modelo de vehículo");
+      const model = asObject(row.model, "el detalle del modelo");
+      const modelId = asString(model._id);
+      const modelName = asString(model.name);
+      return {
+        id: encodeTireApplication({
+          makeId: make.id,
+          make: make.label,
+          yearId: yearOption.id,
+          year: yearOption.year!,
+          modelId,
+          model: modelName,
+        }),
+        label: modelName,
+        metadata: { make: make.label, model: modelName, year: yearOption.year },
+      };
+    }).filter((option) => option.label && option.id));
   }
+  return applications;
+}
+
+export async function discoverTireYears(makeId: string): Promise<CatalogDiscoveryOption[]> {
+  const make = (await discoverTireMakes()).find((option) => option.id === makeId);
+  if (!make) throw new PowerLlantaError("makeId no pertenece al catálogo de llantas.", 422);
+  const response = await powerLlantaRequest("/api/get_years_by_car_brand", {
+    method: "POST", body: { brand: makeId },
+  });
+  return asArray(response).map((value) => {
+    const record = asObject(value, "un año de vehículo");
+    const year = asNumber(record.year);
+    return { id: asString(record._id), label: String(year), metadata: { year } };
+  }).filter((option) => option.id && option.metadata.year !== null);
+}
+
+export async function discoverTireBrands(category: TireCategory): Promise<CatalogDiscoveryOption[]> {
+  const products = await getCategoryProducts(category);
+  return [...new Map(products.map((product) => [
+    product.brandId,
+    { id: product.brandId, label: product.brand },
+  ])).values()];
+}
+
+export async function discoverTireLocations(
+  category: TireCategory,
+  productId?: string,
+  cityId?: string,
+): Promise<CatalogDiscoveryOption[]> {
+  const products = (await getCategoryProducts(category))
+    .filter((product) => !productId || product.id === productId);
+  const options = new Map<string, CatalogDiscoveryOption>();
+  for (const product of products) {
+    for (const warehouse of product.warehouses) {
+      if (cityId && warehouse.cityId !== cityId) continue;
+      options.set(`city:${warehouse.cityId}`, {
+        id: warehouse.cityId,
+        label: warehouse.cityCode,
+        metadata: { type: "city" },
+      });
+      options.set(`warehouse:${warehouse.warehouseId}`, {
+        id: warehouse.warehouseId,
+        label: `${warehouse.cityCode} · ${warehouse.warehouseName}`,
+        metadata: {
+          type: "warehouse",
+          cityId: warehouse.cityId,
+          warehouseCode: warehouse.warehouseCode,
+          ...(productId ? { quantity: warehouse.quantity } : {}),
+        },
+      });
+    }
+  }
+  return [...options.values()];
+}
+
+async function resolveVehicle(criteria: VehicleSearchCriteria): Promise<{
+  resolved: ResolvedVehicle;
+  tires: Tire[];
+}> {
+  const application = decodeTireApplication(criteria.applicationId);
+  const makes = await discoverTireMakes();
+  const make = makes.find((option) => option.id === application.makeId);
+  if (!make || make.label !== application.make) {
+    throw new PowerLlantaError("applicationId no corresponde a una marca vigente.", 422);
+  }
+  const yearsResponse = await powerLlantaRequest("/api/get_years_by_car_brand", {
+    method: "POST",
+    body: { brand: application.makeId },
+  });
+  const years = asArray(yearsResponse).map((value) => {
+    const record = asObject(value, "un año de vehículo");
+    return { id: asString(record._id), year: asNumber(record.year) };
+  });
+  const year = years.find((item) => item.id === application.yearId && item.year === application.year);
+  if (!year) throw new PowerLlantaError("applicationId no corresponde a un año vigente.", 422);
 
   const modelsResponse = await powerLlantaRequest("/api/get_car_models_by_year", {
     method: "POST",
-    body: { brand: make.id, year: year.id },
+    body: { brand: application.makeId, year: application.yearId },
   });
   const models = asArray(modelsResponse).map((value) => {
     const row = asObject(value, "un modelo de vehículo");
     const model = asObject(row.model, "el detalle del modelo");
     return { id: asString(model._id), name: asString(model.name) };
   });
-  const model = findExactSourceValue(models, criteria.model, (item) => item.name, "modelo");
+  const model = models.find((item) =>
+    item.id === application.modelId && item.name === application.model
+  );
+  if (!model) throw new PowerLlantaError("applicationId no corresponde a un modelo vigente.", 422);
 
   const tireResponse = await powerLlantaRequest("/api/get_tires_by_car", {
     method: "POST",
-    body: { brand: make.id, year: year.id, model: model.id },
+    body: {
+      brand: application.makeId,
+      year: application.yearId,
+      model: application.modelId,
+    },
   });
   const specifications = asArray(asObject(asArray(tireResponse)[0] ?? {}, "la compatibilidad").specifications)
     .map((value) => {
@@ -359,8 +477,8 @@ async function resolveVehicle(criteria: VehicleSearchCriteria): Promise<{
 
   return {
     resolved: {
-      make: make.name,
-      year: criteria.year,
+      make: application.make,
+      year: application.year,
       model: model.name,
       sizes: specifications.map(({ width, height, rim }) => `${width}/${height}R${rim}`),
     },
@@ -370,13 +488,13 @@ async function resolveVehicle(criteria: VehicleSearchCriteria): Promise<{
 
 async function searchByMeasure(criteria: MeasureSearchCriteria): Promise<Tire[]> {
   if (criteria.category) return getCategoryProducts(criteria.category);
-  if (!criteria.width && !criteria.height && !criteria.rim && !criteria.brand) {
+  if (!criteria.width && !criteria.height && !criteria.rim && !criteria.productBrandId) {
     throw new PowerLlantaError("Indica una medida, marca o categoría para buscar.", 400);
   }
-  if (criteria.brand && !criteria.width && !criteria.height && !criteria.rim) {
+  if (criteria.productBrandId && !criteria.width && !criteria.height && !criteria.rim) {
     const response = asObject(await powerLlantaRequest("/api/search_products_by_brand", {
       method: "POST",
-      body: { brand: criteria.brand },
+      body: { brand: decodeTireBrandId(criteria.productBrandId) },
     }), "los productos por marca");
     return asArray(response.products).map(normalizeProduct);
   }
@@ -392,26 +510,21 @@ async function searchByMeasure(criteria: MeasureSearchCriteria): Promise<Tire[]>
   return asArray(response.products).map(normalizeProduct);
 }
 
-function cityCode(value?: string): string | null {
-  if (!value) return null;
-  return CITY_CODES.get(normalize(value)) ?? value.trim().toUpperCase();
-}
-
 function scopeProduct(product: Tire, criteria: TireSearchCriteria): Tire | null {
   const width = criteria.mode === "measure" ? criteria.width : undefined;
   const height = criteria.mode === "measure" ? criteria.height : undefined;
   const rim = criteria.mode === "measure" ? criteria.rim : undefined;
   if (criteria.category && product.category !== criteria.category) return null;
-  if (width && normalize(product.width) !== normalize(width)) return null;
-  if (height && normalize(product.height) !== normalize(height)) return null;
-  if (rim && normalize(product.rim) !== normalize(rim)) return null;
-  if (criteria.brand && !normalize(product.brand).includes(normalize(criteria.brand))) return null;
+  if (width && product.width !== width) return null;
+  if (height && product.height !== height) return null;
+  if (rim && product.rim !== rim) return null;
+  if (criteria.productBrandId && product.brandId !== criteria.productBrandId) return null;
 
-  const requestedCity = product.category === "04" ? "MOTO" : cityCode(criteria.city);
+  const requestedCity = product.category === "04" ? "MOTO" : criteria.cityId ?? null;
   const availableWarehouses = requestedCity
-    ? product.warehouses.filter((item) => item.cityCode === requestedCity)
+    ? product.warehouses.filter((item) => item.cityId === requestedCity)
     : product.warehouses;
-  if (criteria.city && product.category !== "04" && !availableWarehouses.length) return null;
+  if (criteria.cityId && product.category !== "04" && !availableWarehouses.length) return null;
 
   const quantity = criteria.quantity ?? 1;
   const availableUnits = availableWarehouses.reduce((sum, item) => sum + item.quantity, 0);
@@ -425,7 +538,7 @@ function scopeProduct(product: Tire, criteria: TireSearchCriteria): Tire | null 
     ...product,
     warehouses: availableWarehouses,
     availability: {
-      scope: requestedCity ?? "Todas las bodegas reportadas",
+      scope: requestedCity ?? "Todas las bodegas",
       requestedQuantity: quantity,
       availableUnits,
       singleWarehouseCanFulfill,
@@ -460,29 +573,28 @@ export async function searchTires(criteria: TireSearchCriteria): Promise<TireSea
     queriedAt,
     source: POWERLLANTA_SOURCE_NAME,
     note: tires.length
-      ? "Stock reportado al momento de la consulta; no constituye una reserva."
-      : "PowerLlanta no reportó opciones que cumplan todos los criterios.",
+      ? "Stock por local."
+      : "PowerAuto no reportó opciones que cumplan todos los criterios.",
     resolvedVehicle: result.resolved,
   };
 }
 
 export async function summarizeTireStock(input: {
   category: TireCategory;
-  city?: string;
-  warehouse?: string;
+  cityId?: string;
+  warehouseId?: string;
 }): Promise<TireStockSummary> {
   const tires = await getCategoryProducts(input.category);
-  const requestedCity = input.category === "04" ? "MOTO" : cityCode(input.city);
-  const requestedWarehouse = input.category === "04" ? null : normalize(input.warehouse ?? "");
+  const requestedCity = input.category === "04" ? "MOTO" : input.cityId ?? null;
+  const requestedWarehouse = input.category === "04" ? null : input.warehouseId ?? null;
   const grouped = new Map<string, TireStockGroup>();
 
   for (const tire of tires) {
     for (const warehouse of tire.warehouses) {
-      if (requestedCity && warehouse.cityCode !== requestedCity) continue;
+      if (requestedCity && warehouse.cityId !== requestedCity) continue;
       if (
         requestedWarehouse &&
-        normalize(warehouse.warehouseCode) !== requestedWarehouse &&
-        normalize(warehouse.warehouseName) !== requestedWarehouse
+        warehouse.warehouseId !== requestedWarehouse
       ) continue;
       const key = `${warehouse.cityCode}|${warehouse.warehouseCode}|${warehouse.warehouseName}`;
       const current = grouped.get(key) ?? { ...warehouse, productCount: 0 };
@@ -501,7 +613,7 @@ export async function summarizeTireStock(input: {
     source: POWERLLANTA_SOURCE_NAME,
     note:
       input.category === "04"
-        ? "Motos usa automáticamente la única agrupación MOTO reportada por PowerLlanta."
-        : "Stock reportado al momento de la consulta; no constituye una reserva.",
+        ? "Inventario de motos en la agrupación MOTO."
+        : "Stock por local.",
   };
 }

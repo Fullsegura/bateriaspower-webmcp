@@ -50,7 +50,7 @@ export function AdvisorWorkspace() {
   const [cases, setCases] = useState<PublicHandoffCase[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [query, setQuery] = useState("");
-  const [advisorName, setAdvisorName] = useState("Asesor de llantas");
+  const [advisorName, setAdvisorName] = useState("Asesor PowerAuto");
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [connectedCaseId, setConnectedCaseId] = useState<string | null>(null);
@@ -223,7 +223,7 @@ export function AdvisorWorkspace() {
         <form className={styles.loginCard} onSubmit={login}>
           <span className={styles.logo}><Zap size={24} fill="currentColor" /></span>
           <h1>Acceso de asesor</h1>
-          <p>Ingresa la clave de Buscador IA de Llantas.</p>
+          <p>Ingresa la clave de PowerAuto.</p>
           <label>
             Clave de acceso
             <input
@@ -405,9 +405,15 @@ export function AdvisorWorkspace() {
               <summary>Ver detalles y contexto</summary>
 
               <div className={styles.contextGrid}>
+                {selected.context.delivery ? <article>
+                  <span>Entrega a domicilio</span>
+                  <strong>{selected.context.delivery.address}</strong>
+                  <p>{selected.context.delivery.reference}</p>
+                  <a href={`https://www.google.com/maps/search/?api=1&query=${selected.context.delivery.latitude},${selected.context.delivery.longitude}`} target="_blank" rel="noopener noreferrer">Ver ubicación en el mapa</a>
+                </article> : null}
                 <article>
                   <span><CircleGauge size={16} /> Selección compartida</span>
-                  <strong>{selected.context.tire?.name || "Sin llanta seleccionada"}</strong>
+                  <strong>{selected.context.tire?.name || "Sin producto seleccionado"}</strong>
                   {selected.context.tire ? (
                     <>
                       {selected.context.tire.image ? (

@@ -4,6 +4,9 @@ import { registerTools } from "@nekuda/webmcp-sdk";
 import { useEffect, useState } from "react";
 
 import { requestAdvisorHandoffTool } from "@/features/handoff/webmcp-tool";
+import { allPaymentTools } from "@/features/payments/webmcp-tools";
+import { allBatteryTools } from "@/features/webmcp/tools/batteries";
+import { allDiscoveryTools } from "@/features/webmcp/tools/discovery";
 import {
   allTireTools,
   bindCatalogActions,
@@ -19,7 +22,7 @@ export function useWebMcp(actions: CatalogActions): WebMcpStatus {
     let active = true;
     const unbind = bindCatalogActions(actions);
     const registration = registerTools(
-      [...allTireTools, requestAdvisorHandoffTool],
+      [...allDiscoveryTools, ...allTireTools, ...allBatteryTools, ...allPaymentTools, requestAdvisorHandoffTool],
       { telemetry: false },
     );
 

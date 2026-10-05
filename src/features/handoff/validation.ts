@@ -1,4 +1,5 @@
 import type { ChatMessage } from "@/types/agent";
+import { parseDeliveryLocation } from "@/lib/payments/validation";
 import type {
   CreateHandoffInput,
   HandoffTireContext,
@@ -76,6 +77,7 @@ function parseTire(value: unknown): HandoffTireContext | null {
   const total = Math.max(0, finiteNumber(record.total, price * quantity));
 
   return {
+    kind: record.kind === "battery" ? "battery" : record.kind === "tire" ? "tire" : undefined,
     id,
     name,
     image: parseProductImage(record.image),
@@ -95,6 +97,7 @@ function parseContext(value: unknown): HandoffCommerceContext {
       ? boundedString(record.vehicle, "", 180) || null
       : null,
     tire: parseTire(record.tire),
+    ...(record.delivery ? { delivery: parseDeliveryLocation(record.delivery) } : {}),
   };
 }
 

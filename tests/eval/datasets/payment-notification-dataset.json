@@ -1,0 +1,24 @@
+{
+  "eval_cases": [
+    {
+      "eval_case_id": "payment_event_verifies_current_transaction",
+      "prompt": {"role":"user","parts":[{"text":"{\"messages\":[{\"id\":\"1\",\"role\":\"user\",\"content\":\"Cotiza una batería para retirar en el local.\"}],\"event\":{\"type\":\"payment_status_changed\",\"transactionId\":\"payment-test\"},\"uiState\":{\"checkout\":{\"transaction\":{\"id\":\"payment-test\",\"status\":\"VALIDATED\"}}},\"tools\":[{\"name\":\"get_payment_status\"},{\"name\":\"start_card_checkout\"}]}"}]},
+      "reference": {"response":{"role":"model","parts":[{"text":"{\"kind\":\"tool_call\",\"toolName\":\"get_payment_status\",\"arguments\":{\"transactionId\":\"payment-test\"},\"exactArguments\":true}"}]}}
+    },
+    {
+      "eval_case_id": "payment_event_announces_validated_battery",
+      "prompt": {"role":"user","parts":[{"text":"{\"messages\":[{\"id\":\"1\",\"role\":\"user\",\"content\":\"Cotiza una batería para retirar en el local.\"}],\"event\":{\"type\":\"payment_status_changed\",\"transactionId\":\"payment-test\"},\"uiState\":{\"checkout\":{\"transaction\":{\"id\":\"payment-test\",\"status\":\"VALIDATED\"}}},\"tools\":[{\"name\":\"get_payment_status\"},{\"name\":\"start_card_checkout\"}],\"toolResult\":{\"toolName\":\"get_payment_status\",\"result\":{\"id\":\"payment-test\",\"status\":\"VALIDATED\",\"mode\":\"pagoplux_sandbox\",\"productName\":\"Batería de prueba\",\"quantity\":1,\"totalAmountCents\":15000,\"fulfillment\":\"pickup\",\"pickupLabel\":\"Local elegido\"}}}"}]},
+      "reference": {"response":{"role":"model","parts":[{"text":"{\"kind\":\"message\",\"requiredAnyMessageFragments\":[[\"pago\"],[\"realizado\",\"aprobado\",\"confirmado\",\"recibido\"],[\"150\"]],\"forbiddenMessageFragments\":[\"?\",\"informativa\",\"no constituye una reserva\"]}"}]}}
+    },
+    {
+      "eval_case_id": "payment_event_announces_validated_tires",
+      "prompt": {"role":"user","parts":[{"text":"{\"messages\":[{\"id\":\"1\",\"role\":\"user\",\"content\":\"Cotiza dos llantas para entrega a domicilio.\"}],\"event\":{\"type\":\"payment_status_changed\",\"transactionId\":\"payment-tire\"},\"uiState\":{\"checkout\":{\"transaction\":{\"id\":\"payment-tire\",\"status\":\"VALIDATED\"}}},\"tools\":[{\"name\":\"get_payment_status\"},{\"name\":\"start_card_checkout\"}],\"toolResult\":{\"toolName\":\"get_payment_status\",\"result\":{\"id\":\"payment-tire\",\"status\":\"VALIDATED\",\"mode\":\"pagoplux_sandbox\",\"productName\":\"Llanta de prueba\",\"quantity\":2,\"totalAmountCents\":25000,\"fulfillment\":\"delivery\"}}}"}]},
+      "reference": {"response":{"role":"model","parts":[{"text":"{\"kind\":\"message\",\"requiredAnyMessageFragments\":[[\"pago\"],[\"realizado\",\"aprobado\",\"confirmado\",\"recibido\"],[\"250\"]],\"forbiddenMessageFragments\":[\"?\",\"informativa\",\"no constituye una reserva\"]}"}]}}
+    },
+    {
+      "eval_case_id": "payment_event_pending_does_not_confirm_success",
+      "prompt": {"role":"user","parts":[{"text":"{\"messages\":[],\"event\":{\"type\":\"payment_status_changed\",\"transactionId\":\"payment-test\"},\"uiState\":{\"checkout\":{\"transaction\":{\"id\":\"payment-test\",\"status\":\"VALIDATED\"}}},\"tools\":[{\"name\":\"get_payment_status\"}],\"toolResult\":{\"toolName\":\"get_payment_status\",\"result\":{\"id\":\"payment-test\",\"status\":\"PENDING\",\"mode\":\"pagoplux_sandbox\",\"totalAmountCents\":15000}}}"}]},
+      "reference": {"response":{"role":"model","parts":[{"text":"{\"kind\":\"message\",\"requiredAnyMessageFragments\":[[\"pendiente\",\"proceso\",\"procesando\",\"espera\"]]}"}]}}
+    }
+  ]
+}

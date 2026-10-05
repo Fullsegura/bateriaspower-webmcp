@@ -6,6 +6,11 @@ export interface ChatMessage {
   content: string;
 }
 
+export interface AgentEvent {
+  type: "payment_status_changed";
+  transactionId: string;
+}
+
 export interface SerializableTool {
   name: string;
   title: string;
@@ -28,5 +33,6 @@ export interface AgentRequest {
   messages: ChatMessage[];
   tools: SerializableTool[];
   uiState: CatalogState;
+  event?: AgentEvent;
   toolResult?: { toolName: string; result: unknown };
 }

@@ -1,0 +1,64 @@
+{
+  "eval_cases": [
+    {
+      "eval_case_id": "visual_uncertain_candidate_is_not_observed_identity",
+      "envelope": {
+        "messages": [{"id":"1","role":"user","content":"¿Qué datos pudiste leer de esta batería?"}],
+        "tools": [], "uiState": {},
+        "toolResult": {"toolName":"inspect_camera_battery","result":{
+          "frameId":"current-frame", "identification":{"status":"uncertain","brand":null,"reference":null},
+          "specifications":[{"name":"capacityAh","value":"45 Ah","evidence":"image","sourceIds":[]}],
+          "referenceCandidates":[{"reference":"E3 42 FE","distinguishingDetails":"Candidato Full Equipo de 55 Ah y 370 A, referencia pendiente de confirmar.","sourceIds":[0]}],
+          "sources":[{"id":0,"url":"https://example.com/fixture","title":"Fuente de prueba"}]
+        }}
+      },
+      "expected": {"kind":"message","requiredMessageFragments":["45"],"forbiddenMessageFragments":["500", "High Power"],"requiredAnyMessageFragments":[["no", "incierta", "confirmar", "candidato"]]}
+    },
+    {
+      "eval_case_id": "visual_new_battery_does_not_inherit_previous_specs",
+      "envelope": {
+        "messages": [
+          {"id":"1","role":"user","content":"Lee esta batería."},
+          {"id":"2","role":"assistant","content":"La inspección anterior identificó Delta D77: 77 Ah, 760 A."},
+          {"id":"3","role":"user","content":"Ahora te muestro otra batería distinta. Dime únicamente qué datos de esta nueva están confirmados."}
+        ],
+        "tools": [], "uiState": {},
+        "toolResult": {"toolName":"inspect_camera_battery","result":{
+          "frameId":"new-object-frame", "identification":{"status":"uncertain","brand":null,"reference":null},
+          "specifications":[{"name":"capacityAh","value":"38 Ah","evidence":"image","sourceIds":[]}],
+          "referenceCandidates":[], "sources":[]
+        }}
+      },
+      "expected": {"kind":"message","requiredMessageFragments":["38"],"forbiddenMessageFragments":["Delta", "77", "760"]}
+    },
+    {
+      "eval_case_id": "visual_partial_comparison_does_not_repeat_capture_question",
+      "envelope": {
+        "messages": [
+          {"id":"1","role":"user","content":"¿Tienes algo como esta batería?"},
+          {"id":"2","role":"assistant","content":"Solo pude leer 55 Ah. ¿Puedes acercar la etiqueta para ver la referencia?"},
+          {"id":"3","role":"user","content":"No puedo acercarla más. Compara solo esos 55 Ah con lo que tienes."}
+        ],
+        "tools":[{"name":"read_battery_catalog"},{"name":"search_vehicle_batteries"}], "uiState":{}
+      },
+      "expected":{"kind":"tool_call","toolName":"read_battery_catalog","arguments":{},"exactArguments":true}
+    },
+    {
+      "eval_case_id": "visual_presented_alternatives_receive_result_not_progress",
+      "envelope": {
+        "messages":[
+          {"id":"1","role":"user","content":"Solo compara capacidad y precio, no quiero verificar un vehículo."},
+          {"id":"2","role":"assistant","content":"Voy a consultar las opciones del catálogo."}
+        ],
+        "tools":[], "uiState":{},
+        "toolResult":{"toolName":"present_battery_alternatives","result":{
+          "batteries":[
+            {"id":"fixture-a","name":"Opción Alba","capacityAh":55,"price":{"amount":109.83}},
+            {"id":"fixture-b","name":"Opción Brisa","capacityAh":62,"price":{"amount":148.93}}
+          ],"resolvedVehicle":null
+        }}
+      },
+      "expected":{"kind":"message","requiredMessageFragments":["Alba","Brisa"],"forbiddenMessageFragments":["estoy analizando","estoy comparando","sigo revisando","voy a consultar","año de tu","modelo de tu"]}
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "eval_cases": [
+    {
+      "eval_case_id": "battery_missing_year",
+      "prompt": {"role":"user","parts":[{"text":"{\"messages\":[{\"id\":\"1\",\"role\":\"user\",\"content\":\"Necesito una batería para Chevrolet Sail\"}],\"tools\":[{\"name\":\"discover_catalog\",\"inputSchema\":{\"type\":\"object\",\"required\":[\"productType\",\"scope\"]}}],\"uiState\":{\"discoveries\":[]}}"}]},
+      "reference": {"response":{"role":"model","parts":[{"text":"{\"kind\":\"message\",\"requiredMessageFragments\":[\"año\",\"?\"],\"forbiddenMessageFragments\":[\"motor\",\"precio\",\"applicationId\"]}"}]}}
+    },
+    {
+      "eval_case_id": "battery_semantic_make_starts_discovery",
+      "prompt": {"role":"user","parts":[{"text":"{\"messages\":[{\"id\":\"1\",\"role\":\"user\",\"content\":\"Necesito batería para RAV4 2018\"}],\"tools\":[{\"name\":\"discover_catalog\",\"description\":\"Devuelve opciones canónicas con IDs exactos.\",\"inputSchema\":{\"type\":\"object\",\"properties\":{\"productType\":{\"type\":\"string\"},\"scope\":{\"type\":\"string\"},\"makeId\":{\"type\":\"string\"},\"year\":{\"type\":\"integer\"}},\"required\":[\"productType\",\"scope\"]}}],\"uiState\":{\"discoveries\":[]}}"}]},
+      "reference": {"response":{"role":"model","parts":[{"text":"{\"kind\":\"tool_call\",\"toolName\":\"discover_catalog\",\"arguments\":{\"productType\":\"battery\",\"scope\":\"vehicle_makes\"},\"exactArguments\":true}"}]}}
+    },
+    {
+      "eval_case_id": "battery_semantic_model_uses_discovered_make_id",
+      "prompt": {"role":"user","parts":[{"text":"{\"messages\":[{\"id\":\"1\",\"role\":\"user\",\"content\":\"Necesito batería para RAV4 2018\"}],\"tools\":[{\"name\":\"discover_catalog\",\"description\":\"vehicle_applications requiere makeId y year.\",\"inputSchema\":{\"type\":\"object\",\"properties\":{\"productType\":{\"type\":\"string\"},\"scope\":{\"type\":\"string\"},\"makeId\":{\"type\":\"string\"},\"year\":{\"type\":\"integer\"}},\"required\":[\"productType\",\"scope\"]}}],\"uiState\":{\"discoveries\":[{\"productType\":\"battery\",\"scope\":\"vehicle_makes\",\"context\":{},\"options\":[{\"id\":\"battery-make:toyota\",\"label\":\"TOYOTA\"}]}]},\"toolResult\":{\"toolName\":\"discover_catalog\",\"result\":{\"productType\":\"battery\",\"scope\":\"vehicle_makes\",\"context\":{},\"options\":[{\"id\":\"battery-make:toyota\",\"label\":\"TOYOTA\"}]}}}"}]},
+      "reference": {"response":{"role":"model","parts":[{"text":"{\"kind\":\"tool_call\",\"toolName\":\"discover_catalog\",\"arguments\":{\"productType\":\"battery\",\"scope\":\"vehicle_applications\",\"makeId\":\"battery-make:toyota\",\"year\":2018},\"exactArguments\":true}"}]}}
+    },
+    {
+      "eval_case_id": "battery_discovered_variants_require_clear_choice",
+      "prompt": {"role":"user","parts":[{"text":"{\"messages\":[{\"id\":\"1\",\"role\":\"user\",\"content\":\"Necesito batería para Pilot 2023\"}],\"tools\":[{\"name\":\"search_vehicle_batteries\",\"inputSchema\":{\"type\":\"object\",\"required\":[\"applicationId\",\"year\"]}}],\"uiState\":{\"discoveries\":[{\"productType\":\"battery\",\"scope\":\"vehicle_applications\",\"context\":{\"makeId\":\"battery-make:honda\",\"year\":2023},\"options\":[{\"id\":\"battery-app:pilot-ta\",\"label\":\"PILOT 3.5 TA\"},{\"id\":\"battery-app:pilot-4x4\",\"label\":\"PILOT 3.5 4X4 TA\"}]}]},\"toolResult\":{\"toolName\":\"discover_catalog\",\"result\":{\"productType\":\"battery\",\"scope\":\"vehicle_applications\",\"context\":{\"makeId\":\"battery-make:honda\",\"year\":2023},\"options\":[{\"id\":\"battery-app:pilot-ta\",\"label\":\"PILOT 3.5 TA\"},{\"id\":\"battery-app:pilot-4x4\",\"label\":\"PILOT 3.5 4X4 TA\"}]}}}"}]},
+      "reference": {"response":{"role":"model","parts":[{"text":"{\"kind\":\"message\",\"requiredMessageFragments\":[\"1.\",\"PILOT 3.5 TA\",\"2.\",\"PILOT 3.5 4X4 TA\"],\"requiredAnyMessageFragments\":[[\"cuál\",\"indica\",\"elige\",\"corresponde\"]],\"forbiddenMessageFragments\":[\"compatible\",\"precio\",\"applicationId\"]}"}]}}
+    },
+    {
+      "eval_case_id": "battery_ordinal_uses_exact_discovered_application",
+      "prompt": {"role":"user","parts":[{"text":"{\"messages\":[{\"id\":\"1\",\"role\":\"assistant\",\"content\":\"¿Cuál corresponde?\\n1. PILOT 3.5 TA\\n2. PILOT 3.5 4X4 TA\"},{\"id\":\"2\",\"role\":\"user\",\"content\":\"la segunda\"}],\"tools\":[{\"name\":\"search_vehicle_batteries\",\"inputSchema\":{\"type\":\"object\",\"properties\":{\"applicationId\":{\"type\":\"string\"},\"year\":{\"type\":\"integer\"}},\"required\":[\"applicationId\",\"year\"]}}],\"uiState\":{\"discoveries\":[{\"productType\":\"battery\",\"scope\":\"vehicle_applications\",\"context\":{\"makeId\":\"battery-make:honda\",\"year\":2023},\"options\":[{\"id\":\"battery-app:pilot-ta\",\"label\":\"PILOT 3.5 TA\"},{\"id\":\"battery-app:pilot-4x4\",\"label\":\"PILOT 3.5 4X4 TA\"}]}]}}"}]},
+      "reference": {"response":{"role":"model","parts":[{"text":"{\"kind\":\"tool_call\",\"toolName\":\"search_vehicle_batteries\",\"arguments\":{\"applicationId\":\"battery-app:pilot-4x4\",\"year\":2023},\"exactArguments\":true}"}]}}
+    },
+    {
+      "eval_case_id": "battery_reuses_current_discovery",
+      "prompt": {"role":"user","parts":[{"text":"{\"messages\":[{\"id\":\"1\",\"role\":\"user\",\"content\":\"Busca batería para mi Chevrolet Sail 2020\"}],\"tools\":[{\"name\":\"discover_catalog\",\"inputSchema\":{\"type\":\"object\",\"required\":[\"productType\",\"scope\"]}},{\"name\":\"search_vehicle_batteries\",\"inputSchema\":{\"type\":\"object\",\"properties\":{\"applicationId\":{\"type\":\"string\"},\"year\":{\"type\":\"integer\"}},\"required\":[\"applicationId\",\"year\"]}}],\"uiState\":{\"discoveries\":[{\"productType\":\"battery\",\"scope\":\"vehicle_applications\",\"context\":{\"makeId\":\"battery-make:chevrolet\",\"year\":2020},\"options\":[{\"id\":\"battery-app:sail-2020\",\"label\":\"SAIL 1.5\"}]}]}}"}]},
+      "reference": {"response":{"role":"model","parts":[{"text":"{\"kind\":\"tool_call\",\"toolName\":\"search_vehicle_batteries\",\"arguments\":{\"applicationId\":\"battery-app:sail-2020\",\"year\":2020},\"exactArguments\":true}"}]}}
+    },
+    {
+      "eval_case_id": "battery_selection_uses_visible_location_id",
+      "prompt": {"role":"user","parts":[{"text":"{\"messages\":[{\"id\":\"1\",\"role\":\"assistant\",\"content\":\"¿Deseas seleccionar High Power 48 y dónde retirarla?\"},{\"id\":\"2\",\"role\":\"user\",\"content\":\"Sí, en Santo Domingo\"}],\"tools\":[{\"name\":\"select_battery\",\"inputSchema\":{\"type\":\"object\",\"properties\":{\"batteryId\":{\"type\":\"string\"},\"locationId\":{\"type\":\"string\"}},\"required\":[\"batteryId\"]}}],\"uiState\":{\"batteries\":[{\"id\":\"be-48-high-power\",\"name\":\"High Power 48\",\"locations\":[{\"id\":\"battery-location:Santo%20Domingo\",\"location\":\"Santo Domingo\",\"inventory\":18}]}]}}"}]},
+      "reference": {"response":{"role":"model","parts":[{"text":"{\"kind\":\"tool_call\",\"toolName\":\"select_battery\",\"arguments\":{\"batteryId\":\"be-48-high-power\",\"locationId\":\"battery-location:Santo%20Domingo\"},\"exactArguments\":true}"}]}}
+    },
+    {
+      "eval_case_id": "battery_quote_requires_location",
+      "prompt": {"role":"user","parts":[{"text":"{\"messages\":[{\"id\":\"1\",\"role\":\"assistant\",\"content\":\"Seleccioné Mega Power N40. ¿Cuántas unidades deseas?\"},{\"id\":\"2\",\"role\":\"user\",\"content\":\"Quiero 2\"}],\"tools\":[{\"name\":\"prepare_battery_quote\",\"inputSchema\":{\"type\":\"object\",\"required\":[\"batteryId\",\"quantity\",\"locationId\"]}}],\"uiState\":{\"batteries\":[{\"id\":\"be-n40-mega-power\",\"name\":\"Mega Power N40\",\"locations\":[{\"id\":\"battery-location:Quito%20Norte\",\"location\":\"Quito Norte\",\"inventory\":8},{\"id\":\"battery-location:A%20domicilio\",\"location\":\"A domicilio\",\"inventory\":12}]}],\"selectedBatteryId\":\"be-n40-mega-power\"}}"}]},
+      "reference": {"response":{"role":"model","parts":[{"text":"{\"kind\":\"message\",\"requiredMessageFragments\":[\"Quito Norte\",\"A domicilio\",\"?\"],\"forbiddenMessageFragments\":[\"por confirmar\",\"cotización preparada\",\"locationId\"]}"}]}}
+    },
+    {
+      "eval_case_id": "battery_quote_uses_visible_location_id",
+      "prompt": {"role":"user","parts":[{"text":"{\"messages\":[{\"id\":\"1\",\"role\":\"assistant\",\"content\":\"¿Dónde deseas retirar o recibir las 2 baterías Mega Power N40?\"},{\"id\":\"2\",\"role\":\"user\",\"content\":\"Quito Norte\"}],\"tools\":[{\"name\":\"prepare_battery_quote\",\"inputSchema\":{\"type\":\"object\",\"properties\":{\"batteryId\":{\"type\":\"string\"},\"quantity\":{\"type\":\"integer\"},\"locationId\":{\"type\":\"string\"}},\"required\":[\"batteryId\",\"quantity\",\"locationId\"]}}],\"uiState\":{\"batteries\":[{\"id\":\"be-n40-mega-power\",\"name\":\"Mega Power N40\",\"locations\":[{\"id\":\"battery-location:Quito%20Norte\",\"location\":\"Quito Norte\",\"inventory\":8}]}],\"selectedBatteryId\":\"be-n40-mega-power\"}}"}]},
+      "reference": {"response":{"role":"model","parts":[{"text":"{\"kind\":\"tool_call\",\"toolName\":\"prepare_battery_quote\",\"arguments\":{\"batteryId\":\"be-n40-mega-power\",\"quantity\":2,\"locationId\":\"battery-location:Quito%20Norte\"},\"exactArguments\":true}"}]}}
+    },
+    {
+      "eval_case_id": "battery_exact_product_is_not_silently_replaced",
+      "prompt": {"role":"user","parts":[{"text":"{\"messages\":[{\"id\":\"1\",\"role\":\"user\",\"content\":\"Quiero la batería Mega Power NS40\"}],\"tools\":[{\"name\":\"select_battery\",\"inputSchema\":{\"type\":\"object\",\"required\":[\"batteryId\"]}}],\"uiState\":{\"batteries\":[{\"id\":\"be-24-full-equipo\",\"name\":\"Full Equipo 24\"},{\"id\":\"be-24-mega-power\",\"name\":\"Mega Power 24\"}]},\"toolResult\":{\"toolName\":\"search_vehicle_batteries\",\"result\":{\"batteries\":[{\"id\":\"be-24-full-equipo\",\"name\":\"Full Equipo 24\"},{\"id\":\"be-24-mega-power\",\"name\":\"Mega Power 24\"}]}}}"}]},
+      "reference": {"response":{"role":"model","parts":[{"text":"{\"kind\":\"message\",\"requiredMessageFragments\":[\"Mega Power NS40\",\"Mega Power 24\"],\"requiredAnyMessageFragments\":[[\"no aparece\",\"no está\",\"no figura\",\"no se encuentra\"]],\"forbiddenMessageFragments\":[\"he seleccionado\",\"ya seleccioné\"]}"}]}}
+    }
+  ]
+}

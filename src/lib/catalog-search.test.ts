@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { createQuote, getTireById } from "@/lib/catalog-search";
+import { createQuote, formatUsd, getTireById } from "@/lib/catalog-search";
 import type { Tire } from "@/types/catalog";
 
 const tire: Tire = {
@@ -8,6 +8,7 @@ const tire: Tire = {
   code: "sku-1",
   name: "R 225/65R17 PRUEBA",
   brand: "Prueba",
+  brandId: "tire-brand:Prueba",
   category: "02",
   categoryLabel: "Camionetas y SUV",
   width: "225",
@@ -29,6 +30,8 @@ const tire: Tire = {
     unitKnownChargesTotal: 116.15,
   },
   warehouses: [{
+    cityId: "UIO",
+    warehouseId: "UIO:32",
     cityCode: "UIO",
     warehouseCode: "32",
     warehouseName: "EL INCA",
@@ -48,6 +51,11 @@ const tire: Tire = {
 };
 
 describe("catálogo de llantas", () => {
+  it("presenta precios directamente sin inventar importes ausentes", () => {
+    expect(formatUsd(199.53)).toBe("$199.53");
+    expect(formatUsd(null)).toBe("Consultar precio");
+  });
+
   it("busca únicamente dentro de los resultados actuales", () => {
     expect(getTireById([tire], "sku-1")).toEqual(tire);
     expect(getTireById([tire], "inexistente")).toBeNull();
@@ -72,10 +80,10 @@ describe("catálogo de llantas", () => {
   });
 
   it("conserva y valida el local solicitado", () => {
-    expect(createQuote([tire], "sku-1", 4, "El Inca").warehouse).toEqual(
+    expect(createQuote([tire], "sku-1", 4, "UIO:32").warehouse).toEqual(
       tire.warehouses[0],
     );
-    expect(() => createQuote([tire], "sku-1", 5, "El Inca")).toThrow(
+    expect(() => createQuote([tire], "sku-1", 5, "UIO:32")).toThrow(
       "Stock insuficiente",
     );
   });

@@ -32,10 +32,12 @@ export class GeminiLiveAudio {
     onCapture,
     onLevel,
     onPlayback,
+    onPresentation,
   }: {
     onCapture: (samples: ArrayBuffer) => void;
     onLevel: (level: number) => void;
     onPlayback: (active: boolean) => void;
+    onPresentation?: (marker: string) => void;
   }): Promise<void> {
     if (this.context) return;
     const stream = await navigator.mediaDevices.getUserMedia({
@@ -59,7 +61,8 @@ export class GeminiLiveAudio {
         outputChannelCount: [1],
       });
       node.port.onmessage = (event: MessageEvent<{
-        type: "capture" | "level" | "playback";
+        type: "capture" | "level" | "playback" | "presentation";
+        marker?: string;
         samples?: ArrayBuffer;
         value?: number;
         active?: boolean;
@@ -70,6 +73,8 @@ export class GeminiLiveAudio {
           onLevel(event.data.value ?? 0);
         } else if (event.data.type === "playback") {
           onPlayback(Boolean(event.data.active));
+        } else if (event.data.type === "presentation" && event.data.marker) {
+          onPresentation?.(event.data.marker);
         }
       };
       const source = context.createMediaStreamSource(stream);
@@ -89,10 +94,10 @@ export class GeminiLiveAudio {
     }
   }
 
-  enqueuePlayback(base64Pcm: string): void {
+  enqueuePlayback(base64Pcm: string, marker?: string): void {
     if (!this.node) return;
     const samples = base64ToPcm(base64Pcm);
-    this.node.port.postMessage({ type: "playback", samples }, [samples]);
+    this.node.port.postMessage({ type: "playback", samples, marker }, [samples]);
   }
 
   clearPlayback(): void {

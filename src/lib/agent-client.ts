@@ -1,4 +1,4 @@
-import type { AgentAction, AgentRequest, ChatMessage } from "@/types/agent";
+import type { AgentAction, AgentEvent, AgentRequest, ChatMessage } from "@/types/agent";
 import type { CatalogState } from "@/types/catalog";
 
 const MAX_TOOL_STEPS = 6;
@@ -51,11 +51,13 @@ export async function runAgentTurn({
   messages,
   getUiState,
   signal,
+  event,
 }: {
   sessionId: string;
   messages: ChatMessage[];
   getUiState: () => CatalogState;
   signal?: AbortSignal;
+  event?: AgentEvent;
 }): Promise<string> {
   const modelContext = document.modelContext;
   if (!modelContext) {
@@ -76,7 +78,7 @@ export async function runAgentTurn({
       }),
     );
     const action = await requestAgent(
-      { sessionId, messages, tools, uiState: getUiState(), toolResult },
+      { sessionId, messages, tools, uiState: getUiState(), toolResult, event },
       signal,
     );
     if (action.kind === "message") {

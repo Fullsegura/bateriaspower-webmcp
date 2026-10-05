@@ -36,3 +36,45 @@ def test_agents_delegate_handoff_decisions_to_the_model() -> None:
         assert "request_advisor_handoff" in instruction
         assert "puedes sugerirla" in instruction
         assert "criterio" in instruction
+
+
+def test_agents_guide_nontechnical_users_in_plain_language() -> None:
+    for instruction in (TURN_AGENT_INSTRUCTION, LIVE_AGENT_INSTRUCTION):
+        assert "no conoce medidas" in instruction
+        assert "una sola pregunta clara" in instruction
+        assert "preguntas generales" in instruction
+        assert "No selecciones un producto solo porque lo recomendaste" in instruction
+
+
+def test_agents_require_discovery_and_exact_ids() -> None:
+    for instruction in (TURN_AGENT_INSTRUCTION, LIVE_AGENT_INSTRUCTION):
+        assert "discover_catalog" in instruction
+        assert "uiState.discoveries" in instruction
+        assert "applicationId" in instruction
+        assert "Nunca inventes IDs" in instruction
+        assert "Compara semánticamente" in instruction
+
+
+def test_agents_use_direct_commercial_language_with_tool_evidence() -> None:
+    for instruction in (TURN_AGENT_INSTRUCTION, LIVE_AGENT_INSTRUCTION):
+        assert "sin calificativos ni" in instruction
+        assert "advertencias rutinarias" in instruction
+        assert "únicamente cuando su herramienta lo acredite" in instruction
+        assert "cotización informativa" not in instruction.lower()
+        assert "no constituye una reserva" not in instruction.lower()
+
+
+def test_agents_stage_payment_without_collecting_card_data() -> None:
+    for instruction in (TURN_AGENT_INSTRUCTION, LIVE_AGENT_INSTRUCTION):
+        assert "start_card_checkout" in instruction
+        assert "get_payment_status" in instruction
+        assert "Nunca solicites número de tarjeta" in instruction
+        assert "No inventes coordenadas" in instruction
+        assert "sin calificativos" in instruction
+
+
+def test_agents_verify_payment_events_before_announcing_success() -> None:
+    for instruction in (TURN_AGENT_INSTRUCTION, LIVE_AGENT_INSTRUCTION):
+        assert "event.type=payment_status_changed" in instruction
+        assert "consulta get_payment_status con ese ID" in instruction
+        assert "no anuncies un pago realizado" in instruction

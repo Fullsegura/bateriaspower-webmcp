@@ -14,33 +14,21 @@ function roundMoney(value: number): number {
   return Math.round((value + Number.EPSILON) * 100) / 100;
 }
 
-function normalizeWarehouse(value: string): string {
-  return value
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLocaleLowerCase("es")
-    .replace(/[^a-z0-9]/g, "");
-}
-
 export function createQuote(
   tires: Tire[],
   tireId: string,
   quantity: number,
-  warehouseQuery?: string,
+  warehouseId?: string,
 ): Quote {
   if (!Number.isInteger(quantity) || quantity < 1 || quantity > 20) {
     throw new Error("La cantidad debe ser un entero entre 1 y 20.");
   }
   const tire = requireTire(tires, tireId);
-  const requestedWarehouse = normalizeWarehouse(warehouseQuery ?? "");
-  const warehouse = requestedWarehouse
-    ? tire.warehouses.find((item) =>
-        normalizeWarehouse(item.warehouseCode) === requestedWarehouse ||
-        normalizeWarehouse(item.warehouseName) === requestedWarehouse
-      ) ?? null
+  const warehouse = warehouseId
+    ? tire.warehouses.find((item) => item.warehouseId === warehouseId) ?? null
     : null;
-  if (requestedWarehouse && !warehouse) {
-    throw new Error(`La bodega ${warehouseQuery} no está en el stock visible de esta llanta.`);
+  if (warehouseId && !warehouse) {
+    throw new Error(`La bodega ${warehouseId} no está en el stock visible de esta llanta.`);
   }
 
   const availableUnits = warehouse
@@ -48,7 +36,7 @@ export function createQuote(
     : tire.warehouses.reduce((sum, item) => sum + item.quantity, 0);
   if (availableUnits < quantity) {
     const scope = warehouse ? warehouse.warehouseName : "las bodegas visibles";
-    throw new Error(`Stock insuficiente en ${scope}: ${availableUnits} unidades reportadas.`);
+    throw new Error(`Stock insuficiente en ${scope}: ${availableUnits} unidades disponibles.`);
   }
 
   const unitWithoutVat = tire.price.unitWithoutVat;
@@ -90,7 +78,7 @@ export function createQuote(
 }
 
 export function formatUsd(value: number | null): string {
-  if (value === null) return "Precio por confirmar";
+  if (value === null) return "Consultar precio";
   return new Intl.NumberFormat("en-US", {
     style: "currency",
     currency: "USD",

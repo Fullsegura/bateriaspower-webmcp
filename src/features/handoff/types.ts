@@ -1,4 +1,5 @@
 import type { ChatMessage } from "@/types/agent";
+import type { ProductKind } from "@/types/catalog";
 
 export type HandoffStatus =
   | "waiting"
@@ -7,6 +8,7 @@ export type HandoffStatus =
   | "ended";
 
 export interface HandoffTireContext {
+  kind?: ProductKind;
   id: string;
   name: string;
   image: string | null;
@@ -18,6 +20,7 @@ export interface HandoffTireContext {
 export interface HandoffCommerceContext {
   vehicle: string | null;
   tire: HandoffTireContext | null;
+  delivery?: import("@/types/payment").DeliveryLocation;
 }
 
 export interface CreateHandoffInput {
