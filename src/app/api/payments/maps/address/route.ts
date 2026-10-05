@@ -1,12 +1,12 @@
 import { requireCatalogSession } from "@/lib/catalog-session";
 import { parseCoordinates, reverseGeocodeAddress } from "@/lib/payments/delivery-address";
+import { isSameOriginRequest } from "@/lib/payments/request-origin";
 
 export const runtime = "nodejs";
 
 export async function POST(request: Request) {
   const headers = { "Cache-Control": "no-store" };
-  const origin = request.headers.get("origin");
-  if (origin && origin !== new URL(request.url).origin) return Response.json({ detail: "Origen no permitido." }, { status: 403, headers });
+  if (!isSameOriginRequest(request)) return Response.json({ detail: "Origen no permitido." }, { status: 403, headers });
   try { requireCatalogSession(request); }
   catch { return Response.json({ detail: "La sesión del catálogo no existe o expiró." }, { status: 403, headers }); }
   let point;
