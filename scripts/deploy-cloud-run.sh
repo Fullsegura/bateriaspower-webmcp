@@ -19,6 +19,7 @@ required_secrets=(
   bateriaspower-livekit-api-secret
   bateriaspower-advisor-access-token
   bateriaspower-live-session-secret
+  bateriaspower-origin-trial
 )
 
 for secret in "${required_secrets[@]}"; do
@@ -59,7 +60,7 @@ gcloud run deploy "${SERVICE_NAME}" \
   --depends-on=adk \
   --startup-probe=initialDelaySeconds=0,timeoutSeconds=2,periodSeconds=5,failureThreshold=12,tcpSocket.port=3000 \
   --set-env-vars=ADK_AGENT_URL=http://127.0.0.1:8000/orchestrate,WEBMCP_TENANT_ID=baterias-power-demo,NOMINATIM_PUBLIC_DEMO_ENABLED="${NOMINATIM_PUBLIC_DEMO_ENABLED:-false}" \
-  --set-secrets=LIVEKIT_URL=bateriaspower-livekit-url:latest,LIVEKIT_API_KEY=bateriaspower-livekit-api-key:latest,LIVEKIT_API_SECRET=bateriaspower-livekit-api-secret:latest,ADVISOR_ACCESS_TOKEN=bateriaspower-advisor-access-token:latest,LIVE_SESSION_SECRET=bateriaspower-live-session-secret:latest \
+  --set-secrets=LIVEKIT_URL=bateriaspower-livekit-url:latest,LIVEKIT_API_KEY=bateriaspower-livekit-api-key:latest,LIVEKIT_API_SECRET=bateriaspower-livekit-api-secret:latest,ADVISOR_ACCESS_TOKEN=bateriaspower-advisor-access-token:latest,LIVE_SESSION_SECRET=bateriaspower-live-session-secret:latest,ORIGIN_TRIAL=bateriaspower-origin-trial:latest \
   --container=adk \
   --image="${ADK_IMAGE}" \
   --cpu=1 \
