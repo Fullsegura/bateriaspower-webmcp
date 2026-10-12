@@ -18,10 +18,6 @@ export function normalizeInputSchema(inputSchema: unknown): object | undefined {
   return schema;
 }
 
-export function serializeToolArguments(input: Record<string, unknown>): string {
-  return JSON.stringify(input);
-}
-
 export function serializeToolFailure(error: unknown): { ok: false; error: string } {
   return {
     ok: false,
@@ -93,7 +89,7 @@ export async function runAgentTurn({
     try {
       result = await modelContext.executeTool(
         tool,
-        serializeToolArguments(action.arguments),
+        action.arguments,
         { signal },
       );
     } catch (error) {

@@ -3,7 +3,6 @@ import { createInitialCatalogState } from "@/features/catalog/catalog-state";
 
 import {
   normalizeInputSchema,
-  serializeToolArguments,
   serializeToolFailure,
   runAgentTurn,
 } from "@/lib/agent-client";
@@ -25,7 +24,7 @@ describe("cliente del agente", () => {
     vi.stubGlobal("fetch", fetch);
     const result = await runAgentTurn({ sessionId: "session", messages, getUiState: createInitialCatalogState, event });
     expect(result).toBe("El agente confirmó el pago.");
-    expect(executeTool).toHaveBeenCalledWith(tool, JSON.stringify({ transactionId: event.transactionId }), { signal: undefined });
+    expect(executeTool).toHaveBeenCalledWith(tool, { transactionId: event.transactionId }, { signal: undefined });
     const requests = fetch.mock.calls.map(([, options]) => JSON.parse(options.body));
     expect(requests).toHaveLength(2);
     for (const request of requests) {
@@ -56,11 +55,6 @@ describe("cliente del agente", () => {
     expect(() => normalizeInputSchema("[]")).toThrow(
       "WebMCP devolvió un inputSchema no válido.",
     );
-  });
-
-  it("serializa los argumentos antes de ejecutar una herramienta en Chrome", () => {
-    expect(serializeToolArguments({ mode: "measure", width: "225", height: "65", rim: "17" }))
-      .toBe('{"mode":"measure","width":"225","height":"65","rim":"17"}');
   });
 
   it("convierte un fallo de herramienta en un resultado que el agente puede explicar", () => {

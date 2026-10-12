@@ -8,7 +8,7 @@ declare namespace WebMCP {
   interface ModelContext {
     executeTool(
       tool: RegisteredTool,
-      input: string,
+      input: Record<string, unknown>,
       options?: ModelContextExecuteToolOptions,
     ): Promise<unknown>;
   }

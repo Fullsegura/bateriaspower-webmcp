@@ -15,7 +15,6 @@ import {
 } from "@/features/voice/gemini-live-camera";
 import {
   normalizeInputSchema,
-  serializeToolArguments,
   serializeToolFailure,
 } from "@/lib/agent-client";
 
@@ -147,7 +146,7 @@ export function useGeminiLiveAssistant({
       if (!tool) throw new Error(`La herramienta WebMCP '${message.name}' no está disponible.`);
       const result = await modelContext.executeTool(
         tool,
-        serializeToolArguments(message.args),
+        message.args,
         { signal: controller.signal },
       );
       const finishedAt = Date.now();
