@@ -59,8 +59,8 @@ gcloud run deploy "${SERVICE_NAME}" \
   --memory=1Gi \
   --depends-on=adk \
   --startup-probe=initialDelaySeconds=0,timeoutSeconds=2,periodSeconds=5,failureThreshold=12,tcpSocket.port=3000 \
-  --set-env-vars=ADK_AGENT_URL=http://127.0.0.1:8000/orchestrate,WEBMCP_TENANT_ID=baterias-power-demo,NOMINATIM_PUBLIC_DEMO_ENABLED="${NOMINATIM_PUBLIC_DEMO_ENABLED:-true}",PAYMENTS_STORAGE_DIR=/tmp/powerauto-payments \
-  --set-secrets=LIVEKIT_URL=bateriaspower-livekit-url:latest,LIVEKIT_API_KEY=bateriaspower-livekit-api-key:latest,LIVEKIT_API_SECRET=bateriaspower-livekit-api-secret:latest,ADVISOR_ACCESS_TOKEN=bateriaspower-advisor-access-token:latest,LIVE_SESSION_SECRET=bateriaspower-live-session-secret:latest,ORIGIN_TRIAL=bateriaspower-origin-trial:latest \
+  --set-env-vars=ADK_AGENT_URL=http://127.0.0.1:8000/orchestrate,WEBMCP_TENANT_ID=baterias-power-demo,NOMINATIM_PUBLIC_DEMO_ENABLED="${NOMINATIM_PUBLIC_DEMO_ENABLED:-true}",PAYMENTS_STORAGE_DIR=/tmp/powerauto-payments,PAYMENT_MODE=pagoplux_sandbox,PAGOPLUX_ENVIRONMENT=sandbox \
+  --set-secrets=LIVEKIT_URL=bateriaspower-livekit-url:latest,LIVEKIT_API_KEY=bateriaspower-livekit-api-key:latest,LIVEKIT_API_SECRET=bateriaspower-livekit-api-secret:latest,ADVISOR_ACCESS_TOKEN=bateriaspower-advisor-access-token:latest,LIVE_SESSION_SECRET=bateriaspower-live-session-secret:latest,ORIGIN_TRIAL=bateriaspower-origin-trial:latest,PAGOPLUX_MERCHANT_EMAIL=bateriaspower-pagoplux-merchant-email:latest,PAGOPLUX_WEBHOOK_BASIC_TOKEN=bateriaspower-pagoplux-webhook-basic-token:latest \
   --container=adk \
   --image="${ADK_IMAGE}" \
   --cpu=1 \
